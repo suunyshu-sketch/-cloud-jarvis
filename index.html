@@ -190,6 +190,45 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
 .private-indicator{display:none;align-items:center;gap:5px;font-size:.62rem;color:var(--orange);letter-spacing:.08em}
 .private-indicator.active{display:flex}
 
+
+/* ── Music Player ── */
+.music-panel{position:fixed;bottom:0;left:0;right:0;z-index:180;background:rgba(0,8,20,.97);border-top:1px solid var(--border);transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(14px);max-height:72vh;display:flex;flex-direction:column}
+.music-panel.open{transform:none}
+.music-head{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;gap:10px;flex-wrap:wrap}
+.music-title{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--cyan);letter-spacing:.1em;white-space:nowrap}
+.music-tabs{display:flex;gap:5px;flex-wrap:wrap}
+.mtab{background:none;border:1px solid var(--border);border-radius:6px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.62rem;padding:4px 9px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.mtab.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
+.music-body{flex:1;overflow-y:auto;padding:12px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-direction:column;gap:10px}
+.music-search-row{display:flex;gap:8px}
+.music-input{flex:1;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.82rem;padding:9px 12px;outline:none}
+.music-input:focus{border-color:var(--cyan)}
+.music-btn{background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:7px;color:var(--cyan);font-family:'Orbitron',monospace;font-size:.65rem;padding:0 13px;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.06em}
+.music-btn:hover{background:rgba(0,212,255,.2)}
+.song-list{display:flex;flex-direction:column;gap:6px}
+.song-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(0,30,60,.55);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .18s}
+.song-item:hover{border-color:var(--cyan);background:rgba(0,212,255,.07)}
+.song-thumb{width:42px;height:42px;border-radius:6px;object-fit:cover;flex-shrink:0;background:rgba(0,30,60,.8);border:1px solid var(--border)}
+.song-info{flex:1;min-width:0}
+.song-name{font-size:.78rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-artist{font-size:.65rem;color:var(--dim);margin-top:2px}
+.song-actions{display:flex;gap:6px;flex-shrink:0}
+.sab{background:none;border:1px solid var(--border);border-radius:5px;color:var(--dim);font-size:.65rem;padding:3px 7px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sab:hover{border-color:var(--cyan);color:var(--cyan)}
+.sab.play-yt{border-color:rgba(255,0,0,.3);color:#ff6666}
+.sab.play-yt:hover{border-color:#ff4444;color:#ff4444;background:rgba(255,0,0,.08)}
+.now-playing{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;display:none}
+.now-playing.active{display:block}
+.np-title{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--cyan);letter-spacing:.1em;margin-bottom:8px}
+.np-name{font-size:.85rem;color:var(--text);margin-bottom:10px}
+.np-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.npc{background:rgba(0,30,60,.7);border:1px solid var(--border);border-radius:7px;color:var(--cyan);font-size:.85rem;padding:6px 14px;cursor:pointer;transition:all .18s}
+.npc:hover{border-color:var(--cyan);background:rgba(0,212,255,.1)}
+.audio-player{width:100%;margin-top:8px;accent-color:var(--cyan)}
+.music-quick{display:flex;flex-wrap:wrap;gap:6px}
+.mqbtn{background:rgba(0,30,60,.6);border:1px solid rgba(0,212,255,.13);border-radius:18px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.67rem;padding:4px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.mqbtn:hover{border-color:var(--cyan);color:var(--cyan2);background:rgba(0,212,255,.07)}
+
 @media(max-width:480px){.logo{font-size:.95rem}.status-row .hide-sm{display:none}.chat-window{min-height:230px;max-height:310px}.quick-cmds{display:none}.side-panel{width:100%}}
 </style>
 </head>
@@ -265,6 +304,7 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
     <button class="hbtn" onclick="openPanel('notePanel')">📝 NOTES</button>
     <button class="hbtn" onclick="openPanel('reminderPanel')">⏰ REMINDERS</button>
     <button class="hbtn" id="adminBtn" style="display:none;border-color:rgba(255,215,0,.3);color:var(--yellow)" onclick="openAdmin()">👑 ADMIN</button>
+    <button class="hbtn" onclick="openMusic()" id="musicBtn">🎵 MUSIC</button>
     <button class="hbtn" onclick="togglePrivate()" id="privateBtn">🔒 PRIVATE</button>
     <button class="hbtn" onclick="toggleTheme()">🌓 THEME</button>
     <button class="hbtn" onclick="openVE()" id="veBtn"><div class="dot"></div><span id="veLabel">VOICE ENGINE</span></button>
@@ -323,6 +363,7 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
     <button class="qbtn" onclick="sq('What is Rahu Kalam today?')">🕉 Rahu Kalam</button>
     <button class="qbtn" onclick="sq('Show my todo list')">📋 My List</button>
     <button class="qbtn" onclick="sq('What upcoming birthdays are there?')">🎂 Birthdays</button>
+    <button class="qbtn" onclick="openMusic()">🎵 Play Music</button>
   </div>
 
   <div class="input-area">
@@ -845,6 +886,239 @@ async function clearMemory(){
   addMessage('jarvis','Memory cleared. Reloading...');
   setTimeout(()=>location.reload(),2000);
 }
+
+// ══════════════════════════════════════════════════════════
+//  MUSIC SYSTEM
+// ══════════════════════════════════════════════════════════
+let currentTab = 'search';
+let playlist = [];
+let currentTrackIdx = 0;
+
+function openMusic(){
+  document.getElementById('musicPanel').classList.add('open');
+}
+function closeMusic(){
+  document.getElementById('musicPanel').classList.remove('open');
+}
+function switchMusicTab(tab){
+  currentTab = tab;
+  ['search','internal','youtube'].forEach(t=>{
+    document.getElementById('music_'+t+'_tab').style.display = t===tab?'flex':'none';
+    document.getElementById('music_'+t+'_tab').style.flexDirection = 'column';
+    document.getElementById('tab_'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='search') document.getElementById('music_'+tab+'_tab').style.display='block';
+}
+
+// ── YouTube ──────────────────────────────────────────────
+function openYoutubeQuery(query){
+  const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+  window.open(url, '_blank');
+  addMessage('jarvis', 'Opening YouTube for: ' + query + ', Sir. 🎵');
+  speak('Opening YouTube for ' + query);
+}
+function openYoutube(){
+  const q = document.getElementById('ytSearchInput').value.trim();
+  if(!q) return;
+  openYoutubeQuery(q);
+  document.getElementById('ytSearchInput').value = '';
+}
+
+// ── iTunes Search API (free, no key needed) ──────────────
+async function searchSongs(){
+  const q = document.getElementById('musicSearchInput').value.trim();
+  if(!q) return;
+  await doSongSearch(q, 'songResults');
+}
+async function searchInternal(){
+  const q = document.getElementById('internalSearchInput').value.trim();
+  if(!q) return;
+  await doSongSearch(q, 'internalResults', true);
+}
+async function quickSearch(q){
+  document.getElementById('musicSearchInput').value = q;
+  switchMusicTab('search');
+  await doSongSearch(q, 'songResults');
+}
+
+async function doSongSearch(query, resultDivId, internalMode=false){
+  const div = document.getElementById(resultDivId);
+  div.innerHTML = '<div style="color:var(--dim);font-size:.75rem;padding:10px">Searching...</div>';
+  try {
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10&country=IN`);
+    const data = await res.json();
+    playlist = data.results || [];
+    if(!playlist.length){
+      div.innerHTML = '<div style="color:var(--dim);font-size:.75rem;padding:10px">No results. Try different keywords.</div>';
+      return;
+    }
+    div.innerHTML = playlist.map((s,i) => `
+      <div class="song-item" onclick="selectSong(${i})">
+        <img class="song-thumb" src="${s.artworkUrl60||''}" alt="" onerror="this.style.display='none'"/>
+        <div class="song-info">
+          <div class="song-name">${escHtml(s.trackName||'Unknown')}</div>
+          <div class="song-artist">${escHtml(s.artistName||'')} · ${escHtml(s.collectionName||'')}</div>
+        </div>
+        <div class="song-actions">
+          ${s.previewUrl ? `<button class="sab" onclick="event.stopPropagation();playPreview(${i})">▶ Preview</button>` : ''}
+          <button class="sab play-yt" onclick="event.stopPropagation();openYoutubeQuery('${escAttr(s.trackName)} ${escAttr(s.artistName)}')">📺 YT</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    div.innerHTML = '<div style="color:var(--dim);font-size:.75rem;padding:10px">Search failed. Check connection.</div>';
+  }
+}
+
+function selectSong(idx){
+  currentTrackIdx = idx;
+  const s = playlist[idx];
+  if(!s) return;
+  // Switch to internal tab and play preview if available
+  if(s.previewUrl){
+    playPreview(idx);
+    switchMusicTab('internal');
+  } else {
+    openYoutubeQuery(s.trackName + ' ' + s.artistName);
+  }
+  addMessage('jarvis', `${s.trackName} by ${s.artistName} — ${s.previewUrl ? 'playing 30-second preview, Sir.' : 'opening YouTube, Sir.'}`);
+}
+
+function playPreview(idx){
+  const s = playlist[idx];
+  if(!s || !s.previewUrl) return;
+  const audio = document.getElementById('audioPlayer');
+  audio.src = s.previewUrl;
+  audio.play();
+  document.getElementById('npSongName').textContent = s.trackName + ' — ' + s.artistName + ' (30s Preview)';
+  document.getElementById('reactor').classList.add('talking');
+  audio.onended = () => document.getElementById('reactor').classList.remove('talking');
+  switchMusicTab('internal');
+}
+
+function audioAction(action){
+  const audio = document.getElementById('audioPlayer');
+  if(action==='play')  audio.play();
+  if(action==='pause') audio.pause();
+  if(action==='stop')  { audio.pause(); audio.currentTime=0; }
+  if(action==='next')  { currentTrackIdx = Math.min(currentTrackIdx+1, playlist.length-1); playPreview(currentTrackIdx); }
+  if(action==='prev')  { currentTrackIdx = Math.max(currentTrackIdx-1, 0); playPreview(currentTrackIdx); }
+}
+
+function escAttr(s){ return (s||'').replace(/'/g,"\'").replace(/"/g,'&quot;'); }
+
+// ── Voice command: "play [song]" → auto open music ───────
+const origSendMessage = sendMessage;
+function interceptMusicCommand(text){
+  const lower = text.toLowerCase();
+  const playMatch = lower.match(/^(?:play|chalao|padu|వేయి|వినిపించు)\s+(.+)/);
+  if(playMatch){
+    const query = playMatch[1].trim();
+    openMusic();
+    switchMusicTab('youtube');
+    openYoutubeQuery(query);
+    return true;
+  }
+  return false;
+}
+
+// Hook into sendMessage to intercept music commands
+const _origSend = sendMessage;
+window.sendMessage = function(){
+  const input = document.getElementById('textInput');
+  const text = input.value.trim();
+  if(text && interceptMusicCommand(text)){
+    input.value = '';
+    return;
+  }
+  _origSend();
+};
+document.getElementById('sendBtn').onclick = window.sendMessage;
+document.getElementById('textInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); window.sendMessage(); }
+});
+
 </script>
+
+<!-- Music Panel -->
+<div class="music-panel" id="musicPanel">
+  <div class="music-head">
+    <div class="music-title">🎵 JARVIS MUSIC</div>
+    <div class="music-tabs">
+      <button class="mtab active" id="tab_search" onclick="switchMusicTab('search')">🔍 Search</button>
+      <button class="mtab" id="tab_internal" onclick="switchMusicTab('internal')">▶ Play Here</button>
+      <button class="mtab" id="tab_youtube" onclick="switchMusicTab('youtube')">📺 YouTube</button>
+    </div>
+    <button class="close-btn" onclick="closeMusic()">✕</button>
+  </div>
+  <div class="music-body">
+
+    <!-- Search Tab -->
+    <div id="music_search_tab">
+      <div class="music-search-row">
+        <input class="music-input" id="musicSearchInput" placeholder="Search songs, artist, movie..." onkeydown="if(event.key==='Enter')searchSongs()"/>
+        <button class="music-btn" onclick="searchSongs()">SEARCH</button>
+      </div>
+      <div class="music-quick">
+        <button class="mqbtn" onclick="quickSearch('Allu Arjun Telugu hits')">🎬 Allu Arjun</button>
+        <button class="mqbtn" onclick="quickSearch('Pushpa songs')">🌿 Pushpa</button>
+        <button class="mqbtn" onclick="quickSearch('AR Rahman hits')">🎵 AR Rahman</button>
+        <button class="mqbtn" onclick="quickSearch('Telugu melody songs')">🎶 Telugu Melody</button>
+        <button class="mqbtn" onclick="quickSearch('Bollywood 2024 hits')">🎸 Bollywood</button>
+        <button class="mqbtn" onclick="quickSearch('devotional Hindu songs')">🕉 Devotional</button>
+        <button class="mqbtn" onclick="quickSearch('S P Balasubrahmanyam')">🎤 SPB</button>
+        <button class="mqbtn" onclick="quickSearch('Sid Sriram songs')">🎙 Sid Sriram</button>
+      </div>
+      <div id="songResults" class="song-list"></div>
+    </div>
+
+    <!-- Internal Player Tab -->
+    <div id="music_internal_tab" style="display:none">
+      <div class="now-playing active" id="nowPlayingBox">
+        <div class="np-title">⚡ NOW PLAYING</div>
+        <div class="np-name" id="npSongName">No song selected — search and pick a song first</div>
+        <audio id="audioPlayer" class="audio-player" controls style="width:100%;margin-top:8px"></audio>
+        <div class="np-controls">
+          <button class="npc" onclick="audioAction('prev')">⏮</button>
+          <button class="npc" onclick="audioAction('play')">▶</button>
+          <button class="npc" onclick="audioAction('pause')">⏸</button>
+          <button class="npc" onclick="audioAction('stop')">⏹</button>
+          <button class="npc" onclick="audioAction('next')">⏭</button>
+        </div>
+        <div style="font-size:.62rem;color:var(--dim);margin-top:8px;text-align:center">
+          Note: Direct playback works for free/preview tracks. Full songs open in YouTube.
+        </div>
+      </div>
+      <div class="music-search-row" style="margin-top:8px">
+        <input class="music-input" id="internalSearchInput" placeholder="Search to play here..."/>
+        <button class="music-btn" onclick="searchInternal()">FIND</button>
+      </div>
+      <div id="internalResults" class="song-list"></div>
+    </div>
+
+    <!-- YouTube Tab -->
+    <div id="music_youtube_tab" style="display:none">
+      <div style="font-size:.73rem;color:var(--dim);line-height:1.7;margin-bottom:10px">
+        JARVIS will open YouTube automatically with your song. Works perfectly for any song!
+      </div>
+      <div class="music-search-row">
+        <input class="music-input" id="ytSearchInput" placeholder="Song name, artist, movie..."/>
+        <button class="music-btn" onclick="openYoutube()">▶ OPEN</button>
+      </div>
+      <div class="music-quick" style="margin-top:8px">
+        <button class="mqbtn" onclick="openYoutubeQuery('Pushpa 2 songs')">🌿 Pushpa 2</button>
+        <button class="mqbtn" onclick="openYoutubeQuery('latest Telugu songs 2024')">🎵 Telugu 2024</button>
+        <button class="mqbtn" onclick="openYoutubeQuery('Bollywood romantic songs')">💕 Romantic</button>
+        <button class="mqbtn" onclick="openYoutubeQuery('Telugu devotional songs')">🕉 Devotional</button>
+        <button class="mqbtn" onclick="openYoutubeQuery('workout gym music')">💪 Workout</button>
+        <button class="mqbtn" onclick="openYoutubeQuery('SPB best songs')">🎤 SPB</button>
+      </div>
+      <div style="margin-top:12px;font-size:.68rem;color:var(--dim)">
+        💡 You can also just tell JARVIS: <span style="color:var(--cyan)">"play Pushpa songs"</span> — JARVIS will open YouTube automatically!
+      </div>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
