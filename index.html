@@ -329,6 +329,7 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
     <input type="text" id="textInput" placeholder="Type or speak to JARVIS... (Telugu, English, Hindi)" autocomplete="off"/>
     <button class="btn img-btn" id="imgBtn" title="Send Image" onclick="document.getElementById('imgFile').click()">📷</button>
     <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    <button class="btn" id="voiceLangBtn" onclick="cycleLang()" style="font-size:.62rem;padding:0 9px" title="Tap to switch voice language">🌐 EN</button>
     <button class="btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
     <button class="btn" id="sendBtn" onclick="sendMessage()">SEND</button>
   </div>
@@ -552,7 +553,8 @@ function toggleVoice(){
 function startListen(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recog=new SR(); recog.continuous=false; recog.interimResults=true;
-  recog.lang='en-IN';
+  const savedLang = localStorage.getItem('j_speak_lang') || 'en-IN';
+  recog.lang = savedLang;
   recog.onstart=()=>{
     listening=true;
     document.getElementById('voiceBtn').classList.add('listening');
@@ -576,6 +578,31 @@ function stopListen(){
   document.getElementById('voiceStatus').textContent='READY';
   try{recog&&recog.stop();}catch(e){}
 }
+
+// ── Voice Language Switcher ──────────────────────────────
+const VOICE_LANGS = ['en-IN','te-IN','hi-IN'];
+const VOICE_LANG_LABELS = {'en-IN':'🌐 EN','te-IN':'🌐 TE','hi-IN':'🌐 HI'};
+const VOICE_LANG_NAMES  = {'en-IN':'English','te-IN':'Telugu','hi-IN':'Hindi'};
+const VOICE_LANG_MSGS   = {
+  'en-IN':'Voice input switched to English. Speak in English now.',
+  'te-IN':'Voice input switched to Telugu! Now speak in Telugu — నేను విన్నాను, తెలుగులో మాట్లాడండి 🎤',
+  'hi-IN':'Voice input switched to Hindi! Ab Hindi mein bolein — मैं सुन रहा हूं 🎤'
+};
+function cycleLang(){
+  const current = localStorage.getItem('j_speak_lang') || 'en-IN';
+  const idx = VOICE_LANGS.indexOf(current);
+  const next = VOICE_LANGS[(idx + 1) % VOICE_LANGS.length];
+  localStorage.setItem('j_speak_lang', next);
+  const btn = document.getElementById('voiceLangBtn');
+  if(btn) btn.textContent = VOICE_LANG_LABELS[next];
+  addMessage('jarvis', VOICE_LANG_MSGS[next]);
+}
+// Restore saved lang label on page load
+document.addEventListener('DOMContentLoaded', function(){
+  const saved = localStorage.getItem('j_speak_lang') || 'en-IN';
+  const btn = document.getElementById('voiceLangBtn');
+  if(btn) btn.textContent = VOICE_LANG_LABELS[saved] || '🌐 EN';
+});
 
 // ── Voice Engine ─────────────────────────────────────────
 let voices=[],selectedVoiceIdx=null;
