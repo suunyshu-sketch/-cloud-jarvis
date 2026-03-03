@@ -359,21 +359,123 @@ def get_announcements():
     except: return []
 
 # ══════════════════════════════════════════════════════════
-#  LANGUAGE DETECTION
+#  LANGUAGE DETECTION — Unicode + Transliteration + Memory
 # ══════════════════════════════════════════════════════════
+
+# Telugu words commonly typed in English (transliteration)
+TELUGU_WORDS = {
+    "nenu","meeru","memu","naa","mee","okka","enti","ela","ekkada",
+    "cheppandi","cheppu","antunnaru","antunna","undi","ledu","avunu",
+    "kadu","enduku","em","emiti","cheyyi","cheyyandi","thelusa","telusu",
+    "telusa","bagunna","bagundi","naaku","meeku","manchi","chala",
+    "velli","vastanu","vacha","pampandi","pettu","petti","chudandi",
+    "choopu","okkasari","anni","konni","ippudu","appudu","roju","ninna",
+    "repu","malli","inkaa","kooda","aithe","ayite","kaani","kani","leka",
+    "tho","toni","ekkado","cheddhu","theliyadu","theliyatledu","cheppanu",
+    "cheppanu","antanu","adiganu","pampanu","vachanu","vellaanu","chesanu",
+    "okate","rendu","moodu","naalu","aidu","aaru","yedu","enimidi","tommidi",
+    "padi","nuvvu","meeru","vaadu","aame","vaalllu","manam","mee","mi",
+    "ela","enduku","ekkada","evaru","emi","eppudu","entha","ante","antu",
+    "leni","unna","unnaanu","vunnanu","chusanu","adugutunna","chepputunna",
+    "chestunan","chestunna","pampistanu","istanu","isthanu","kavali",
+    "nachindi","nachindi","nacchaindi","pedda","chinna","kొత్తగా","baaga",
+    "super","ayipoyindi","chesindi","chesadu","chesaru","chesam","chesindi"
+}
+
+# Hindi words commonly typed in English (transliteration)
+HINDI_WORDS = {
+    "main","mujhe","mera","meri","mere","hum","hamara","hamari","hamare",
+    "tum","tumhara","tumhari","tumhare","aap","aapka","aapki","aapke",
+    "kya","kaise","kahan","kyun","kab","kaun","kitna","kitni","kitne",
+    "hai","hain","tha","thi","the","hoga","hogi","honge","ho","hua","hui",
+    "nahi","nahin","mat","na","haan","ji","accha","theek","sahi","galat",
+    "bolo","bata","batao","samjho","dekho","suno","karo","jao","aao",
+    "chahiye","chahta","chahti","chahte","sakta","sakti","sakte","paata",
+    "paati","paate","milega","milegi","milenge","lena","dena","rakhna",
+    "bolna","sunna","dekhna","karna","jaana","aana","khana","peena",
+    "abhi","kal","aaj","parso","kabhi","hamesha","sirf","bas","thoda",
+    "bahut","zyada","kam","jaldi","dheere","seedha","ulta","phir","dobara",
+    "pehle","baad","saath","bina","liye","wala","wali","wale","wahan",
+    "yahan","idhar","udhar","upar","neeche","andar","bahar","paas","door",
+    "ghar","kaam","paisa","time","waqt","din","raat","subah","shaam",
+    "khana","pani","chai","coffee","bhai","behen","maa","baap","dost",
+    "yaar","sir","madam","beta","beti","accha","theek hai","chalo","chalte",
+    "ruko","suno","bhaiya","didi","nana","nani","dada","dadi","chacha",
+    "chachi","mama","mami","mast","sahi","zabardast","ekdum","bilkul",
+    "zaroor","pakka","sach","jhooth","pata","samajh","likho","padho"
+}
+
 def detect_language(text):
-    telugu = len(re.findall(r'[\u0C00-\u0C7F]', text))
-    hindi  = len(re.findall(r'[\u0900-\u097F]', text))
-    if telugu > 1: return "telugu"
-    if hindi  > 1: return "hindi"
+    # 1. Unicode script detection (highest priority)
+    telugu_unicode = len(re.findall(r'[\u0C00-\u0C7F]', text))
+    hindi_unicode  = len(re.findall(r'[\u0900-\u097F]', text))
+    if telugu_unicode > 1: return "telugu"
+    if hindi_unicode  > 1: return "hindi"
+
+    # 2. Transliteration word matching
+    words = set(re.findall(r'\b[a-z]+\b', text.lower()))
+    telugu_hits = len(words & TELUGU_WORDS)
+    hindi_hits  = len(words & HINDI_WORDS)
+
+    if telugu_hits >= 1 and telugu_hits >= hindi_hits: return "telugu"
+    if hindi_hits  >= 1: return "hindi"
+
     return "english"
+
+def get_lang_preference(device_id):
+    """Get saved language preference for this device"""
+    try:
+        facts = get_all_facts()
+        return facts.get(f"langpref_{device_id}", "english")
+    except: return "english"
+
+def detect_lang_change(text):
+    """Detect if user is explicitly asking to change language"""
+    lower = text.lower()
+    if any(w in lower for w in ["speak in telugu","telugu lo","telugu lo cheppu","switch to telugu","telugu లో","reply in telugu"]):
+        return "telugu"
+    if any(w in lower for w in ["speak in hindi","hindi mein","hindi me","switch to hindi","reply in hindi","hindi mein bolo"]):
+        return "hindi"
+    if any(w in lower for w in ["speak in english","english lo","switch to english","back to english","reply in english","english mein"]):
+        return "english"
+    return None
+
+def resolve_language(text, device_id):
+    """
+    Full language resolution:
+    1. Check if user is explicitly changing language → save preference
+    2. Detect from current text (unicode + transliteration)
+    3. Fall back to saved device preference
+    """
+    # Check explicit change first
+    explicit = detect_lang_change(text)
+    if explicit:
+        save_fact(f"langpref_{device_id}", explicit, "device")
+        return explicit
+
+    # Detect from current text
+    detected = detect_language(text)
+
+    # If detected something specific → use it
+    if detected != "english":
+        return detected
+
+    # Fall back to saved preference for this device
+    saved = get_lang_preference(device_id)
+    return saved
 
 def lang_instruction(lang):
     if lang == "telugu":
-        return "IMPORTANT: The user is speaking in Telugu. You MUST reply in Telugu language. Use Telugu script."
+        return ("CRITICAL LANGUAGE RULE: The user communicates in Telugu. "
+                "You MUST reply ONLY in Telugu language using Telugu script (తెలుగు లిపి). "
+                "Even if the user typed in English letters (transliteration), reply in Telugu script. "
+                "Do NOT reply in English unless absolutely necessary for technical terms.")
     if lang == "hindi":
-        return "IMPORTANT: The user is speaking in Hindi. You MUST reply in Hindi language. Use Devanagari script."
-    return "Reply in English."
+        return ("CRITICAL LANGUAGE RULE: The user communicates in Hindi. "
+                "You MUST reply ONLY in Hindi language using Devanagari script (हिंदी). "
+                "Even if the user typed in English letters (transliteration), reply in Devanagari script. "
+                "Do NOT reply in English unless absolutely necessary for technical terms.")
+    return "Reply in clear English."
 
 # ══════════════════════════════════════════════════════════
 #  LIVE DATA FUNCTIONS
@@ -781,8 +883,8 @@ async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
     if facts:
         system += "\n\nKNOWN FACTS: " + ", ".join(f"{k}: {v}" for k,v in list(facts.items())[:20])
 
-    # Language instruction
-    lang = detect_language(user_text)
+    # Language — detect + remember preference per device
+    lang = resolve_language(user_text, device_id)
     system += f"\n\n{lang_instruction(lang)}"
 
     # Person context
