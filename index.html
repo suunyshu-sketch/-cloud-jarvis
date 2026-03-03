@@ -3,275 +3,295 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>J.A.R.V.I.S — Cloud Edition</title>
+<title>J.A.R.V.I.S — Battini Family</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --cyan: #00d4ff; --cyan2: #00fff7; --blue: #0066ff;
-    --dark: #000a14; --panel: rgba(0,30,60,0.85);
-    --border: rgba(0,212,255,0.25); --text: #c8f0ff; --dim: rgba(0,212,255,0.5);
-    --green: #00ff88; --yellow: #ffd700; --red: #ff4466;
-  }
-  body { background: var(--dark); color: var(--text); font-family: 'Share Tech Mono', monospace; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; animation: gridMove 20s linear infinite; }
-  @keyframes gridMove { 0%{background-position:0 0} 100%{background-position:40px 40px} }
-  body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px); pointer-events: none; z-index: 1; }
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cyan:#00d4ff;--cyan2:#00fff7;--blue:#0066ff;--dark:#000a14;
+  --panel:rgba(0,30,60,0.88);--border:rgba(0,212,255,0.22);
+  --text:#c8f0ff;--dim:rgba(0,212,255,0.45);--green:#00ff88;
+  --yellow:#ffd700;--red:#ff4466;--orange:#ff8c00;
+}
+body{background:var(--dark);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column}
+body.light-theme{--dark:#f0f4f8;--panel:rgba(255,255,255,0.92);--border:rgba(0,100,200,0.2);--text:#1a2a3a;--dim:rgba(0,100,200,0.5);--cyan:#0066cc;background:#f0f4f8}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.035) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;animation:gridMove 20s linear infinite}
+body.light-theme::before{background-image:linear-gradient(rgba(0,100,200,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,100,200,0.04) 1px,transparent 1px)}
+@keyframes gridMove{0%{background-position:0 0}100%{background-position:40px 40px}}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:1}
 
-  /* ── Header ── */
-  header { position: relative; z-index: 10; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(0,10,25,0.95); backdrop-filter: blur(10px); gap: 10px; flex-wrap: wrap; }
-  .logo { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900; letter-spacing: 0.3em; background: linear-gradient(90deg, var(--cyan), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .header-right { display: flex; gap: 12px; align-items: center; }
-  .status-bar { display: flex; gap: 12px; align-items: center; font-size: 0.65rem; color: var(--dim); letter-spacing: 0.08em; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s ease-in-out infinite; }
-  .dot.offline { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+/* ── Header ── */
+header{position:relative;z-index:10;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(0,8,20,0.96);backdrop-filter:blur(10px);gap:8px;flex-wrap:wrap}
+body.light-theme header{background:rgba(230,240,255,0.96)}
+.logo{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hbtn{display:flex;align-items:center;gap:5px;background:rgba(0,30,60,0.9);border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--cyan);letter-spacing:.06em;transition:all .2s;white-space:nowrap}
+.hbtn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.1);box-shadow:0 0 12px rgba(0,212,255,.15)}
+.hbtn .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);flex-shrink:0}
+.status-row{display:flex;gap:10px;align-items:center;font-size:0.62rem;color:var(--dim);letter-spacing:.07em}
+.dot-status{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:pulse 2s infinite}
+.dot-status.off{background:var(--red);box-shadow:0 0 7px var(--red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  /* ── Voice Engine Button in Header ── */
-  .voice-engine-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(0,30,60,0.9); border: 1px solid var(--border);
-    border-radius: 8px; padding: 5px 12px; cursor: pointer;
-    font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
-    color: var(--cyan); letter-spacing: 0.08em; transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .voice-engine-btn:hover { border-color: var(--cyan); background: rgba(0,212,255,0.1); box-shadow: 0 0 12px rgba(0,212,255,0.15); }
-  .voice-engine-btn .ve-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 5px var(--green); flex-shrink: 0; }
+/* ── Modals ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,5,15,0.9);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:rgba(0,15,35,0.98);border:1px solid var(--border);border-radius:14px;width:90%;max-width:460px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,212,255,.12);animation:slideIn .2s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:.82rem;color:var(--cyan);letter-spacing:.12em}
+.modal-body{padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.close-btn{background:none;border:none;color:var(--dim);font-size:1.1rem;cursor:pointer;padding:0 4px;transition:color .2s}
+.close-btn:hover{color:var(--red)}
 
-  /* ── Voice Engine Modal ── */
-  .ve-modal-overlay { position: fixed; inset: 0; background: rgba(0,5,15,0.85); z-index: 200; display: none; align-items: flex-start; justify-content: flex-end; backdrop-filter: blur(4px); padding: 70px 20px 0; }
-  .ve-modal-overlay.open { display: flex; }
-  .ve-modal {
-    background: rgba(0,15,35,0.98); border: 1px solid var(--border);
-    border-radius: 14px; width: 100%; max-width: 400px;
-    max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 0 40px rgba(0,212,255,0.15);
-    animation: slideDown 0.2s ease-out;
-  }
-  @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:none} }
-  .ve-modal-header {
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .ve-modal-title { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--cyan); letter-spacing: 0.12em; }
-  .ve-close { background: none; border: none; color: var(--dim); font-size: 1.1rem; cursor: pointer; padding: 0 4px; transition: color 0.2s; }
-  .ve-close:hover { color: var(--red); }
+/* ── Voice Engine ── */
+.voice-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.vi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:all .15s;background:rgba(0,0,0,.3)}
+.vi:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.05)}
+.vi.sel{border-color:var(--cyan);background:rgba(0,212,255,.08)}
+.vi-radio{width:9px;height:9px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;transition:all .15s}
+.vi.sel .vi-radio{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.vi-info{flex:1;min-width:0}
+.vi-name{font-size:.76rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vi-meta{font-size:.6rem;color:var(--dim);margin-top:1px}
+.vi-test{background:none;border:1px solid rgba(0,212,255,.2);border-radius:4px;color:var(--dim);font-size:.58rem;padding:2px 6px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .15s}
+.vi-test:hover{border-color:var(--cyan);color:var(--cyan)}
+.badge{font-size:.52rem;padding:2px 5px;border-radius:8px;flex-shrink:0}
+.badge.best{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.25)}
+.badge.good{background:rgba(255,215,0,.1);color:var(--yellow);border:1px solid rgba(255,215,0,.2)}
+.sec-label{font-size:.63rem;color:var(--dim);letter-spacing:.13em;margin-bottom:6px}
+.slider-row{display:flex;align-items:center;gap:8px}
+.slider-label{font-size:.67rem;color:var(--dim);min-width:55px}
+.slider-val{font-size:.67rem;color:var(--cyan);min-width:28px;text-align:right}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:linear-gradient(90deg,var(--cyan) var(--pct,50%),rgba(0,212,255,.15) var(--pct,50%));border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);cursor:pointer}
+.apply-btn{width:100%;padding:10px;background:linear-gradient(90deg,rgba(0,80,200,.3),rgba(0,212,255,.2));border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.apply-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 16px rgba(0,212,255,.2)}
 
-  /* Settings sections inside modal */
-  .ve-body { padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+/* ── Owner Setup ── */
+.owner-modal{position:fixed;inset:0;background:rgba(0,5,15,.93);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.owner-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:370px;width:90%;text-align:center}
+.owner-card h2{font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:.95rem;letter-spacing:.15em;margin-bottom:7px}
+.owner-card p{color:var(--dim);font-size:.75rem;margin-bottom:18px;line-height:1.7}
+.owner-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:9px 12px;outline:none;margin-bottom:9px}
+.owner-input:focus{border-color:var(--cyan)}
+.owner-btn{width:100%;padding:10px;background:linear-gradient(90deg,rgba(0,100,255,.3),rgba(0,212,255,.2));border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.owner-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 20px rgba(0,212,255,.2)}
 
-  .ve-section-label { font-size: 0.65rem; color: var(--dim); letter-spacing: 0.15em; margin-bottom: 8px; text-transform: uppercase; }
+/* ── Main ── */
+main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin:0 auto;padding:12px 14px;gap:10px;position:relative;z-index:5}
+.arc-reactor{display:flex;justify-content:center;padding:4px 0 0}
+.reactor-ring{width:70px;height:70px;border-radius:50%;border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;position:relative;animation:reactorGlow 3s ease-in-out infinite}
+@keyframes reactorGlow{0%,100%{box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.1)}50%{box-shadow:0 0 42px rgba(0,212,255,.6),inset 0 0 28px rgba(0,212,255,.2)}}
+.reactor-ring::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(0,212,255,.3)}
+.reactor-core{width:25px;height:25px;border-radius:50%;background:radial-gradient(circle,#fff 0%,var(--cyan2) 30%,var(--blue) 70%,transparent 100%);box-shadow:0 0 18px var(--cyan2),0 0 36px var(--cyan)}
+.reactor-ring.talking .reactor-core{animation:talkPulse .22s ease-in-out infinite alternate}
+@keyframes talkPulse{from{transform:scale(.65);box-shadow:0 0 6px var(--cyan2)}to{transform:scale(1.4);box-shadow:0 0 32px var(--cyan2),0 0 55px var(--cyan)}}
 
-  /* Voice list */
-  .voice-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  .voice-list::-webkit-scrollbar { width: 3px; }
-  .voice-list::-webkit-scrollbar-thumb { background: var(--border); }
+.device-badge{text-align:center;font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.device-badge span{color:var(--cyan)}
+.admin-badge{display:inline-block;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--yellow);font-size:.58rem;padding:1px 7px;border-radius:10px;margin-left:6px;letter-spacing:.08em}
+.stats{display:flex;gap:12px;justify-content:center;font-size:.6rem;color:var(--dim);letter-spacing:.07em;flex-wrap:wrap}
+.stats .val{color:var(--cyan)}
 
-  .voice-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px; border-radius: 8px; cursor: pointer;
-    border: 1px solid transparent; transition: all 0.15s;
-    background: rgba(0,0,0,0.3);
-  }
-  .voice-item:hover { border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.05); }
-  .voice-item.selected { border-color: var(--cyan); background: rgba(0,212,255,0.08); }
-  .voice-item.selected .vi-radio { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
-  .vi-radio { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.15s; }
-  .vi-info { flex: 1; min-width: 0; }
-  .vi-name { font-size: 0.78rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .vi-meta { font-size: 0.62rem; color: var(--dim); margin-top: 2px; }
-  .vi-test { background: none; border: 1px solid rgba(0,212,255,0.2); border-radius: 5px; color: var(--dim); font-size: 0.6rem; padding: 3px 8px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; flex-shrink: 0; }
-  .vi-test:hover { border-color: var(--cyan); color: var(--cyan); }
-  .vi-badge { font-size: 0.55rem; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
-  .vi-badge.best { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
-  .vi-badge.good { background: rgba(255,215,0,0.1); color: var(--yellow); border: 1px solid rgba(255,215,0,0.25); }
+/* ── Chat ── */
+.chat-window{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:14px;min-height:280px;max-height:370px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.chat-window::-webkit-scrollbar{width:3px}.chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.msg{display:flex;flex-direction:column;gap:4px;animation:msgIn .3s ease-out}
+@keyframes msgIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.msg-row{display:flex;gap:9px;align-items:flex-start}
+.msg-label{font-family:'Orbitron',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.14em;padding-top:3px;min-width:54px;flex-shrink:0}
+.msg.user .msg-label{color:#88ccff}.msg.jarvis .msg-label{color:var(--cyan)}
+.msg-text{font-size:.83rem;line-height:1.65;color:var(--text)}
+.msg.jarvis .msg-text{color:#e8f8ff}
+.msg-feedback{display:flex;gap:6px;padding-left:63px;margin-top:2px}
+.fb-btn{background:none;border:1px solid rgba(0,212,255,.15);border-radius:5px;color:var(--dim);font-size:.68rem;padding:2px 8px;cursor:pointer;transition:all .15s}
+.fb-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.fb-btn.active-pos{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.08)}
+.fb-btn.active-neg{border-color:var(--red);color:var(--red);background:rgba(255,68,102,.08)}
+.thinking-dots span{animation:blink 1.2s ease-in-out infinite;color:var(--cyan)}
+.thinking-dots span:nth-child(2){animation-delay:.2s}.thinking-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
-  /* Sliders */
-  .slider-row { display: flex; align-items: center; gap: 10px; }
-  .slider-label { font-size: 0.7rem; color: var(--dim); min-width: 60px; }
-  .slider-val { font-size: 0.7rem; color: var(--cyan); min-width: 30px; text-align: right; }
-  input[type=range] {
-    flex: 1; -webkit-appearance: none; height: 3px;
-    background: linear-gradient(90deg, var(--cyan) var(--pct, 50%), rgba(0,212,255,0.15) var(--pct, 50%));
-    border-radius: 3px; outline: none; cursor: pointer;
-  }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); cursor: pointer; }
+/* ── Reminder Toast ── */
+.reminder-toast{position:fixed;top:70px;right:16px;z-index:500;display:flex;flex-direction:column;gap:8px;max-width:300px}
+.toast{background:rgba(0,15,35,.97);border:1px solid var(--yellow);border-radius:10px;padding:12px 14px;animation:toastIn .3s ease-out;box-shadow:0 0 20px rgba(255,215,0,.2)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast-title{font-family:'Orbitron',sans-serif;font-size:.62rem;color:var(--yellow);letter-spacing:.1em;margin-bottom:4px}
+.toast-text{font-size:.75rem;color:var(--text);line-height:1.5}
+.toast-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:.9rem}
 
-  /* No voices message */
-  .no-voices { padding: 16px; text-align: center; color: var(--dim); font-size: 0.75rem; line-height: 1.7; }
+/* ── Speaking ── */
+.speaking-row{display:flex;align-items:center;justify-content:center;gap:10px;min-height:22px}
+.speaking-indicator{display:none;align-items:center;gap:6px;font-size:.63rem;color:var(--cyan);letter-spacing:.1em}
+.speaking-indicator.active{display:flex}
+.voice-bars{display:flex;gap:3px;align-items:center;height:16px}
+.voice-bar{width:3px;background:var(--cyan);border-radius:2px;transition:height .1s}
 
-  /* Apply button */
-  .ve-apply { width: 100%; padding: 10px; background: linear-gradient(90deg, rgba(0,80,200,0.3), rgba(0,212,255,0.2)); border: 1px solid var(--cyan); border-radius: 8px; color: var(--cyan); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
-  .ve-apply:hover { background: rgba(0,212,255,0.2); box-shadow: 0 0 16px rgba(0,212,255,0.2); }
+/* ── Image Preview ── */
+.img-preview{display:none;position:relative;margin:4px 0}
+.img-preview img{max-height:80px;border-radius:7px;border:1px solid var(--border)}
+.img-preview .remove-img{position:absolute;top:2px;right:2px;background:rgba(255,68,102,.8);border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-  /* ── Owner Modal ── */
-  .owner-modal { position: fixed; inset: 0; background: rgba(0,5,15,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-  .owner-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 380px; width: 90%; text-align: center; }
-  .owner-card h2 { font-family: 'Orbitron', sans-serif; color: var(--cyan); font-size: 1rem; letter-spacing: 0.15em; margin-bottom: 8px; }
-  .owner-card p { color: var(--dim); font-size: 0.78rem; margin-bottom: 20px; line-height: 1.7; }
-  .owner-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; color: var(--cyan2); font-family: 'Share Tech Mono', monospace; font-size: 0.88rem; padding: 10px 14px; outline: none; margin-bottom: 10px; }
-  .owner-input:focus { border-color: var(--cyan); }
-  .owner-btn { width: 100%; padding: 11px; background: linear-gradient(90deg, rgba(0,100,255,0.3), rgba(0,212,255,0.2)); border: 1px solid var(--cyan); border-radius: 8px; color: var(--cyan); font-family: 'Orbitron', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
-  .owner-btn:hover { background: rgba(0,212,255,0.2); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+/* ── Quick Commands ── */
+.quick-cmds{display:flex;flex-wrap:wrap;gap:6px}
+.qbtn{background:rgba(0,30,60,.6);border:1px solid rgba(0,212,255,.13);border-radius:18px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.68rem;padding:4px 11px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.qbtn:hover{border-color:var(--cyan);color:var(--cyan2);background:rgba(0,212,255,.07)}
 
-  /* ── Main ── */
-  main { flex: 1; display: flex; flex-direction: column; max-width: 900px; width: 100%; margin: 0 auto; padding: 14px 16px; gap: 12px; position: relative; z-index: 5; }
+/* ── Input Area ── */
+.input-area{display:flex;gap:7px;align-items:stretch}
+#textInput{flex:1;background:rgba(0,30,60,.9);border:1px solid var(--border);border-radius:8px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.87rem;padding:11px 14px;outline:none;transition:all .2s;caret-color:var(--cyan)}
+#textInput::placeholder{color:rgba(0,212,255,.28)}
+#textInput:focus{border-color:var(--cyan);box-shadow:0 0 13px rgba(0,212,255,.1)}
+.btn{border:1px solid var(--border);border-radius:8px;background:rgba(0,30,60,.9);color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.09em;padding:0 13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn:hover:not(:disabled){background:rgba(0,212,255,.1);border-color:var(--cyan);box-shadow:0 0 13px rgba(0,212,255,.17)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+#voiceBtn{font-size:1rem;padding:0 12px}
+#voiceBtn.listening{background:rgba(0,212,255,.12);border-color:var(--cyan);animation:vpulse 1s ease-in-out infinite}
+@keyframes vpulse{0%,100%{box-shadow:0 0 7px rgba(0,212,255,.2)}50%{box-shadow:0 0 22px rgba(0,212,255,.5)}}
+.img-btn{font-size:.95rem;padding:0 11px}
 
-  .arc-reactor { display: flex; justify-content: center; padding: 6px 0 0; }
-  .reactor-ring { width: 74px; height: 74px; border-radius: 50%; border: 2px solid var(--cyan); display: flex; align-items: center; justify-content: center; position: relative; animation: reactorGlow 3s ease-in-out infinite; }
-  @keyframes reactorGlow { 0%,100%{box-shadow:0 0 20px rgba(0,212,255,0.3),inset 0 0 15px rgba(0,212,255,0.1)} 50%{box-shadow:0 0 45px rgba(0,212,255,0.6),inset 0 0 30px rgba(0,212,255,0.2)} }
-  .reactor-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; border: 1px solid rgba(0,212,255,0.35); }
-  .reactor-core { width: 27px; height: 27px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, var(--cyan2) 30%, var(--blue) 70%, transparent 100%); box-shadow: 0 0 20px var(--cyan2), 0 0 40px var(--cyan); }
-  .reactor-ring.talking .reactor-core { animation: talkPulse 0.25s ease-in-out infinite alternate; }
-  @keyframes talkPulse { from{transform:scale(0.7);box-shadow:0 0 8px var(--cyan2)} to{transform:scale(1.4);box-shadow:0 0 35px var(--cyan2),0 0 60px var(--cyan)} }
+/* ── Panels (Todos / Notes / Memory) ── */
+.side-panel{position:fixed;right:0;top:0;height:100vh;width:340px;background:rgba(0,12,28,.97);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;backdrop-filter:blur(10px)}
+.side-panel.open{transform:none}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-title{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--cyan);letter-spacing:.1em}
+.panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.todo-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px}
+.todo-item.done-item{opacity:.5}
+.todo-check{width:16px;height:16px;border-radius:4px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;transition:all .15s}
+.todo-check.checked{background:var(--green);border-color:var(--green);color:#000}
+.todo-text{flex:1;font-size:.78rem;color:var(--text)}
+.todo-item.done-item .todo-text{text-decoration:line-through;color:var(--dim)}
+.panel-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.panel-input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:7px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:8px 11px;outline:none}
+.panel-input:focus{border-color:var(--cyan)}
+.panel-add-btn{background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:7px;color:var(--cyan);font-size:.75rem;padding:0 12px;cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:.08em;transition:all .2s}
+.panel-add-btn:hover{background:rgba(0,212,255,.2)}
+.note-item{padding:10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px}
+.note-title{font-size:.72rem;color:var(--cyan);margin-bottom:4px}
+.note-body{font-size:.76rem;color:var(--text);line-height:1.5}
+.note-date{font-size:.58rem;color:var(--dim);margin-top:4px}
+.reminder-item{padding:8px 10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+.reminder-text{font-size:.76rem;color:var(--text)}
+.reminder-time{font-size:.62rem;color:var(--yellow)}
 
-  .device-badge { text-align: center; font-size: 0.68rem; color: var(--dim); letter-spacing: 0.1em; }
-  .device-badge span { color: var(--cyan); }
+/* ── Admin Panel ── */
+.admin-section{padding:12px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:10px}
+.admin-section h3{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--yellow);letter-spacing:.12em;margin-bottom:10px}
+.admin-btn{width:100%;padding:8px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:7px;color:var(--yellow);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;margin-bottom:6px;transition:all .2s;text-align:left}
+.admin-btn:hover{background:rgba(255,215,0,.15);border-color:var(--yellow)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-box{background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--cyan)}
+.stat-lbl{font-size:.58rem;color:var(--dim);margin-top:3px}
 
-  .stats { display: flex; gap: 14px; justify-content: center; font-size: 0.62rem; color: var(--dim); letter-spacing: 0.08em; flex-wrap: wrap; }
-  .stats .val { color: var(--cyan); }
+/* ── Private Mode indicator ── */
+.private-indicator{display:none;align-items:center;gap:5px;font-size:.62rem;color:var(--orange);letter-spacing:.08em}
+.private-indicator.active{display:flex}
 
-  .chat-window { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-height: 300px; max-height: 390px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(10px); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  .chat-window::-webkit-scrollbar { width: 4px; } .chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .msg { display: flex; gap: 10px; align-items: flex-start; animation: msgIn 0.3s ease-out; }
-  @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-  .msg-label { font-family: 'Orbitron', sans-serif; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.15em; padding-top: 3px; min-width: 56px; }
-  .msg.user .msg-label { color: #88ccff; } .msg.jarvis .msg-label { color: var(--cyan); }
-  .msg-text { font-size: 0.85rem; line-height: 1.65; color: var(--text); }
-  .msg.jarvis .msg-text { color: #e8f8ff; }
-  .thinking-dots span { animation: blink 1.2s ease-in-out infinite; color: var(--cyan); }
-  .thinking-dots span:nth-child(2){animation-delay:.2s} .thinking-dots span:nth-child(3){animation-delay:.4s}
-  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-
-  /* Speaking bar */
-  .speaking-row { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 26px; }
-  .speaking-indicator { display: none; align-items: center; gap: 7px; font-size: 0.65rem; color: var(--cyan); letter-spacing: 0.1em; }
-  .speaking-indicator.active { display: flex; }
-  .voice-bars { display: flex; gap: 3px; align-items: center; height: 18px; }
-  .voice-bar { width: 3px; background: var(--cyan); border-radius: 2px; transition: height 0.1s; }
-
-  /* Input */
-  .input-area { display: flex; gap: 8px; align-items: stretch; }
-  #textInput { flex: 1; background: rgba(0,30,60,0.9); border: 1px solid var(--border); border-radius: 8px; color: var(--cyan2); font-family: 'Share Tech Mono', monospace; font-size: 0.88rem; padding: 11px 15px; outline: none; transition: all 0.2s; caret-color: var(--cyan); }
-  #textInput::placeholder { color: rgba(0,212,255,0.3); } #textInput:focus { border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,212,255,0.12); }
-  .btn { border: 1px solid var(--border); border-radius: 8px; background: rgba(0,30,60,0.9); color: var(--cyan); font-family: 'Orbitron', sans-serif; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.1em; padding: 0 14px; cursor: pointer; transition: all 0.2s; }
-  .btn:hover:not(:disabled) { background: rgba(0,212,255,0.1); border-color: var(--cyan); box-shadow: 0 0 14px rgba(0,212,255,0.18); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  #voiceBtn { font-size: 1.05rem; padding: 0 13px; }
-  #voiceBtn.listening { background: rgba(0,212,255,0.12); border-color: var(--cyan); animation: voicePulse 1s ease-in-out infinite; }
-  @keyframes voicePulse { 0%,100%{box-shadow:0 0 8px rgba(0,212,255,.2)} 50%{box-shadow:0 0 24px rgba(0,212,255,.5)} }
-
-  .quick-cmds { display: flex; flex-wrap: wrap; gap: 7px; }
-  .quick-btn { background: rgba(0,30,60,.6); border: 1px solid rgba(0,212,255,.15); border-radius: 20px; color: var(--dim); font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; padding: 5px 12px; cursor: pointer; transition: all 0.2s; }
-  .quick-btn:hover { border-color: var(--cyan); color: var(--cyan2); background: rgba(0,212,255,.08); }
-
-  @media(max-width:480px){.logo{font-size:1rem}.status-bar .hide-sm{display:none}.chat-window{min-height:240px;max-height:320px}.quick-cmds{display:none}}
+@media(max-width:480px){.logo{font-size:.95rem}.status-row .hide-sm{display:none}.chat-window{min-height:230px;max-height:310px}.quick-cmds{display:none}.side-panel{width:100%}}
 </style>
 </head>
 <body>
 
-<!-- Owner Setup Modal -->
+<!-- Owner Setup -->
 <div class="owner-modal" id="ownerModal">
   <div class="owner-card">
-    <h2>⚡ JARVIS INITIALIZING</h2>
-    <p>Tell JARVIS who you are so it can personalize your experience and remember this device belongs to you.</p>
-    <input class="owner-input" id="ownerName" placeholder="Your name (e.g. Ravi, Dad, Sir)" maxlength="30" />
-    <input class="owner-input" id="deviceNickname" placeholder="Device name (e.g. Dad's Samsung)" maxlength="40" />
+    <h2>⚡ J.A.R.V.I.S INITIALIZING</h2>
+    <p>Battini Family AI System<br>Please identify yourself for personalized service.</p>
+    <input class="owner-input" id="ownerName" placeholder="Your name (e.g. Lucky, Krishna, Thapaswini)" maxlength="30"/>
+    <input class="owner-input" id="deviceNick" placeholder="Device name (e.g. Dad's Samsung, My Phone)" maxlength="40"/>
     <button class="owner-btn" onclick="setupDevice()">⚡ INITIALIZE JARVIS</button>
   </div>
 </div>
 
 <!-- Voice Engine Modal -->
-<div class="ve-modal-overlay" id="veModalOverlay" onclick="closeVEModal(event)">
-  <div class="ve-modal" id="veModal">
-    <div class="ve-modal-header">
-      <div class="ve-modal-title">🔊 VOICE ENGINE</div>
-      <button class="ve-close" onclick="closeVEModalDirect()">✕</button>
+<div class="modal-overlay" id="veOverlay" onclick="closeModal('veOverlay',event)">
+  <div class="modal-box" id="veModal">
+    <div class="modal-head">
+      <div class="modal-title">🔊 VOICE ENGINE</div>
+      <button class="close-btn" onclick="closeModalDirect('veOverlay')">✕</button>
     </div>
-    <div class="ve-body">
-
-      <!-- Voice Selection -->
-      <div>
-        <div class="ve-section-label">Select Voice</div>
-        <div class="voice-list" id="voiceList">
-          <div class="no-voices">Loading available voices...<br><small>If empty, please use Google Chrome</small></div>
-        </div>
-      </div>
-
-      <!-- Pitch -->
-      <div>
-        <div class="ve-section-label">Pitch</div>
-        <div class="slider-row">
-          <span class="slider-label">Low ←</span>
-          <input type="range" id="pitchSlider" min="0.5" max="1.5" step="0.05" value="0.75" oninput="updateSlider(this,'pitchVal')" />
-          <span class="slider-val" id="pitchVal">0.75</span>
-        </div>
-      </div>
-
-      <!-- Rate -->
-      <div>
-        <div class="ve-section-label">Speed</div>
-        <div class="slider-row">
-          <span class="slider-label">Slow ←</span>
-          <input type="range" id="rateSlider" min="0.5" max="1.5" step="0.05" value="0.88" oninput="updateSlider(this,'rateVal')" />
-          <span class="slider-val" id="rateVal">0.88</span>
-        </div>
-      </div>
-
-      <!-- Volume -->
-      <div>
-        <div class="ve-section-label">Volume</div>
-        <div class="slider-row">
-          <span class="slider-label">Quiet ←</span>
-          <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="updateSlider(this,'volVal')" />
-          <span class="slider-val" id="volVal">1.0</span>
-        </div>
-      </div>
-
-      <button class="ve-apply" onclick="applyVoiceSettings()">⚡ APPLY & TEST VOICE</button>
+    <div class="modal-body">
+      <div><div class="sec-label">SELECT VOICE</div><div class="voice-list" id="voiceList"><div style="color:var(--dim);font-size:.75rem">Loading voices...</div></div></div>
+      <div><div class="sec-label">PITCH</div><div class="slider-row"><span class="slider-label">Low ←</span><input type="range" id="pitchSlider" min="0.5" max="1.5" step="0.05" value="0.75" oninput="updateSlider(this,'pitchVal')"><span class="slider-val" id="pitchVal">0.75</span></div></div>
+      <div><div class="sec-label">SPEED</div><div class="slider-row"><span class="slider-label">Slow ←</span><input type="range" id="rateSlider" min="0.5" max="1.5" step="0.05" value="0.88" oninput="updateSlider(this,'rateVal')"><span class="slider-val" id="rateVal">0.88</span></div></div>
+      <div><div class="sec-label">VOLUME</div><div class="slider-row"><span class="slider-label">Quiet ←</span><input type="range" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="updateSlider(this,'volVal')"><span class="slider-val" id="volVal">1.0</span></div></div>
+      <button class="apply-btn" onclick="applyVoice()">⚡ APPLY & TEST</button>
     </div>
   </div>
 </div>
+
+<!-- Admin Panel Modal -->
+<div class="modal-overlay" id="adminOverlay" onclick="closeModal('adminOverlay',event)">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title">👑 ADMIN DASHBOARD</div><button class="close-btn" onclick="closeModalDirect('adminOverlay')">✕</button></div>
+    <div class="modal-body">
+      <div class="stat-grid" id="adminStats">
+        <div class="stat-box"><div class="stat-num" id="statMsgs">-</div><div class="stat-lbl">MESSAGES</div></div>
+        <div class="stat-box"><div class="stat-num" id="statArchive">-</div><div class="stat-lbl">ARCHIVED</div></div>
+        <div class="stat-box"><div class="stat-num" id="statDevices">-</div><div class="stat-lbl">DEVICES</div></div>
+        <div class="stat-box"><div class="stat-num" id="statFacts">-</div><div class="stat-lbl">FACTS KNOWN</div></div>
+      </div>
+      <div class="admin-section">
+        <h3>🔊 ANNOUNCEMENTS</h3>
+        <input class="owner-input" id="announceTxt" placeholder="Type announcement for all family..."/>
+        <button class="admin-btn" onclick="sendAnnouncement()">📢 Send to All Family</button>
+      </div>
+      <div class="admin-section">
+        <h3>🗃️ MEMORY CONTROL</h3>
+        <button class="admin-btn" onclick="adminAction('wipe_chats')">🧹 Wipe Chat History (Keep Facts)</button>
+        <button class="admin-btn" onclick="adminAction('compress')">🗜️ Force Memory Compression</button>
+        <button class="admin-btn" onclick="adminAction('wipe_all')" style="color:var(--red);border-color:rgba(255,68,102,.3)">⚠️ Full Reset (Keep Family Data)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reminder Toast Container -->
+<div class="reminder-toast" id="toastContainer"></div>
 
 <!-- Header -->
 <header>
   <div class="logo">J.A.R.V.I.S</div>
   <div class="header-right">
-    <div class="status-bar">
-      <div id="statusDot" class="dot offline"></div>
+    <div class="status-row">
+      <div id="statusDot" class="dot-status off"></div>
       <span id="statusText">CONNECTING</span>
-      <span class="hide-sm" id="ownerLabel">—</span>
-      <span class="hide-sm" id="clock">--:--:--</span>
+      <span class="hide-sm" id="clockEl">--:--:--</span>
     </div>
-    <button class="voice-engine-btn" onclick="openVEModal()">
-      <div class="ve-dot"></div>
-      <span id="currentVoiceName">VOICE ENGINE</span>
-    </button>
+    <button class="hbtn" onclick="openPanel('todoPanel')">📋 LIST</button>
+    <button class="hbtn" onclick="openPanel('notePanel')">📝 NOTES</button>
+    <button class="hbtn" onclick="openPanel('reminderPanel')">⏰ REMINDERS</button>
+    <button class="hbtn" id="adminBtn" style="display:none;border-color:rgba(255,215,0,.3);color:var(--yellow)" onclick="openAdmin()">👑 ADMIN</button>
+    <button class="hbtn" onclick="togglePrivate()" id="privateBtn">🔒 PRIVATE</button>
+    <button class="hbtn" onclick="toggleTheme()">🌓 THEME</button>
+    <button class="hbtn" onclick="openVE()" id="veBtn"><div class="dot"></div><span id="veLabel">VOICE ENGINE</span></button>
   </div>
 </header>
 
 <main>
-  <div class="arc-reactor">
-    <div class="reactor-ring" id="reactor">
-      <div class="reactor-core"></div>
-    </div>
+  <div class="arc-reactor"><div class="reactor-ring" id="reactor"><div class="reactor-core"></div></div></div>
+
+  <div class="device-badge">
+    <span id="ownerBadge">—</span> on <span id="deviceBadge">—</span>
+    <span class="admin-badge" id="adminBadge" style="display:none">ADMIN</span>
   </div>
 
-  <div class="device-badge">DEVICE: <span id="deviceLabel">—</span> &nbsp;|&nbsp; USER: <span id="ownerStat">—</span></div>
-
   <div class="stats">
-    <span>MESSAGES <span class="val" id="msgCount">0</span></span>
+    <span>MSGS <span class="val" id="msgCount">0</span></span>
     <span>VOICE <span class="val" id="voiceStatus">READY</span></span>
-    <span>AI <span class="val">llama-3.3-70b</span></span>
+    <span>MEMORY <span class="val">TIERED ✅</span></span>
+    <span>RL <span class="val">ACTIVE ✅</span></span>
   </div>
 
   <div class="chat-window" id="chatWindow">
-    <div style="text-align:center;padding:20px;color:var(--dim);font-size:0.78rem;line-height:1.9">
-      <div style="font-family:'Orbitron',sans-serif;font-size:0.95rem;color:var(--cyan);letter-spacing:0.2em;margin-bottom:8px">SYSTEM ONLINE</div>
-      All systems operational. Voice engine armed.<br>
-      Click <strong style="color:var(--cyan)">VOICE ENGINE</strong> in the header to pick your preferred voice.<br>
-      Then speak or type — I am at your service.
+    <div style="text-align:center;padding:18px;color:var(--dim);font-size:.76rem;line-height:1.9">
+      <div style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--cyan);letter-spacing:.2em;margin-bottom:7px">BATTINI FAMILY AI SYSTEM</div>
+      J.A.R.V.I.S online — serving the Battini family exclusively.<br>
+      Use 👍👎 on my responses to train me to your preferences.<br>
+      Type naturally or use voice. I support Telugu, English and Hindi.
     </div>
   </div>
 
@@ -286,382 +306,517 @@
       </div>
       JARVIS SPEAKING
     </div>
+    <div class="private-indicator" id="privateIndicator">🔒 PRIVATE MODE</div>
+  </div>
+
+  <div class="img-preview" id="imgPreview">
+    <img id="imgThumb" src="" alt=""/>
+    <button class="remove-img" onclick="clearImage()">✕</button>
   </div>
 
   <div class="quick-cmds">
-    <button class="quick-btn" onclick="sendQuick('What is the weather right now?')">🌤 Weather</button>
-    <button class="quick-btn" onclick="sendQuick('What are the major wars and conflicts happening in the world right now?')">🌍 World News</button>
-    <button class="quick-btn" onclick="sendQuick('Give me today\'s top headlines')">📰 Headlines</button>
-    <button class="quick-btn" onclick="sendQuick('System status report')">⚡ Status</button>
-    <button class="quick-btn" onclick="sendQuick('What do you remember about me and my family?')">💾 Memory</button>
-    <button class="quick-btn" onclick="clearMemory()">🗑 Clear All</button>
+    <button class="qbtn" onclick="sq('What is the weather now?')">🌤 Weather</button>
+    <button class="qbtn" onclick="sq('What are the major wars and conflicts happening in the world right now?')">🌍 World News</button>
+    <button class="qbtn" onclick="sq('Give me today cricket score')">🏏 Cricket</button>
+    <button class="qbtn" onclick="sq('What is the current price of Bitcoin in Indian rupees?')">₿ Crypto</button>
+    <button class="qbtn" onclick="sq('Convert 100 USD to INR')">💱 Currency</button>
+    <button class="qbtn" onclick="sq('What is Rahu Kalam today?')">🕉 Rahu Kalam</button>
+    <button class="qbtn" onclick="sq('Show my todo list')">📋 My List</button>
+    <button class="qbtn" onclick="sq('What upcoming birthdays are there?')">🎂 Birthdays</button>
   </div>
 
   <div class="input-area">
-    <input type="text" id="textInput" placeholder="Speak or type to JARVIS..." autocomplete="off" />
-    <button class="btn" id="voiceBtn" title="Voice Input" onclick="toggleVoice()">🎤</button>
+    <input type="text" id="textInput" placeholder="Type or speak to JARVIS... (Telugu, English, Hindi)" autocomplete="off"/>
+    <button class="btn img-btn" id="imgBtn" title="Send Image" onclick="document.getElementById('imgFile').click()">📷</button>
+    <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    <button class="btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
     <button class="btn" id="sendBtn" onclick="sendMessage()">SEND</button>
   </div>
 </main>
 
+<!-- Todo Panel -->
+<div class="side-panel" id="todoPanel">
+  <div class="panel-head"><div class="panel-title">📋 MY LIST</div><button class="close-btn" onclick="closePanel('todoPanel')">✕</button></div>
+  <div class="panel-body" id="todoBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row">
+    <input class="panel-input" id="todoInput" placeholder="Add item..." onkeydown="if(event.key==='Enter')addTodo()"/>
+    <button class="panel-add-btn" onclick="addTodo()">ADD</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<div class="side-panel" id="notePanel">
+  <div class="panel-head"><div class="panel-title">📝 NOTES</div><button class="close-btn" onclick="closePanel('notePanel')">✕</button></div>
+  <div class="panel-body" id="noteBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row">
+    <input class="panel-input" id="noteInput" placeholder="Quick note... (say 'note: ...' to JARVIS)" onkeydown="if(event.key==='Enter')addNote()"/>
+    <button class="panel-add-btn" onclick="addNote()">SAVE</button>
+  </div>
+</div>
+
+<!-- Reminder Panel -->
+<div class="side-panel" id="reminderPanel">
+  <div class="panel-head"><div class="panel-title">⏰ REMINDERS</div><button class="close-btn" onclick="closePanel('reminderPanel')">✕</button></div>
+  <div class="panel-body" id="reminderBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row" style="font-size:.65rem;color:var(--dim);padding:10px 14px">Tell JARVIS: "Remind me at 6pm to..."</div>
+</div>
+
 <script>
 // ── Device Identity ──────────────────────────────────────
-let deviceId = localStorage.getItem('jarvis_device_id');
-let deviceName = localStorage.getItem('jarvis_device_name') || '';
-let deviceOwner = localStorage.getItem('jarvis_device_owner') || '';
+let deviceId = localStorage.getItem('j_did') || ('dev_'+Math.random().toString(36).substr(2,9)+'_'+Date.now());
+localStorage.setItem('j_did', deviceId);
+let deviceOwner = localStorage.getItem('j_owner') || '';
+let deviceName  = localStorage.getItem('j_dname') || '';
+let isPrivate   = false;
+let isAdmin     = false;
+const ADMIN_NAMES = ['lucky','lakshmi narayana','lakshminarayana'];
+const FEMALES   = ['sangeetha','thapaswini'];
 
-if (!deviceId) {
-  deviceId = 'dev_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
-  localStorage.setItem('jarvis_device_id', deviceId);
+function detectDeviceName(){
+  const ua=navigator.userAgent;
+  if(/Samsung/i.test(ua)) return 'Samsung Phone';
+  if(/iPhone/i.test(ua))  return 'iPhone';
+  if(/Android/i.test(ua)) return 'Android Phone';
+  if(/Windows/i.test(ua)) return 'Windows PC';
+  if(/Mac/i.test(ua))     return 'Mac';
+  return 'Browser';
 }
 
-function detectDeviceName() {
-  const ua = navigator.userAgent;
-  if (/Samsung/i.test(ua)) return 'Samsung Phone';
-  if (/iPhone/i.test(ua)) return 'iPhone';
-  if (/iPad/i.test(ua)) return 'iPad';
-  if (/Android/i.test(ua)) return 'Android Phone';
-  if (/Windows/i.test(ua)) return 'Windows PC';
-  if (/Macintosh/i.test(ua)) return 'Mac';
-  return 'Browser Device';
+function setupDevice(){
+  const n=document.getElementById('ownerName').value.trim();
+  const d=document.getElementById('deviceNick').value.trim()||detectDeviceName();
+  if(!n){document.getElementById('ownerName').focus();return;}
+  deviceOwner=n; deviceName=d;
+  localStorage.setItem('j_owner',n); localStorage.setItem('j_dname',d);
+  document.getElementById('ownerModal').style.display='none';
+  updateIdentity();
+  setTimeout(()=>{
+    const msg=`Identity confirmed. Welcome, ${n}. JARVIS is fully operational on your ${d}. How may I assist you today?`;
+    addMessage('jarvis',msg); speak(msg);
+  },400);
 }
 
-function setupDevice() {
-  const name = document.getElementById('ownerName').value.trim();
-  const nick = document.getElementById('deviceNickname').value.trim() || detectDeviceName();
-  if (!name) { document.getElementById('ownerName').focus(); return; }
-  deviceOwner = name; deviceName = nick;
-  localStorage.setItem('jarvis_device_owner', name);
-  localStorage.setItem('jarvis_device_name', nick);
-  document.getElementById('ownerModal').style.display = 'none';
-  updateOwnerDisplay();
-  setTimeout(() => {
-    const msg = `Identity confirmed. Welcome, ${name}. JARVIS is fully operational on your ${nick}. How may I assist you today?`;
-    addMessage('jarvis', msg); speak(msg);
-  }, 400);
+function updateIdentity(){
+  isAdmin = ADMIN_NAMES.includes(deviceOwner.toLowerCase());
+  document.getElementById('ownerBadge').textContent = deviceOwner||'—';
+  document.getElementById('deviceBadge').textContent = deviceName||'—';
+  if(isAdmin){
+    document.getElementById('adminBtn').style.display='flex';
+    document.getElementById('adminBadge').style.display='inline-block';
+  }
 }
 
-function updateOwnerDisplay() {
-  document.getElementById('ownerLabel').textContent = deviceOwner || '—';
-  document.getElementById('deviceLabel').textContent = deviceName || '—';
-  document.getElementById('ownerStat').textContent = deviceOwner || '—';
+if(deviceOwner){
+  document.getElementById('ownerModal').style.display='none';
+  if(!deviceName){deviceName=detectDeviceName();localStorage.setItem('j_dname',deviceName);}
+  updateIdentity();
 }
-
-if (deviceOwner) {
-  document.getElementById('ownerModal').style.display = 'none';
-  if (!deviceName) { deviceName = detectDeviceName(); localStorage.setItem('jarvis_device_name', deviceName); }
-  updateOwnerDisplay();
-}
-
-document.getElementById('ownerName').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('deviceNickname').focus(); });
-document.getElementById('deviceNickname').addEventListener('keydown', e => { if(e.key==='Enter') setupDevice(); });
+document.getElementById('ownerName').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('deviceNick').focus()});
+document.getElementById('deviceNick').addEventListener('keydown',e=>{if(e.key==='Enter')setupDevice()});
 
 // ── WebSocket ────────────────────────────────────────────
-let ws = null, msgCount = 0;
+let ws=null, msgCount=0;
+let lastUserMsg='', lastJarvisResponse='';
 
-function connectWS() {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  ws = new WebSocket(`${proto}//${location.host}/ws`);
-  ws.onopen = () => {
-    document.getElementById('statusDot').className = 'dot';
-    document.getElementById('statusText').textContent = 'ONLINE';
+function connectWS(){
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  ws=new WebSocket(`${proto}//${location.host}/ws`);
+  ws.onopen=()=>{
+    document.getElementById('statusDot').className='dot-status';
+    document.getElementById('statusText').textContent='ONLINE';
   };
-  ws.onclose = () => {
-    document.getElementById('statusDot').className = 'dot offline';
-    document.getElementById('statusText').textContent = 'RECONNECTING';
-    setTimeout(connectWS, 3000);
+  ws.onclose=()=>{
+    document.getElementById('statusDot').className='dot-status off';
+    document.getElementById('statusText').textContent='RECONNECTING';
+    setTimeout(connectWS,3000);
   };
-  ws.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if (data.type === 'thinking') { showThinking(); }
-    else if (data.type === 'response') {
-      removeThinking(); addMessage('jarvis', data.text); speak(data.text);
+  ws.onmessage=(e)=>{
+    const d=JSON.parse(e.data);
+    if(d.type==='thinking') showThinking();
+    else if(d.type==='response'){
+      removeThinking();
+      lastJarvisResponse=d.text;
+      addMessage('jarvis',d.text,true);
+      speak(d.text);
       document.getElementById('reactor').classList.remove('talking');
-      msgCount++; document.getElementById('msgCount').textContent = msgCount;
+      msgCount++; document.getElementById('msgCount').textContent=msgCount;
+    } else if(d.type==='reminder'){
+      showToast('⏰ REMINDER',d.text);
+      speak(`Reminder: ${d.text}`);
+    } else if(d.type==='feedback_ack'){
+      // acknowledged
     }
   };
 }
 connectWS();
-
-setInterval(() => { document.getElementById('clock').textContent = new Date().toTimeString().split(' ')[0]; }, 1000);
+setInterval(()=>{
+  document.getElementById('clockEl').textContent=new Date().toTimeString().split(' ')[0];
+  // Poll for reminders every 30s
+},1000);
+setInterval(()=>{ if(ws&&ws.readyState===1&&deviceOwner) ws.send(JSON.stringify({type:'ping',device_id:deviceId})); },30000);
 
 // ── Messages ─────────────────────────────────────────────
-function addMessage(role, text) {
-  const win = document.getElementById('chatWindow');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  const label = role === 'user' ? (deviceOwner || 'YOU') : 'JARVIS';
-  div.innerHTML = `<div class="msg-label">${label}</div><div class="msg-text">${escapeHtml(text)}</div>`;
-  win.appendChild(div); win.scrollTop = win.scrollHeight;
+function addMessage(role,text,showFeedback=false){
+  const win=document.getElementById('chatWindow');
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  const label=role==='user'?(deviceOwner||'YOU'):'JARVIS';
+  const msgId='msg_'+Date.now();
+  div.innerHTML=`<div class="msg-row"><div class="msg-label">${label}</div><div class="msg-text" id="${msgId}">${escHtml(text)}</div></div>`;
+  if(role==='jarvis'&&showFeedback){
+    const fb=document.createElement('div');
+    fb.className='msg-feedback';
+    fb.innerHTML=`<button class="fb-btn" id="pos_${msgId}" onclick="giveFeedback('${msgId}','positive')">👍 Good</button><button class="fb-btn" id="neg_${msgId}" onclick="giveFeedback('${msgId}','negative')">👎 Bad</button>`;
+    div.appendChild(fb);
+  }
+  win.appendChild(div); win.scrollTop=win.scrollHeight;
 }
-function showThinking() {
-  const win = document.getElementById('chatWindow');
-  const div = document.createElement('div');
-  div.className = 'msg jarvis'; div.id = 'thinking';
-  div.innerHTML = `<div class="msg-label">JARVIS</div><div class="msg-text thinking-dots"><span>●</span><span>●</span><span>●</span></div>`;
-  win.appendChild(div); win.scrollTop = win.scrollHeight;
+function showThinking(){
+  const win=document.getElementById('chatWindow');
+  const d=document.createElement('div');
+  d.className='msg jarvis'; d.id='thinking';
+  d.innerHTML='<div class="msg-row"><div class="msg-label">JARVIS</div><div class="msg-text thinking-dots"><span>●</span><span>●</span><span>●</span></div></div>';
+  win.appendChild(d); win.scrollTop=win.scrollHeight;
   document.getElementById('reactor').classList.add('talking');
 }
-function removeThinking() { const el = document.getElementById('thinking'); if(el) el.remove(); }
-function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function removeThinking(){const el=document.getElementById('thinking');if(el)el.remove();}
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
 
-// ── Send ─────────────────────────────────────────────────
-function sendMessage() {
-  const input = document.getElementById('textInput');
-  const text = input.value.trim();
-  if (!text || !ws || ws.readyState !== 1) return;
-  addMessage('user', text);
-  ws.send(JSON.stringify({ text, device_id: deviceId, device_name: deviceName || detectDeviceName(), device_owner: deviceOwner, user_agent: navigator.userAgent }));
-  input.value = '';
-  document.getElementById('sendBtn').disabled = true;
-  setTimeout(() => document.getElementById('sendBtn').disabled = false, 2500);
+// ── RL Feedback ──────────────────────────────────────────
+function giveFeedback(msgId, type){
+  document.getElementById(`pos_${msgId}`).classList.toggle('active-pos', type==='positive');
+  document.getElementById(`neg_${msgId}`).classList.toggle('active-neg', type==='negative');
+  if(ws&&ws.readyState===1){
+    ws.send(JSON.stringify({
+      type:'feedback',
+      device_id:deviceId,
+      device_owner:deviceOwner,
+      user_msg:lastUserMsg,
+      jarvis_response:lastJarvisResponse,
+      feedback:type,
+      topic:'general'
+    }));
+  }
 }
-function sendQuick(text) { document.getElementById('textInput').value = text; sendMessage(); }
-document.getElementById('textInput').addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+
+// ── Send Message ─────────────────────────────────────────
+let pendingImage=null;
+
+function sendMessage(){
+  const input=document.getElementById('textInput');
+  const text=input.value.trim();
+  if((!text&&!pendingImage)||!ws||ws.readyState!==1) return;
+  if(text) addMessage('user',text);
+  lastUserMsg=text;
+  const payload={
+    text:text||'Describe this image',
+    device_id:deviceId, device_name:deviceName,
+    device_owner:deviceOwner, user_agent:navigator.userAgent,
+    private:isPrivate
+  };
+  if(pendingImage) payload.image=pendingImage;
+  ws.send(JSON.stringify(payload));
+  input.value=''; clearImage();
+  document.getElementById('sendBtn').disabled=true;
+  setTimeout(()=>document.getElementById('sendBtn').disabled=false,2500);
+}
+function sq(text){document.getElementById('textInput').value=text;sendMessage();}
+document.getElementById('textInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+
+// ── Image Upload ─────────────────────────────────────────
+function handleImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const b64=reader.result.split(',')[1];
+    pendingImage=b64;
+    document.getElementById('imgThumb').src=reader.result;
+    document.getElementById('imgPreview').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(){
+  pendingImage=null;
+  document.getElementById('imgPreview').style.display='none';
+  document.getElementById('imgFile').value='';
+}
 
 // ── Voice Input ──────────────────────────────────────────
-let recognition = null, isListening = false;
-function toggleVoice() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    addMessage('jarvis', 'Voice recognition requires Google Chrome, Sir. Please use Chrome for full voice capability.');
-    return;
+let recog=null, listening=false;
+function toggleVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    addMessage('jarvis','Voice recognition requires Google Chrome, Sir.'); return;
   }
-  isListening ? stopListening() : startListening();
+  listening?stopListen():startListen();
 }
-function startListening() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-IN';
-  recognition.onstart = () => {
-    isListening = true;
+function startListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR(); recog.continuous=false; recog.interimResults=true;
+  recog.lang='en-IN';
+  recog.onstart=()=>{
+    listening=true;
     document.getElementById('voiceBtn').classList.add('listening');
-    document.getElementById('voiceBtn').textContent = '🔴';
-    document.getElementById('textInput').placeholder = 'Listening...';
-    document.getElementById('voiceStatus').textContent = 'LISTENING';
+    document.getElementById('voiceBtn').textContent='🔴';
+    document.getElementById('textInput').placeholder='Listening...';
+    document.getElementById('voiceStatus').textContent='LISTENING';
   };
-  recognition.onresult = (e) => {
-    const t = Array.from(e.results).map(r=>r[0].transcript).join('');
-    document.getElementById('textInput').value = t;
-    if (e.results[e.results.length-1].isFinal) { stopListening(); sendMessage(); }
+  recog.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('textInput').value=t;
+    if(e.results[e.results.length-1].isFinal){stopListen();sendMessage();}
   };
-  recognition.onerror = recognition.onend = () => stopListening();
-  recognition.start();
+  recog.onerror=recog.onend=()=>stopListen();
+  recog.start();
 }
-function stopListening() {
-  isListening = false;
+function stopListen(){
+  listening=false;
   document.getElementById('voiceBtn').classList.remove('listening');
-  document.getElementById('voiceBtn').textContent = '🎤';
-  document.getElementById('textInput').placeholder = 'Speak or type to JARVIS...';
-  document.getElementById('voiceStatus').textContent = 'READY';
-  try { recognition && recognition.stop(); } catch(e) {}
+  document.getElementById('voiceBtn').textContent='🎤';
+  document.getElementById('textInput').placeholder='Type or speak to JARVIS... (Telugu, English, Hindi)';
+  document.getElementById('voiceStatus').textContent='READY';
+  try{recog&&recog.stop();}catch(e){}
 }
 
 // ── Voice Engine ─────────────────────────────────────────
-let allVoices = [];
-let selectedVoiceIndex = null;
-let voicePitch = parseFloat(localStorage.getItem('jarvis_pitch') || '0.75');
-let voiceRate  = parseFloat(localStorage.getItem('jarvis_rate')  || '0.88');
-let voiceVol   = parseFloat(localStorage.getItem('jarvis_vol')   || '1.0');
+let voices=[],selectedVoiceIdx=null;
+let vPitch=parseFloat(localStorage.getItem('j_pitch')||'0.75');
+let vRate =parseFloat(localStorage.getItem('j_rate') ||'0.88');
+let vVol  =parseFloat(localStorage.getItem('j_vol')  ||'1.0');
+const PRIORITY=['Google UK English Male','Microsoft George - English (United Kingdom)','Microsoft George','Microsoft David - English (United States)','Daniel','Google US English'];
 
-// Preferred JARVIS-like voices in priority order
-const JARVIS_PRIORITY = [
-  'Google UK English Male',
-  'Microsoft George - English (United Kingdom)',
-  'Microsoft George',
-  'Microsoft David - English (United States)',
-  'Microsoft David',
-  'Daniel',
-  'Google US English',
-  'Alex',
-  'Fred',
-];
-
-function loadVoices() {
-  allVoices = window.speechSynthesis.getVoices();
-  if (allVoices.length === 0) return;
-
-  // Restore saved voice
-  const savedName = localStorage.getItem('jarvis_voice_name');
-
-  // Find default: first JARVIS priority voice available
-  let defaultIdx = -1;
-  for (const name of JARVIS_PRIORITY) {
-    const idx = allVoices.findIndex(v => v.name === name);
-    if (idx !== -1) { defaultIdx = idx; break; }
-  }
-  // Fallback: first English voice
-  if (defaultIdx === -1) defaultIdx = allVoices.findIndex(v => v.lang.startsWith('en'));
-  if (defaultIdx === -1) defaultIdx = 0;
-
-  selectedVoiceIndex = savedName
-    ? (allVoices.findIndex(v => v.name === savedName) !== -1 ? allVoices.findIndex(v => v.name === savedName) : defaultIdx)
-    : defaultIdx;
-
-  updateCurrentVoiceLabel();
-  renderVoiceList();
+function loadVoices(){
+  voices=window.speechSynthesis.getVoices();
+  if(!voices.length) return;
+  const saved=localStorage.getItem('j_voice');
+  let def=-1;
+  for(const n of PRIORITY){const i=voices.findIndex(v=>v.name===n);if(i!==-1){def=i;break;}}
+  if(def===-1) def=voices.findIndex(v=>v.lang.startsWith('en'));
+  if(def===-1) def=0;
+  selectedVoiceIdx=saved?(voices.findIndex(v=>v.name===saved)!==-1?voices.findIndex(v=>v.name===saved):def):def;
+  updateVELabel(); renderVoiceList();
 }
-
-function updateCurrentVoiceLabel() {
-  if (selectedVoiceIndex !== null && allVoices[selectedVoiceIndex]) {
-    const name = allVoices[selectedVoiceIndex].name;
-    const short = name.length > 22 ? name.substring(0, 22) + '…' : name;
-    document.getElementById('currentVoiceName').textContent = short;
+function updateVELabel(){
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]){
+    const n=voices[selectedVoiceIdx].name;
+    document.getElementById('veLabel').textContent=n.length>20?n.substring(0,20)+'…':n;
   }
 }
-
-function renderVoiceList() {
-  const list = document.getElementById('voiceList');
-  if (allVoices.length === 0) {
-    list.innerHTML = '<div class="no-voices">No voices found.<br>Please use <strong>Google Chrome</strong> for best voice support.</div>';
-    return;
-  }
-
-  // Sort: English voices first, then by name
-  const sorted = allVoices
-    .map((v, i) => ({ v, i }))
-    .sort((a, b) => {
-      const aEn = a.v.lang.startsWith('en') ? 0 : 1;
-      const bEn = b.v.lang.startsWith('en') ? 0 : 1;
-      if (aEn !== bEn) return aEn - bEn;
-      return a.v.name.localeCompare(b.v.name);
-    });
-
-  list.innerHTML = sorted.map(({v, i}) => {
-    const isSelected = i === selectedVoiceIndex;
-    const isPriority = JARVIS_PRIORITY.includes(v.name);
-    const isTopPick = v.name === JARVIS_PRIORITY[0] || v.name === JARVIS_PRIORITY[1];
-    const badge = isTopPick
-      ? '<span class="vi-badge best">BEST</span>'
-      : isPriority ? '<span class="vi-badge good">GOOD</span>' : '';
-    return `
-      <div class="voice-item ${isSelected ? 'selected' : ''}" onclick="selectVoice(${i})" data-idx="${i}">
-        <div class="vi-radio"></div>
-        <div class="vi-info">
-          <div class="vi-name">${v.name}</div>
-          <div class="vi-meta">${v.lang} ${v.localService ? '· Offline' : '· Online'}</div>
-        </div>
-        ${badge}
-        <button class="vi-test" onclick="event.stopPropagation(); testVoice(${i})">TEST</button>
-      </div>`;
+function renderVoiceList(){
+  const list=document.getElementById('voiceList');
+  if(!voices.length){list.innerHTML='<div style="color:var(--dim);font-size:.73rem">No voices. Use Google Chrome.</div>';return;}
+  const sorted=voices.map((v,i)=>({v,i})).sort((a,b)=>{
+    const ae=a.v.lang.startsWith('en')?0:1,be=b.v.lang.startsWith('en')?0:1;
+    return ae!==be?ae-be:a.v.name.localeCompare(b.v.name);
+  });
+  list.innerHTML=sorted.map(({v,i})=>{
+    const sel=i===selectedVoiceIdx;
+    const badge=v.name===PRIORITY[0]||v.name===PRIORITY[1]?'<span class="badge best">BEST</span>':PRIORITY.includes(v.name)?'<span class="badge good">GOOD</span>':'';
+    return `<div class="vi ${sel?'sel':''}" onclick="selectVoice(${i})" data-idx="${i}">
+      <div class="vi-radio"></div>
+      <div class="vi-info"><div class="vi-name">${v.name}</div><div class="vi-meta">${v.lang} · ${v.localService?'Offline':'Online'}</div></div>
+      ${badge}
+      <button class="vi-test" onclick="event.stopPropagation();testVoice(${i})">TEST</button>
+    </div>`;
   }).join('');
 }
-
-function selectVoice(idx) {
-  selectedVoiceIndex = idx;
-  document.querySelectorAll('.voice-item').forEach(el => {
-    el.classList.toggle('selected', parseInt(el.dataset.idx) === idx);
-    el.querySelector('.vi-radio').style.background = parseInt(el.dataset.idx) === idx ? 'var(--cyan)' : '';
-    el.querySelector('.vi-radio').style.boxShadow = parseInt(el.dataset.idx) === idx ? '0 0 8px var(--cyan)' : '';
+function selectVoice(idx){
+  selectedVoiceIdx=idx;
+  document.querySelectorAll('.vi').forEach(el=>{
+    const sel=parseInt(el.dataset.idx)===idx;
+    el.classList.toggle('sel',sel);
+    const r=el.querySelector('.vi-radio');
+    r.style.background=sel?'var(--cyan)':''; r.style.boxShadow=sel?'0 0 6px var(--cyan)':'';
   });
 }
-
-function testVoice(idx) {
+function testVoice(idx){
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance("Online and ready, Sir. All systems operational.");
-  utter.voice = allVoices[idx];
-  utter.pitch = voicePitch;
-  utter.rate = voiceRate;
-  utter.volume = voiceVol;
-  window.speechSynthesis.speak(utter);
+  const u=new SpeechSynthesisUtterance('Online and ready, Sir. All systems operational.');
+  u.voice=voices[idx]; u.pitch=vPitch; u.rate=vRate; u.volume=vVol;
+  window.speechSynthesis.speak(u);
 }
-
-function updateSlider(el, valId) {
-  const val = parseFloat(el.value).toFixed(2);
-  document.getElementById(valId).textContent = val;
-  const pct = ((el.value - el.min) / (el.max - el.min) * 100).toFixed(1) + '%';
-  el.style.setProperty('--pct', pct);
+function updateSlider(el,valId){
+  const val=parseFloat(el.value).toFixed(2);
+  document.getElementById(valId).textContent=val;
+  el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
 }
-
-function applyVoiceSettings() {
-  voicePitch = parseFloat(document.getElementById('pitchSlider').value);
-  voiceRate  = parseFloat(document.getElementById('rateSlider').value);
-  voiceVol   = parseFloat(document.getElementById('volSlider').value);
-  localStorage.setItem('jarvis_pitch', voicePitch);
-  localStorage.setItem('jarvis_rate', voiceRate);
-  localStorage.setItem('jarvis_vol', voiceVol);
-  if (selectedVoiceIndex !== null && allVoices[selectedVoiceIndex]) {
-    localStorage.setItem('jarvis_voice_name', allVoices[selectedVoiceIndex].name);
-  }
-  updateCurrentVoiceLabel();
-  closeVEModalDirect();
-  // Test it
-  setTimeout(() => speak("Voice engine updated, Sir. How does this sound?"), 200);
+function applyVoice(){
+  vPitch=parseFloat(document.getElementById('pitchSlider').value);
+  vRate =parseFloat(document.getElementById('rateSlider').value);
+  vVol  =parseFloat(document.getElementById('volSlider').value);
+  localStorage.setItem('j_pitch',vPitch); localStorage.setItem('j_rate',vRate); localStorage.setItem('j_vol',vVol);
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]) localStorage.setItem('j_voice',voices[selectedVoiceIdx].name);
+  updateVELabel(); closeModalDirect('veOverlay');
+  setTimeout(()=>speak('Voice engine configured, Sir. Battini family AI system ready.'),200);
 }
-
-function openVEModal() {
+function openVE(){
   loadVoices();
-  // Restore slider values
-  document.getElementById('pitchSlider').value = voicePitch;
-  document.getElementById('rateSlider').value = voiceRate;
-  document.getElementById('volSlider').value = voiceVol;
-  document.getElementById('pitchVal').textContent = voicePitch.toFixed(2);
-  document.getElementById('rateVal').textContent = voiceRate.toFixed(2);
-  document.getElementById('volVal').textContent = voiceVol.toFixed(2);
-  ['pitchSlider','rateSlider','volSlider'].forEach(id => {
-    const el = document.getElementById(id);
-    const pct = ((el.value - el.min) / (el.max - el.min) * 100).toFixed(1) + '%';
-    el.style.setProperty('--pct', pct);
+  document.getElementById('pitchSlider').value=vPitch; document.getElementById('rateSlider').value=vRate; document.getElementById('volSlider').value=vVol;
+  ['pitchVal','rateVal','volVal'].forEach((id,i)=>{
+    const v=[vPitch,vRate,vVol][i];
+    document.getElementById(id).textContent=v.toFixed(2);
   });
-  document.getElementById('veModalOverlay').classList.add('open');
+  ['pitchSlider','rateSlider','volSlider'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+  });
+  document.getElementById('veOverlay').classList.add('open');
 }
+window.speechSynthesis.onvoiceschanged=loadVoices;
+setTimeout(loadVoices,600);
 
-function closeVEModal(e) { if (e.target === document.getElementById('veModalOverlay')) closeVEModalDirect(); }
-function closeVEModalDirect() { document.getElementById('veModalOverlay').classList.remove('open'); }
-
-// ── Voice Output ─────────────────────────────────────────
-let voiceAnimInterval = null;
-
-function speak(text) {
-  if (!window.speechSynthesis) return;
+// ── Speech Output ─────────────────────────────────────────
+let vAnimInterval=null;
+function speak(text){
+  if(!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const clean = text.replace(/[*_`#•\-]/g,'').replace(/\n+/g,'. ').trim();
-  const utter = new SpeechSynthesisUtterance(clean);
-  utter.pitch = voicePitch;
-  utter.rate = voiceRate;
-  utter.volume = voiceVol;
-  if (selectedVoiceIndex !== null && allVoices[selectedVoiceIndex]) {
-    utter.voice = allVoices[selectedVoiceIndex];
-  }
-  utter.onstart = () => {
+  const clean=text.replace(/[*_`#•\-]/g,'').replace(/\n+/g,'. ').trim();
+  const u=new SpeechSynthesisUtterance(clean);
+  u.pitch=vPitch; u.rate=vRate; u.volume=vVol;
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]) u.voice=voices[selectedVoiceIdx];
+  u.onstart=()=>{
     document.getElementById('reactor').classList.add('talking');
     document.getElementById('speakingIndicator').classList.add('active');
-    document.getElementById('voiceStatus').textContent = 'SPEAKING';
-    startVoiceBars();
+    document.getElementById('voiceStatus').textContent='SPEAKING';
+    startVBars();
   };
-  utter.onend = utter.onerror = () => {
+  u.onend=u.onerror=()=>{
     document.getElementById('reactor').classList.remove('talking');
     document.getElementById('speakingIndicator').classList.remove('active');
-    document.getElementById('voiceStatus').textContent = 'READY';
-    stopVoiceBars();
+    document.getElementById('voiceStatus').textContent='READY';
+    stopVBars();
   };
-  window.speechSynthesis.speak(utter);
+  window.speechSynthesis.speak(u);
+}
+function startVBars(){vAnimInterval=setInterval(()=>{['vb1','vb2','vb3','vb4','vb5'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.height=(5+Math.random()*14)+'px';})},110);}
+function stopVBars(){clearInterval(vAnimInterval);[8,14,10,16,8].forEach((h,i)=>{const el=document.getElementById('vb'+(i+1));if(el)el.style.height=h+'px';});}
+
+// ── Private Mode ─────────────────────────────────────────
+function togglePrivate(){
+  isPrivate=!isPrivate;
+  document.getElementById('privateBtn').style.borderColor=isPrivate?'var(--orange)':'';
+  document.getElementById('privateBtn').style.color=isPrivate?'var(--orange)':'';
+  document.getElementById('privateIndicator').classList.toggle('active',isPrivate);
+  addMessage('jarvis',isPrivate?'Private mode ON. This conversation will not be saved to memory.':'Private mode OFF. Conversations will be saved normally.');
 }
 
-function startVoiceBars() {
-  const ids = ['vb1','vb2','vb3','vb4','vb5'];
-  voiceAnimInterval = setInterval(() => {
-    ids.forEach(id => { const el=document.getElementById(id); if(el) el.style.height=(5+Math.random()*15)+'px'; });
-  }, 110);
+// ── Theme Toggle ─────────────────────────────────────────
+function toggleTheme(){
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('j_theme',document.body.classList.contains('light-theme')?'light':'dark');
 }
-function stopVoiceBars() {
-  clearInterval(voiceAnimInterval);
-  [8,14,10,16,8].forEach((h,i)=>{ const el=document.getElementById('vb'+(i+1)); if(el) el.style.height=h+'px'; });
+if(localStorage.getItem('j_theme')==='light') document.body.classList.add('light-theme');
+
+// ── Reminder Toast ────────────────────────────────────────
+function showToast(title,text){
+  const c=document.getElementById('toastContainer');
+  const d=document.createElement('div'); d.className='toast'; d.style.position='relative';
+  d.innerHTML=`<button class="toast-close" onclick="this.parentElement.remove()">✕</button><div class="toast-title">${title}</div><div class="toast-text">${text}</div>`;
+  c.appendChild(d);
+  setTimeout(()=>{if(d.parentElement)d.remove();},8000);
 }
 
-// Load voices
-window.speechSynthesis.onvoiceschanged = loadVoices;
-setTimeout(loadVoices, 600);
+// ── Panels ────────────────────────────────────────────────
+function openPanel(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='todoPanel') loadTodos();
+  if(id==='notePanel') loadNotes();
+  if(id==='reminderPanel') loadReminders();
+}
+function closePanel(id){document.getElementById(id).classList.remove('open');}
 
-// ── Clear Memory ─────────────────────────────────────────
-async function clearMemory() {
-  if (!confirm('Wipe all JARVIS memory and device data?')) return;
-  const r = await fetch('/memory', {method:'DELETE'});
-  const d = await r.json();
-  addMessage('jarvis', d.status || 'Memory cleared.');
-  localStorage.removeItem('jarvis_device_owner');
-  localStorage.removeItem('jarvis_device_name');
-  speak('All memory wiped clean, Sir.');
-  setTimeout(() => location.reload(), 2000);
+async function loadTodos(){
+  const res=await fetch(`/todos/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('todoBody');
+  if(!d.todos||!d.todos.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No items yet. Ask JARVIS or type below.</div>';return;}
+  body.innerHTML=d.todos.map(t=>`<div class="todo-item ${t.done?'done-item':''}" id="todo_${t.id}">
+    <div class="todo-check ${t.done?'checked':''}" onclick="checkTodo(${t.id})">${t.done?'✓':''}</div>
+    <div class="todo-text">${escHtml(t.text)}</div>
+  </div>`).join('');
+}
+async function addTodo(){
+  const input=document.getElementById('todoInput');
+  const text=input.value.trim(); if(!text) return;
+  await fetch('/ws');// Just use JARVIS command
+  sq(`todo: ${text}`);
+  input.value='';
+  setTimeout(loadTodos,1500);
+}
+async function checkTodo(id){
+  await fetch(`/todo/toggle/${id}`,{method:'POST'});
+  loadTodos();
+}
+
+async function loadNotes(){
+  const res=await fetch(`/notes/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('noteBody');
+  if(!d.notes||!d.notes.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No notes yet. Say "note: ..." to JARVIS.</div>';return;}
+  body.innerHTML=d.notes.map(n=>`<div class="note-item"><div class="note-title">${escHtml(n.title)}</div><div class="note-body">${escHtml(n.content)}</div><div class="note-date">${n.date?n.date.slice(0,10):''}</div></div>`).join('');
+}
+async function addNote(){
+  const input=document.getElementById('noteInput');
+  const text=input.value.trim(); if(!text) return;
+  sq(`note: ${text}`);
+  input.value='';
+  setTimeout(loadNotes,1500);
+}
+
+async function loadReminders(){
+  const res=await fetch(`/reminders/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('reminderBody');
+  const active=d.reminders?d.reminders.filter(r=>!r.done):[];
+  if(!active.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No reminders. Say "Remind me at 6pm to..."</div>';return;}
+  body.innerHTML=active.map(r=>`<div class="reminder-item"><div class="reminder-text">${escHtml(r.text)}</div><div class="reminder-time">${r.time?r.time.slice(11,16):''}</div></div>`).join('');
+}
+
+// ── Admin Dashboard ───────────────────────────────────────
+async function openAdmin(){
+  if(!isAdmin) return;
+  document.getElementById('adminOverlay').classList.add('open');
+  const res=await fetch('/memory');
+  const d=await res.json();
+  document.getElementById('statMsgs').textContent=d.stats?.hot||0;
+  document.getElementById('statArchive').textContent=d.stats?.archived||0;
+  document.getElementById('statDevices').textContent=d.devices?.length||0;
+  document.getElementById('statFacts').textContent=Object.keys(d.facts||{}).length;
+}
+async function adminAction(action){
+  if(action==='wipe_chats'){
+    if(!confirm('Wipe all chat history? Facts and family data will be preserved.')) return;
+    await fetch('/memory/chats',{method:'DELETE'});
+    addMessage('jarvis','Chat history wiped. All family facts and device registrations preserved, Sir.');
+  } else if(action==='compress'){
+    await fetch('/compress',{method:'POST'});
+    addMessage('jarvis','Memory compression complete, Sir. Old conversations archived.');
+  } else if(action==='wipe_all'){
+    if(!confirm('FULL RESET? This removes all chats, todos, notes, reminders. Family facts preserved.')) return;
+    await fetch('/memory/all',{method:'DELETE'});
+    addMessage('jarvis','Full system reset complete. Battini family core data preserved, Sir.');
+  }
+  closeModalDirect('adminOverlay');
+}
+async function sendAnnouncement(){
+  const txt=document.getElementById('announceTxt').value.trim();
+  if(!txt) return;
+  sq(`announce: ${txt}`);
+  document.getElementById('announceTxt').value='';
+  closeModalDirect('adminOverlay');
+}
+
+// ── Modal Helpers ─────────────────────────────────────────
+function closeModal(id,e){if(e.target===document.getElementById(id))closeModalDirect(id);}
+function closeModalDirect(id){document.getElementById(id).classList.remove('open');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+
+// ── Memory / Clear ────────────────────────────────────────
+async function clearMemory(){
+  if(!confirm('Clear all JARVIS data?')) return;
+  await fetch('/memory/all',{method:'DELETE'});
+  localStorage.removeItem('j_owner'); localStorage.removeItem('j_dname');
+  addMessage('jarvis','Memory cleared. Reloading...');
+  setTimeout(()=>location.reload(),2000);
 }
 </script>
 </body>
