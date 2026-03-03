@@ -138,7 +138,7 @@ async def jarvis_respond(user_text: str) -> str:
     messages = [{"role": "system", "content": system}] + history[-10:] + [{"role": "user", "content": user_text}]
 
     resp = client.chat.completions.create(
-        model="llama3-70b-8192",
+        model="llama-3.3-70b-versatile",
         messages=messages,
         max_tokens=400,
         temperature=0.75
@@ -154,7 +154,7 @@ async def jarvis_respond(user_text: str) -> str:
 async def _extract_facts(text):
     try:
         r = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": "Extract user facts as JSON {\"key\":\"value\"}. Keys: name,city,job,hobby. Return {} if nothing clear."},
                 {"role": "user", "content": text}
