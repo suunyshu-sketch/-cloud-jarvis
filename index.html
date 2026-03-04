@@ -21,17 +21,52 @@ body.light-theme::before{background-image:linear-gradient(rgba(0,100,200,0.04) 1
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:1}
 
 /* ── Header ── */
-header{position:relative;z-index:10;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(0,8,20,0.96);backdrop-filter:blur(10px);gap:8px;flex-wrap:wrap}
-body.light-theme header{background:rgba(230,240,255,0.96)}
-.logo{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.hbtn{display:flex;align-items:center;gap:5px;background:rgba(0,30,60,0.9);border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--cyan);letter-spacing:.06em;transition:all .2s;white-space:nowrap}
-.hbtn:hover{border-color:var(--cyan);background:rgba(0,212,255,0.1);box-shadow:0 0 12px rgba(0,212,255,.15)}
-.hbtn .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);flex-shrink:0}
-.status-row{display:flex;gap:10px;align-items:center;font-size:0.62rem;color:var(--dim);letter-spacing:.07em}
+header{position:relative;z-index:10;padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(0,5,15,0.97);backdrop-filter:blur(14px);flex-shrink:0}
+body.light-theme header{background:rgba(230,240,255,0.97)}
+.logo{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;letter-spacing:.28em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-center{display:flex;align-items:center;gap:10px;font-size:.6rem;color:var(--dim);letter-spacing:.1em}
 .dot-status{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:pulse 2s infinite}
 .dot-status.off{background:var(--red);box-shadow:0 0 7px var(--red);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.menu-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:rgba(0,30,60,.8);color:var(--cyan);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.menu-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.1);box-shadow:0 0 14px rgba(0,212,255,.2)}
+.theme-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(0,30,60,.6);color:var(--dim);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.theme-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── Side Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,5,15,.7);z-index:190;display:none;backdrop-filter:blur(4px)}
+.drawer-overlay.open{display:block}
+.drawer{position:fixed;right:0;top:0;height:100vh;width:300px;background:rgba(0,8,22,.99);border-left:1px solid var(--border);z-index:195;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{transform:none}
+.drawer-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--cyan);letter-spacing:.15em}
+.drawer-close{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--dim);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.drawer-close:hover{border-color:var(--red);color:var(--red)}
+.drawer-body{flex:1;overflow-y:auto;padding:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.drawer-section{margin-bottom:20px}
+.drawer-section-title{font-size:.58rem;color:var(--dim);letter-spacing:.18em;padding:0 4px;margin-bottom:8px;text-transform:uppercase}
+.drawer-items{display:flex;flex-direction:column;gap:4px}
+.di{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:all .18s}
+.di:hover{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.15)}
+.di:active{background:rgba(0,212,255,.1)}
+.di-icon{font-size:1.05rem;width:24px;text-align:center;flex-shrink:0}
+.di-label{font-size:.78rem;color:var(--text);flex:1}
+.di-desc{font-size:.6rem;color:var(--dim);margin-top:2px}
+.di.active-item{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2)}
+.di.admin-item{border-color:rgba(255,215,0,.1)}
+.di.admin-item .di-label{color:var(--yellow)}
+.di.admin-item:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}
+.drawer-divider{height:1px;background:var(--border);margin:4px 0 16px}
+.drawer-user{padding:12px 14px;background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;display:flex;align-items:center;gap:11px}
+.drawer-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--cyan);background:rgba(0,212,255,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.drawer-user-info{}
+.drawer-user-name{font-size:.78rem;color:var(--cyan);font-family:'Orbitron',monospace;letter-spacing:.06em}
+.drawer-user-sub{font-size:.6rem;color:var(--dim);margin-top:2px}
+
+/* ── Status row (inline in header) ── */
+.status-row{display:flex;gap:8px;align-items:center;font-size:.6rem;color:var(--dim);letter-spacing:.07em}
+.hbtn{display:none} /* hide old hbtns */
 
 /* ── Modals ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,5,15,0.9);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
@@ -134,22 +169,38 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
 .img-preview .remove-img{position:absolute;top:2px;right:2px;background:rgba(255,68,102,.8);border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 /* ── Quick Commands ── */
-.quick-cmds{display:flex;flex-wrap:wrap;gap:6px}
-.qbtn{background:rgba(0,30,60,.6);border:1px solid rgba(0,212,255,.13);border-radius:18px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.68rem;padding:4px 11px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.qbtn:hover{border-color:var(--cyan);color:var(--cyan2);background:rgba(0,212,255,.07)}
+.quick-cmds{display:none} /* hidden — moved to drawer */
+.qbtn{display:none}
 
-/* ── Input Area ── */
-.input-area{display:flex;gap:7px;align-items:stretch}
-#textInput{flex:1;background:rgba(0,30,60,.9);border:1px solid var(--border);border-radius:8px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.87rem;padding:11px 14px;outline:none;transition:all .2s;caret-color:var(--cyan)}
-#textInput::placeholder{color:rgba(0,212,255,.28)}
-#textInput:focus{border-color:var(--cyan);box-shadow:0 0 13px rgba(0,212,255,.1)}
-.btn{border:1px solid var(--border);border-radius:8px;background:rgba(0,30,60,.9);color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.09em;padding:0 13px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn:hover:not(:disabled){background:rgba(0,212,255,.1);border-color:var(--cyan);box-shadow:0 0 13px rgba(0,212,255,.17)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-#voiceBtn{font-size:1rem;padding:0 12px}
-#voiceBtn.listening{background:rgba(0,212,255,.12);border-color:var(--cyan);animation:vpulse 1s ease-in-out infinite}
+/* ── FAB (floating action) ── */
+.fab-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.fab{width:42px;height:42px;border-radius:11px;border:1px solid var(--border);background:rgba(0,30,60,.9);color:var(--cyan);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.fab:hover{border-color:var(--cyan);background:rgba(0,212,255,.1);box-shadow:0 0 14px rgba(0,212,255,.2)}
+
+/* ── Shortcut Grid (pops up above input) ── */
+.shortcut-tray{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(12px);width:calc(100% - 28px);max-width:860px;background:rgba(0,8,22,.98);border:1px solid var(--border);border-radius:16px;padding:16px;z-index:160;display:none;grid-template-columns:repeat(4,1fr);gap:8px;box-shadow:0 -4px 40px rgba(0,212,255,.1);backdrop-filter:blur(14px);animation:trayUp .2s ease-out}
+@keyframes trayUp{from{opacity:0;transform:translateX(-50%) translateY(18px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.shortcut-tray.open{display:grid}
+.st-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:11px;border:1px solid rgba(0,212,255,.1);background:rgba(0,25,55,.6);cursor:pointer;transition:all .18s}
+.st-item:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.07)}
+.st-icon{font-size:1.2rem}
+.st-label{font-size:.58rem;color:var(--dim);text-align:center;letter-spacing:.05em;white-space:nowrap}
+.st-item:hover .st-label{color:var(--cyan)}
+
+/* ── Input Bar ── */
+.input-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:10px 14px 14px;background:rgba(0,5,15,.97);border-top:1px solid var(--border);backdrop-filter:blur(14px)}
+.input-area{display:flex;gap:8px;align-items:center;max-width:860px;margin:0 auto}
+#textInput{flex:1;background:rgba(0,20,45,.9);border:1px solid var(--border);border-radius:12px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.88rem;padding:12px 16px;outline:none;transition:all .2s;caret-color:var(--cyan)}
+#textInput::placeholder{color:rgba(0,212,255,.25)}
+#textInput:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.07)}
+.btn{width:44px;height:44px;border:1px solid var(--border);border-radius:11px;background:rgba(0,30,60,.9);color:var(--cyan);font-size:1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn:hover:not(:disabled){background:rgba(0,212,255,.1);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.15)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+#sendBtn{width:auto;padding:0 18px;font-family:'Orbitron',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;background:linear-gradient(90deg,rgba(0,80,200,.4),rgba(0,212,255,.25));border-color:var(--cyan)}
+#sendBtn:hover{background:linear-gradient(90deg,rgba(0,80,200,.6),rgba(0,212,255,.4));box-shadow:0 0 20px rgba(0,212,255,.2)}
+#voiceBtn.listening{background:rgba(0,212,255,.15);border-color:var(--cyan);animation:vpulse 1s ease-in-out infinite}
 @keyframes vpulse{0%,100%{box-shadow:0 0 7px rgba(0,212,255,.2)}50%{box-shadow:0 0 22px rgba(0,212,255,.5)}}
-.img-btn{font-size:.95rem;padding:0 11px}
+.img-btn{font-size:.95rem}
 
 /* ── Panels (Todos / Notes / Memory) ── */
 .side-panel{position:fixed;right:0;top:0;height:100vh;width:340px;background:rgba(0,12,28,.97);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;backdrop-filter:blur(10px)}
@@ -260,7 +311,8 @@ audio.jarvis-audio{width:100%;accent-color:var(--cyan)}
 .sib.p{color:#00ff88;border-color:rgba(0,255,136,.25)}.sib.p:hover{background:rgba(0,255,136,.08);border-color:#00ff88}
 .sib.y{color:#ff6666;border-color:rgba(255,68,68,.25)}.sib.y:hover{background:rgba(255,68,68,.08);border-color:#ff4444}
 
-@media(max-width:480px){.logo{font-size:.95rem}.status-row .hide-sm{display:none}.chat-window{min-height:230px;max-height:310px}.quick-cmds{display:none}.side-panel{width:100%}}
+main{padding-bottom:80px}
+@media(max-width:480px){.logo{font-size:.95rem}.chat-window{min-height:300px;max-height:calc(100vh - 220px)}.side-panel{width:100%}.shortcut-tray{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
@@ -323,22 +375,126 @@ audio.jarvis-audio{width:100%;accent-color:var(--cyan)}
 <div class="reminder-toast" id="toastContainer"></div>
 
 <!-- Header -->
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- Side Drawer -->
+<div class="drawer" id="mainDrawer">
+  <div class="drawer-head">
+    <div class="drawer-title">MENU</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <!-- User info -->
+    <div class="drawer-user" id="drawerUser">
+      <div class="drawer-avatar">👤</div>
+      <div class="drawer-user-info">
+        <div class="drawer-user-name" id="drawerName">—</div>
+        <div class="drawer-user-sub" id="drawerDevice">—</div>
+      </div>
+    </div>
+
+    <!-- Personal -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Personal</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();openPanel('todoPanel')">
+          <div class="di-icon">📋</div>
+          <div><div class="di-label">My List</div><div class="di-desc">Todos &amp; tasks</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openPanel('notePanel')">
+          <div class="di-icon">📝</div>
+          <div><div class="di-label">Notes</div><div class="di-desc">Save anything</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openPanel('reminderPanel')">
+          <div class="di-icon">⏰</div>
+          <div><div class="di-label">Reminders</div><div class="di-desc">Upcoming alerts</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What upcoming birthdays are there?')">
+          <div class="di-icon">🎂</div>
+          <div><div class="di-label">Birthdays</div><div class="di-desc">Family calendar</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entertainment -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Entertainment</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();openMusicMenu()">
+          <div class="di-icon">🎵</div>
+          <div><div class="di-label">Music</div><div class="di-desc">Voice search, play, YouTube</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('Give me today cricket score')">
+          <div class="di-icon">🏏</div>
+          <div><div class="di-label">Cricket</div><div class="di-desc">Live scores</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Data -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Live Data</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();sq('What is the weather now?')">
+          <div class="di-icon">🌤</div>
+          <div><div class="di-label">Weather</div><div class="di-desc">Hyderabad right now</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What are the major news and events happening in the world right now?')">
+          <div class="di-icon">🌍</div>
+          <div><div class="di-label">World News</div><div class="di-desc">Latest headlines</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What is the current price of Bitcoin Ethereum and Dogecoin?')">
+          <div class="di-icon">₿</div>
+          <div><div class="di-label">Crypto Prices</div><div class="di-desc">BTC, ETH, DOGE in ₹</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('Convert 100 USD to INR')">
+          <div class="di-icon">💱</div>
+          <div><div class="di-label">Currency</div><div class="di-desc">Converter</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What is Rahu Kalam and Gulika Kalam today?')">
+          <div class="di-icon">🕉</div>
+          <div><div class="di-label">Hindu Calendar</div><div class="di-desc">Rahu Kalam, pooja times</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Settings</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();toggleTheme()">
+          <div class="di-icon">🌓</div>
+          <div><div class="di-label">Toggle Theme</div><div class="di-desc">Dark / Light mode</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();togglePrivate()" id="drawerPrivateItem">
+          <div class="di-icon">🔒</div>
+          <div><div class="di-label" id="drawerPrivateLabel">Private Mode</div><div class="di-desc">Chats not saved</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openVE()">
+          <div class="di-icon">🎙</div>
+          <div><div class="di-label">Voice Engine</div><div class="di-desc">Voice, speed, pitch</div></div>
+        </div>
+        <div class="di admin-item" id="drawerAdminItem" style="display:none" onclick="closeDrawer();openAdmin()">
+          <div class="di-icon">👑</div>
+          <div><div class="di-label">Admin Panel</div><div class="di-desc">Memory, devices, controls</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <header>
   <div class="logo">J.A.R.V.I.S</div>
-  <div class="header-right">
-    <div class="status-row">
-      <div id="statusDot" class="dot-status off"></div>
-      <span id="statusText">CONNECTING</span>
-      <span class="hide-sm" id="clockEl">--:--:--</span>
-    </div>
-    <button class="hbtn" onclick="openPanel('todoPanel')">📋 LIST</button>
-    <button class="hbtn" onclick="openPanel('notePanel')">📝 NOTES</button>
-    <button class="hbtn" onclick="openPanel('reminderPanel')">⏰ REMINDERS</button>
-    <button class="hbtn" id="adminBtn" style="display:none;border-color:rgba(255,215,0,.3);color:var(--yellow)" onclick="openAdmin()">👑 ADMIN</button>
-    <button class="hbtn" onclick="openMusicMenu()" style="border-color:rgba(0,212,255,.3)">🎵 MUSIC</button>
-    <button class="hbtn" onclick="togglePrivate()" id="privateBtn">🔒 PRIVATE</button>
-    <button class="hbtn" onclick="toggleTheme()">🌓 THEME</button>
-    <button class="hbtn" onclick="openVE()" id="veBtn"><div class="dot"></div><span id="veLabel">VOICE ENGINE</span></button>
+  <div class="hdr-center">
+    <div id="statusDot" class="dot-status off"></div>
+    <span id="statusText">CONNECTING</span>
+    <span id="clockEl" style="font-size:.58rem;color:var(--dim);letter-spacing:.08em">--:--:--</span>
+  </div>
+  <div class="hdr-right">
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+    <button class="menu-btn" onclick="openDrawer()" title="Menu">☰</button>
   </div>
 </header>
 
@@ -385,27 +541,35 @@ audio.jarvis-audio{width:100%;accent-color:var(--cyan)}
     <button class="remove-img" onclick="clearImage()">✕</button>
   </div>
 
-  <div class="quick-cmds">
-    <button class="qbtn" onclick="sq('What is the weather now?')">🌤 Weather</button>
-    <button class="qbtn" onclick="sq('What are the major wars and conflicts happening in the world right now?')">🌍 World News</button>
-    <button class="qbtn" onclick="sq('Give me today cricket score')">🏏 Cricket</button>
-    <button class="qbtn" onclick="sq('What is the current price of Bitcoin in Indian rupees?')">₿ Crypto</button>
-    <button class="qbtn" onclick="sq('Convert 100 USD to INR')">💱 Currency</button>
-    <button class="qbtn" onclick="sq('What is Rahu Kalam today?')">🕉 Rahu Kalam</button>
-    <button class="qbtn" onclick="sq('Show my todo list')">📋 My List</button>
-    <button class="qbtn" onclick="sq('What upcoming birthdays are there?')">🎂 Birthdays</button>
-    <button class="qbtn" onclick="openMusicMenu()">🎵 Music</button>
-  </div>
+</main>
 
+<!-- Shortcut Tray (above input bar) -->
+<div class="shortcut-tray" id="shortcutTray">
+  <div class="st-item" onclick="closeTray();sq('What is the weather now?')"><div class="st-icon">🌤</div><div class="st-label">Weather</div></div>
+  <div class="st-item" onclick="closeTray();sq('What are the major news happening in the world right now?')"><div class="st-icon">🌍</div><div class="st-label">News</div></div>
+  <div class="st-item" onclick="closeTray();sq('Give me today cricket score')"><div class="st-icon">🏏</div><div class="st-label">Cricket</div></div>
+  <div class="st-item" onclick="closeTray();sq('What is the current price of Bitcoin Ethereum Dogecoin?')"><div class="st-icon">₿</div><div class="st-label">Crypto</div></div>
+  <div class="st-item" onclick="closeTray();sq('Convert 100 USD to INR')"><div class="st-icon">💱</div><div class="st-label">Currency</div></div>
+  <div class="st-item" onclick="closeTray();sq('What is Rahu Kalam today?')"><div class="st-icon">🕉</div><div class="st-label">Rahu Kalam</div></div>
+  <div class="st-item" onclick="closeTray();sq('Show my todo list')"><div class="st-icon">📋</div><div class="st-label">My List</div></div>
+  <div class="st-item" onclick="closeTray();openMusicMenu()"><div class="st-icon">🎵</div><div class="st-label">Music</div></div>
+  <div class="st-item" onclick="closeTray();document.getElementById('imgFile').click()"><div class="st-icon">📷</div><div class="st-label">Image</div></div>
+  <div class="st-item" onclick="closeTray();sq('What upcoming birthdays are there?')"><div class="st-icon">🎂</div><div class="st-label">Birthdays</div></div>
+  <div class="st-item" onclick="closeTray();togglePrivate()"><div class="st-icon">🔒</div><div class="st-label">Private</div></div>
+  <div class="st-item" onclick="closeTray();openVE()"><div class="st-icon">🎙</div><div class="st-label">Voice</div></div>
+</div>
+
+<!-- Fixed Input Bar -->
+<div class="input-bar">
   <div class="input-area">
-    <input type="text" id="textInput" placeholder="Type or speak to JARVIS... (Telugu, English, Hindi)" autocomplete="off"/>
-    <button class="btn img-btn" id="imgBtn" title="Send Image" onclick="document.getElementById('imgFile').click()">📷</button>
+    <button class="btn fab" id="trayBtn" onclick="toggleTray()" title="Quick shortcuts">＋</button>
     <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleImage(event)"/>
-    <button class="btn" id="voiceLangBtn" onclick="cycleLang()" style="font-size:.62rem;padding:0 9px" title="Switch voice language">🌐 EN</button>
+    <input type="text" id="textInput" placeholder="Talk to JARVIS — Telugu, English, Hindi..." autocomplete="off"/>
+    <button class="btn" id="voiceLangBtn" onclick="cycleLang()" style="font-size:.6rem;width:auto;padding:0 10px;letter-spacing:.04em" title="Switch voice language">🌐 EN</button>
     <button class="btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
     <button class="btn" id="sendBtn" onclick="sendMessage()">SEND</button>
   </div>
-</main>
+</div>
 
 <!-- Todo Panel -->
 <div class="side-panel" id="todoPanel">
@@ -1147,6 +1311,71 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();musicHook();}
   });
 })();
+
+
+// ══════════════════════════════════════════════════════════
+//  DRAWER + SHORTCUT TRAY
+// ══════════════════════════════════════════════════════════
+function openDrawer(){
+  document.getElementById('mainDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  // Populate user info safely
+  const owner = localStorage.getItem('j_owner') || '—';
+  const dname = localStorage.getItem('j_dname') || '—';
+  const dnEl = document.getElementById('drawerName');
+  const ddEl = document.getElementById('drawerDevice');
+  const daEl = document.getElementById('drawerAdminItem');
+  if(dnEl) dnEl.textContent = owner;
+  if(ddEl) ddEl.textContent = dname;
+  const isAdmin = ['lucky','lakshmi narayana','lakshminarayana'].includes(owner.toLowerCase());
+  if(daEl) daEl.style.display = isAdmin ? 'flex' : 'none';
+}
+function closeDrawer(){
+  document.getElementById('mainDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+
+let trayOpen = false;
+function toggleTray(){
+  trayOpen = !trayOpen;
+  const tray = document.getElementById('shortcutTray');
+  const btn  = document.getElementById('trayBtn');
+  tray.classList.toggle('open', trayOpen);
+  btn.style.transform = trayOpen ? 'rotate(45deg)' : '';
+  btn.style.borderColor = trayOpen ? 'var(--cyan)' : '';
+}
+function closeTray(){
+  trayOpen = false;
+  document.getElementById('shortcutTray').classList.remove('open');
+  document.getElementById('trayBtn').style.transform = '';
+  document.getElementById('trayBtn').style.borderColor = '';
+}
+// Close tray when clicking outside
+document.addEventListener('click', e=>{
+  const tray = document.getElementById('shortcutTray');
+  const btn  = document.getElementById('trayBtn');
+  if(trayOpen && !tray.contains(e.target) && !btn.contains(e.target)){
+    closeTray();
+  }
+});
+
+// Sync private mode indicator in drawer
+const _origTogglePrivate = window.togglePrivate;
+window.togglePrivate = function(){
+  if(_origTogglePrivate) _origTogglePrivate();
+  const lbl = document.getElementById('drawerPrivateLabel');
+  // Check after toggle
+  setTimeout(()=>{
+    const pi = document.getElementById('privateIndicator');
+    if(pi && lbl) lbl.textContent = pi.classList.contains('active') ? 'Private Mode ON' : 'Private Mode';
+  }, 50);
+};
+
+// Update admin button visibility after owner setup
+const _origSetup = window.completeSetup;
+window.completeSetup = function(){
+  if(typeof _origSetup === 'function') _origSetup();
+};
 
 </script>
 
