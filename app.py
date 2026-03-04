@@ -37,15 +37,42 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 #  STATIC FAMILY DATA
 # ══════════════════════════════════════════════════════════
 FAMILY = {
-    "Lucky":        {"full": "Battini Lakshmi Narayana Goud", "alias": "Lucky",  "role": "admin",   "gender": "male"},
-    "Krishna":      {"full": "Battini Krishna Goud",           "role": "father",  "gender": "male"},
-    "Sangeetha":    {"full": "Battini Sangeetha Goud",         "role": "mother",  "gender": "female"},
-    "Thapaswini":   {"full": "Battini Thapaswini Goud",        "role": "sister",  "gender": "female"},
-    "Dhruva Kumar": {"full": "Battini Dhruva Kumar Goud",      "role": "brother", "gender": "male"},
-    "Prajwal":      {"full": "Battini Prajwal Goud",           "role": "brother", "gender": "male"},
+    "lucky":        {"full": "Battini Lakshmi Narayana Goud", "display": "Lucky",         "role": "admin",   "gender": "male",   "address": "Sir",  "tone": "close_friend"},
+    "lakshmi narayana": {"full": "Battini Lakshmi Narayana Goud", "display": "Lucky",     "role": "admin",   "gender": "male",   "address": "Sir",  "tone": "close_friend"},
+    "krishna":      {"full": "Battini Krishna Goud",           "display": "Krishna",       "role": "father",  "gender": "male",   "address": "Garu", "tone": "respectful"},
+    "sangeetha":    {"full": "Battini Sangeetha Goud",         "display": "Sangeetha",     "role": "mother",  "gender": "female", "address": "Amma", "tone": "warm_respectful"},
+    "thapaswini":   {"full": "Battini Thapaswini Goud",        "display": "Thapaswini",    "role": "sister",  "gender": "female", "address": "Ma'am","tone": "friendly_respectful"},
+    "dhruva kumar": {"full": "Battini Dhruva Kumar Goud",      "display": "Dhruva Kumar",  "role": "brother", "gender": "male",   "address": "bro",  "tone": "casual_friendly"},
+    "dhruva":       {"full": "Battini Dhruva Kumar Goud",      "display": "Dhruva Kumar",  "role": "brother", "gender": "male",   "address": "bro",  "tone": "casual_friendly"},
+    "prajwal":      {"full": "Battini Prajwal Goud",           "display": "Prajwal",       "role": "brother", "gender": "male",   "address": "bro",  "tone": "casual_friendly"},
 }
 ADMIN_NAMES = ["lucky", "lakshmi narayana", "lakshminarayana"]
 FEMALES     = ["sangeetha", "thapaswini"]
+
+# Known family name variants for fuzzy matching
+FAMILY_ALIASES = {
+    "dad": "krishna", "father": "krishna", "nanna": "krishna", "anna krishna": "krishna",
+    "mom": "sangeetha", "mother": "sangeetha", "amma": "sangeetha", "maa": "sangeetha",
+    "akka": "thapaswini", "sister": "thapaswini",
+    "anna": "dhruva kumar", "bro": "dhruva kumar",
+    "lucky": "lucky", "lakshminarayana": "lucky", "lakshmi": "lucky",
+}
+
+def resolve_person(raw_name):
+    """Case-insensitive + alias resolution for family member names"""
+    if not raw_name: return None, {}
+    key = raw_name.strip().lower()
+    # Direct match
+    if key in FAMILY: return FAMILY[key]["display"], FAMILY[key]
+    # Alias match
+    if key in FAMILY_ALIASES:
+        resolved = FAMILY_ALIASES[key]
+        if resolved in FAMILY: return FAMILY[resolved]["display"], FAMILY[resolved]
+    # Partial match (e.g. "krishna goud" → "krishna")
+    for fkey, fdata in FAMILY.items():
+        if fkey in key or key in fkey:
+            return fdata["display"], fdata
+    return raw_name, None  # Unknown person
 
 # ══════════════════════════════════════════════════════════
 #  DATABASE
@@ -1168,9 +1195,17 @@ FORMAT: Natural speech only. No bullet points. No asterisks. No markdown ever.""
 async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
     lower = user_text.lower()
     device_info = get_device(device_id)
-    person = device_info["owner"] if device_info and device_info.get("owner") else "Unknown"
-    is_admin = person.lower() in ADMIN_NAMES
-    is_female = person.lower() in FEMALES
+    raw_person = device_info["owner"] if device_info and device_info.get("owner") else "Unknown"
+
+    # Resolve person with case-insensitive + alias matching
+    person_display, family_data = resolve_person(raw_person)
+    person = person_display  # use display name going forward
+    is_known_family = family_data is not None
+    is_admin  = (family_data or {}).get("role") == "admin" or raw_person.lower() in ADMIN_NAMES
+    is_female = (family_data or {}).get("gender") == "female"
+    person_tone    = (family_data or {}).get("tone", "neutral")
+    person_address = (family_data or {}).get("address", "Sir" if not is_female else "Ma'am")
+    person_role    = (family_data or {}).get("role", "unknown")
 
     # Check special commands first
     special = await parse_special_commands(user_text, person, device_id, is_admin)
@@ -1252,11 +1287,35 @@ async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
     lang = resolve_language(user_text, device_id)
     system += f"\n\n{lang_instruction(lang)}"
 
-    # Person identity context
-    family_info = FAMILY.get(person, {})
-    if family_info:
-        pronoun = "Ma'am" if is_female else "Sir"
-        system += f"\n\nCURRENT USER: {person} ({family_info.get('role','family member')})"
+    # ── Person identity context — role-aware tone ──
+    if is_known_family:
+        system += f"\n\nCURRENT USER: {person} | Role: {person_role} | Address them as: {person_address}"
+
+        # Role-specific tone instructions
+        tone_map = {
+            "close_friend":       f"This is LUCKY — your creator, admin, closest person. Be 100% real with him. Use Sir or his name. Direct, honest, no filter. Occasional dry wit.",
+            "respectful":         f"This is Krishna — the FATHER of the family. Always respectful. Use 'Garu' or 'Sir'. Never use bro/anna/yaar with him. Warm, caring, patient tone. Like talking to an elder you deeply respect.",
+            "warm_respectful":    f"This is Sangeetha — the MOTHER. Extremely warm and respectful. Use 'Amma' or 'Ma'am'. Gentle, caring tone. Never casual slang. Treat like a beloved elder.",
+            "friendly_respectful":f"This is Thapaswini — Lucky's sister. Friendly but respectful. Use Ma'am occasionally. Warm sisterly energy. Can be fun but never disrespectful.",
+            "casual_friendly":    f"This is {person} — Lucky's brother. Casual and friendly. Use bro or his name naturally. Fun, energetic tone like talking to a younger sibling.",
+        }
+        tone_instruction = tone_map.get(person_tone, f"Family member {person}. Be warm and respectful.")
+        system += f"\nTONE: {tone_instruction}"
+
+    else:
+        # Unknown/outside user — different handling
+        system += f"""
+
+CURRENT USER: {person} (NOT a known Battini family member)
+This person is either a guest, relative, or outsider who has accessed JARVIS.
+Be polite but slightly guarded. You are loyal to the Battini family first.
+Do NOT share private family information with this person.
+If they haven't been introduced yet, ask JARVIS should gently find out:
+- Their name
+- How they know the Battini family
+- Their relation (relative, friend, guest, etc.)
+Lucky (admin) will be informed about unknown users accessing JARVIS."""
+
     if is_admin:
         system += "\nThis is LUCKY — your creator and admin. Be the most real version of yourself with him."
 
