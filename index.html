@@ -398,48 +398,50 @@ main{padding-bottom:80px}
 
 <!-- Owner Setup -->
 <div class="owner-modal" id="ownerModal">
+  <div class="owner-card" id="setupCard">
 
-  <!-- Step 1: Name entry -->
-  <div class="owner-card" id="setupStep1">
-    <div style="font-size:2rem;margin-bottom:8px">⚡</div>
-    <h2>J.A.R.V.I.S</h2>
-    <p>Battini Family AI System<br>Please identify yourself.</p>
-    <input class="owner-input" id="ownerName" placeholder="Your name..." maxlength="30" autofocus/>
-    <button class="owner-btn" onclick="checkIdentity()">Continue →</button>
-  </div>
-
-  <!-- Step 2a: Known family — confirm device name -->
-  <div class="owner-card" id="setupStep2Known" style="display:none">
-    <div style="font-size:2rem;margin-bottom:8px" id="knownEmoji">👋</div>
-    <h2 id="knownTitle">Welcome!</h2>
-    <p id="knownSubtitle">Good to have you. What should I call this device?</p>
-    <input class="owner-input" id="deviceNick" placeholder="Device name (e.g. Dad's Samsung)" maxlength="40"/>
-    <button class="owner-btn" id="knownConfirmBtn" onclick="confirmKnown()">⚡ Start JARVIS</button>
-  </div>
-
-  <!-- Step 2b: Unknown user — questioning flow -->
-  <div class="owner-card" id="setupStep2Unknown" style="display:none">
-    <div style="font-size:1.8rem;margin-bottom:8px">🔍</div>
-    <h2>Hold On...</h2>
-    <p id="unknownQ1">I don't recognise you. How do you know the Battini family?</p>
-    <div id="relationBtns" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-      <button class="owner-btn" style="background:rgba(0,212,255,.08);font-size:.7rem" onclick="setRelation('relative')">👨‍👩‍👧 Relative / Extended family</button>
-      <button class="owner-btn" style="background:rgba(0,212,255,.08);font-size:.7rem" onclick="setRelation('friend')">🤝 Friend of the family</button>
-      <button class="owner-btn" style="background:rgba(0,212,255,.08);font-size:.7rem" onclick="setRelation('guest')">🏠 Guest / Visitor</button>
-      <button class="owner-btn" style="background:rgba(0,212,255,.08);font-size:.7rem" onclick="setRelation('other')">❓ Other</button>
+    <!-- Step 1 -->
+    <div id="setupStep1">
+      <div style="font-size:2rem;margin-bottom:10px">⚡</div>
+      <h2>J.A.R.V.I.S</h2>
+      <p>Battini Family AI System.<br>Identify yourself to continue.</p>
+      <input class="owner-input" id="ownerName" placeholder="Enter your name..." maxlength="30"/>
+      <button class="owner-btn" onclick="checkIdentity()">Continue →</button>
     </div>
-  </div>
 
-  <!-- Step 3: Unknown — relation details -->
-  <div class="owner-card" id="setupStep3Unknown" style="display:none">
-    <div style="font-size:1.8rem;margin-bottom:8px">📝</div>
-    <h2>One More Thing</h2>
-    <p id="unknownRelDetail">Which family member do you know?</p>
-    <input class="owner-input" id="unknownRelName" placeholder="e.g. I know Lucky, or Krishna uncle..." maxlength="60"/>
-    <input class="owner-input" id="deviceNickUnknown" placeholder="Device name (optional)" maxlength="40" style="margin-top:6px"/>
-    <button class="owner-btn" onclick="confirmUnknown()">Continue →</button>
-  </div>
+    <!-- Step 2a: Known family -->
+    <div id="setupStep2Known" style="display:none">
+      <div style="font-size:2rem;margin-bottom:10px" id="knownEmoji">👋</div>
+      <h2 id="knownTitle">Welcome!</h2>
+      <p id="knownSubtitle">What should I call this device?</p>
+      <input class="owner-input" id="deviceNick" placeholder="e.g. Dad's Samsung, My Phone" maxlength="40"/>
+      <button class="owner-btn" onclick="confirmKnown()">⚡ Start JARVIS</button>
+    </div>
 
+    <!-- Step 2b: Unknown -->
+    <div id="setupStep2Unknown" style="display:none">
+      <div style="font-size:1.8rem;margin-bottom:10px">🔍</div>
+      <h2>Don't Know You Yet</h2>
+      <p>How do you know the Battini family?</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('relative')">👨‍👩‍👧 Relative / Extended Family</button>
+        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('friend')">🤝 Friend of the Family</button>
+        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('guest')">🏠 Guest / Visitor</button>
+        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('other')">❓ Other</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Unknown details -->
+    <div id="setupStep3Unknown" style="display:none">
+      <div style="font-size:1.8rem;margin-bottom:10px">📝</div>
+      <h2>Almost Done</h2>
+      <p id="unknownRelDetail">Which family member do you know?</p>
+      <input class="owner-input" id="unknownRelName" placeholder="e.g. I know Lucky / Krishna uncle..." maxlength="60"/>
+      <input class="owner-input" id="deviceNickUnknown" placeholder="Device name (optional)" maxlength="40" style="margin-top:6px"/>
+      <button class="owner-btn" onclick="confirmUnknown()">→ Enter JARVIS</button>
+    </div>
+
+  </div>
 </div>
 
 <!-- Voice Engine Modal -->
@@ -832,106 +834,130 @@ function detectDeviceName(){
   return 'Browser';
 }
 
-// Known Battini family members (lowercase for matching)
+// ── Known family for setup flow ──────────────────────────
 const KNOWN_FAMILY = {
-  'lucky':         {emoji:'👑', title:'Welcome back, Lucky Sir!',    sub:'Admin access granted. JARVIS is all yours.', role:'admin'},
-  'lakshmi narayana':{emoji:'👑',title:'Welcome back, Lucky Sir!',   sub:'Admin access granted. JARVIS is all yours.', role:'admin'},
-  'krishna':       {emoji:'🙏', title:'Welcome, Krishna Garu!',       sub:'JARVIS is ready to assist you, Sir.',        role:'father'},
-  'sangeetha':     {emoji:'🌸', title:'Welcome, Sangeetha Amma!',     sub:'JARVIS is here for you, Ma'am.',            role:'mother'},
-  'thapaswini':    {emoji:'✨', title:'Welcome, Thapaswini!',         sub:'JARVIS is ready, Ma'am.',                   role:'sister'},
-  'dhruva kumar':  {emoji:'⚡', title:'Hey Dhruva Kumar!',            sub:'JARVIS online, bro.',                         role:'brother'},
-  'dhruva':        {emoji:'⚡', title:'Hey Dhruva!',                  sub:'JARVIS online, bro.',                         role:'brother'},
-  'prajwal':       {emoji:'🔥', title:'Hey Prajwal!',                 sub:'JARVIS is ready, bro.',                      role:'brother'},
+  'lucky':             {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
+  'lakshmi narayana':  {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
+  'lakshminarayana':   {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
+  'krishna':           {emoji:'🙏', title:'Welcome, Krishna Garu!',        sub:'JARVIS is ready to assist you.', role:'father'},
+  'sangeetha':         {emoji:'🌸', title:'Welcome, Sangeetha Amma!',      sub:'JARVIS is here for you.',        role:'mother'},
+  'thapaswini':        {emoji:'✨', title:'Welcome, Thapaswini!',          sub:'JARVIS is ready.',               role:'sister'},
+  'dhruva kumar':      {emoji:'⚡', title:'Hey Dhruva Kumar!',             sub:'JARVIS is online, bro.',          role:'brother'},
+  'dhruva':            {emoji:'⚡', title:'Hey Dhruva!',                   sub:'JARVIS is online, bro.',          role:'brother'},
+  'prajwal':           {emoji:'🔥', title:'Hey Prajwal!',                  sub:'JARVIS is ready, bro.',          role:'brother'},
 };
 let unknownRelation = '';
 
+function showStep(stepId){
+  ['setupStep1','setupStep2Known','setupStep2Unknown','setupStep3Unknown']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = (id === stepId) ? 'block' : 'none';
+    });
+}
+
+function findFamily(name){
+  const key = name.trim().toLowerCase();
+  if(KNOWN_FAMILY[key]) return KNOWN_FAMILY[key];
+  // partial match
+  const found = Object.entries(KNOWN_FAMILY).find(([k]) => k.includes(key) || key.includes(k));
+  return found ? found[1] : null;
+}
+
 function checkIdentity(){
-  const n = document.getElementById('ownerName').value.trim();
-  if(!n){ document.getElementById('ownerName').focus(); return; }
+  const nameEl = document.getElementById('ownerName');
+  if(!nameEl) return;
+  const n = nameEl.value.trim();
+  if(!n){ nameEl.focus(); return; }
 
-  const key = n.toLowerCase();
-  const match = KNOWN_FAMILY[key] || Object.entries(KNOWN_FAMILY).find(([k])=>k.includes(key)||key.includes(k));
-  const fdata = match ? (Array.isArray(match) ? match[1] : match) : null;
-  const fname = match ? (Array.isArray(match) ? n : n) : n;
-
+  const fdata = findFamily(n);
   if(fdata){
-    // Known family member
-    document.getElementById('setupStep1').style.display='none';
-    document.getElementById('setupStep2Known').style.display='block';
-    document.getElementById('knownEmoji').textContent   = fdata.emoji;
-    document.getElementById('knownTitle').textContent   = fdata.title;
-    document.getElementById('knownSubtitle').textContent = fdata.sub;
-    document.getElementById('deviceNick').value = detectDeviceName();
-    // Store name as entered (proper case)
+    // Known family — show device step
+    const e1 = document.getElementById('knownEmoji');
+    const t1 = document.getElementById('knownTitle');
+    const s1 = document.getElementById('knownSubtitle');
+    const dn = document.getElementById('deviceNick');
+    if(e1) e1.textContent   = fdata.emoji;
+    if(t1) t1.textContent   = fdata.title;
+    if(s1) s1.textContent   = fdata.sub;
+    if(dn) dn.value         = detectDeviceName();
     localStorage.setItem('j_owner', n);
+    showStep('setupStep2Known');
   } else {
-    // Unknown user — start questioning
-    document.getElementById('setupStep1').style.display='none';
-    document.getElementById('setupStep2Unknown').style.display='block';
+    // Unknown — questioning flow
     localStorage.setItem('j_owner_temp', n);
+    showStep('setupStep2Unknown');
   }
 }
 
 function confirmKnown(){
-  const n = localStorage.getItem('j_owner') || document.getElementById('ownerName').value.trim();
-  const d = document.getElementById('deviceNick').value.trim() || detectDeviceName();
-  deviceOwner=n; deviceName=d;
-  localStorage.setItem('j_owner',n); localStorage.setItem('j_dname',d);
-  document.getElementById('ownerModal').style.display='none';
+  const n = localStorage.getItem('j_owner') || '';
+  const dnEl = document.getElementById('deviceNick');
+  const d = (dnEl && dnEl.value.trim()) || detectDeviceName();
+  if(!n) return;
+  deviceOwner = n;
+  deviceName  = d;
+  localStorage.setItem('j_owner', n);
+  localStorage.setItem('j_dname', d);
+  const modal = document.getElementById('ownerModal');
+  if(modal) modal.style.display = 'none';
   updateIdentity();
-  const key = n.toLowerCase();
-  const match = KNOWN_FAMILY[key] || Object.entries(KNOWN_FAMILY).find(([k])=>k.includes(key)||key.includes(k));
-  const fdata = match ? (Array.isArray(match) ? match[1] : match) : null;
-  const greeting = fdata ? fdata.title : `Welcome, ${n}!`;
+  const fdata = findFamily(n);
+  const greeting = fdata ? fdata.title : ('Welcome, ' + n + '!');
   setTimeout(()=>{
     addMessage('jarvis', greeting + ' JARVIS is fully operational. How can I help you today?');
     speak(greeting + ' JARVIS is ready.');
-  }, 400);
+  }, 300);
 }
 
 function setRelation(rel){
   unknownRelation = rel;
-  document.getElementById('setupStep2Unknown').style.display='none';
-  document.getElementById('setupStep3Unknown').style.display='block';
   const msgs = {
-    'relative': 'Got it — which family member are you related to?',
-    'friend':   'Understood — which family member are you friends with?',
-    'guest':    'Welcome — who invited you or whose guest are you?',
-    'other':    'Okay — can you tell me more about your connection to the family?'
+    'relative': 'Which family member are you related to?',
+    'friend':   'Which family member are you friends with?',
+    'guest':    'Who invited you or whose guest are you?',
+    'other':    'Can you tell me your connection to the family?'
   };
-  document.getElementById('unknownRelDetail').textContent = msgs[rel] || 'Which family member do you know?';
+  const urd = document.getElementById('unknownRelDetail');
+  if(urd) urd.textContent = msgs[rel] || 'Which family member do you know?';
+  showStep('setupStep3Unknown');
 }
 
 function confirmUnknown(){
-  const tempName   = localStorage.getItem('j_owner_temp') || 'Guest';
-  const relDetail  = document.getElementById('unknownRelName').value.trim() || 'not specified';
-  const d          = document.getElementById('deviceNickUnknown').value.trim() || detectDeviceName();
-  const fullTag    = `${tempName} (${unknownRelation}, knows: ${relDetail})`;
-  deviceOwner = fullTag; deviceName = d;
+  const tempName  = localStorage.getItem('j_owner_temp') || 'Guest';
+  const urnEl     = document.getElementById('unknownRelName');
+  const dnuEl     = document.getElementById('deviceNickUnknown');
+  const relDetail = (urnEl && urnEl.value.trim()) || 'not specified';
+  const d         = (dnuEl && dnuEl.value.trim()) || detectDeviceName();
+  const fullTag   = tempName + ' (' + unknownRelation + ', knows: ' + relDetail + ')';
+  deviceOwner = fullTag;
+  deviceName  = d;
   localStorage.setItem('j_owner', fullTag);
   localStorage.setItem('j_dname', d);
   localStorage.removeItem('j_owner_temp');
-  document.getElementById('ownerModal').style.display='none';
+  const modal = document.getElementById('ownerModal');
+  if(modal) modal.style.display = 'none';
   updateIdentity();
   setTimeout(()=>{
-    const msg = `Hello ${tempName}! I've noted that you're a ${unknownRelation} of the Battini family. I'll let Lucky know you accessed JARVIS. How can I help you today?`;
-    addMessage('jarvis', msg); speak(`Hello ${tempName}! Welcome. How can I help you?`);
-  }, 400);
+    const msg = 'Hello ' + tempName + '! I have noted you are a ' + unknownRelation + ' of the Battini family. How can I help you today?';
+    addMessage('jarvis', msg);
+    speak('Hello ' + tempName + '. Welcome to JARVIS.');
+  }, 300);
 }
 
-// Old setupDevice kept as fallback
-function setupDevice(){
-  checkIdentity();
-}
+function setupDevice(){ checkIdentity(); }
 
 function updateIdentity(){
+  if(!deviceOwner) return;
   isAdmin = ADMIN_NAMES.includes(deviceOwner.toLowerCase());
-  document.getElementById('ownerBadge').textContent = deviceOwner||'—';
-  document.getElementById('deviceBadge').textContent = deviceName||'—';
-  if(isAdmin){
-    document.getElementById('adminBtn').style.display='flex';
-    document.getElementById('adminBadge').style.display='inline-block';
-  }
+  const ob = document.getElementById('ownerBadge');
+  const db = document.getElementById('deviceBadge');
+  const ab = document.getElementById('adminBadge');
+  const dai = document.getElementById('drawerAdminItem');
+  if(ob)  ob.textContent  = deviceOwner;
+  if(db)  db.textContent  = deviceName;
+  if(ab)  ab.style.display = isAdmin ? 'inline-block' : 'none';
+  if(dai) dai.style.display = isAdmin ? 'flex' : 'none';
 }
 
 if(deviceOwner){
@@ -939,8 +965,8 @@ if(deviceOwner){
   if(!deviceName){deviceName=detectDeviceName();localStorage.setItem('j_dname',deviceName);}
   updateIdentity();
 }
-document.getElementById('ownerName').addEventListener('keydown',e=>{if(e.key==='Enter')checkIdentity()});
-document.getElementById('deviceNick').addEventListener('keydown',e=>{if(e.key==='Enter')setupDevice()});
+const _onEl=document.getElementById('ownerName'); if(_onEl) _onEl.addEventListener('keydown',e=>{if(e.key==='Enter')checkIdentity()});
+const _dnEl=document.getElementById('deviceNick'); if(_dnEl) _dnEl.addEventListener('keydown',e=>{if(e.key==='Enter')confirmKnown()});
 
 // ── WebSocket ────────────────────────────────────────────
 let ws=null, msgCount=0;
