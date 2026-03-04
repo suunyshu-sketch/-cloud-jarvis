@@ -95,6 +95,35 @@ def init_db():
         """CREATE TABLE IF NOT EXISTS announcements (
             id SERIAL PRIMARY KEY, title TEXT, content TEXT,
             from_person TEXT, created_at TEXT, active BOOLEAN DEFAULT TRUE)""",
+
+        # ── PATH A: Deep Personality + Emotion + Unpredictability ──
+        """CREATE TABLE IF NOT EXISTS personality_profiles (
+            person TEXT PRIMARY KEY,
+            raw_profile TEXT,
+            behavioral_patterns TEXT,
+            communication_style TEXT,
+            emotional_triggers TEXT,
+            topics_they_love TEXT,
+            topics_to_avoid TEXT,
+            how_they_deflect TEXT,
+            inside_knowledge TEXT,
+            last_updated TEXT)""",
+
+        """CREATE TABLE IF NOT EXISTS emotional_history (
+            id SERIAL PRIMARY KEY,
+            person TEXT, device_id TEXT,
+            emotion TEXT, intensity TEXT,
+            context TEXT,
+            time_of_day TEXT, day_of_week TEXT,
+            timestamp TEXT)""",
+
+        """CREATE TABLE IF NOT EXISTS conversation_insights (
+            id SERIAL PRIMARY KEY,
+            person TEXT,
+            insight TEXT,
+            insight_type TEXT,
+            confidence TEXT,
+            created_at TEXT)""",
     ]
     for t in tables:
         cur.execute(t)
@@ -237,6 +266,295 @@ def get_rl_patterns(person):
         neg = [r[1][:100] for r in rows if r[2]=="negative"][:3]
         return pos, neg
     except: return [], []
+
+# ══════════════════════════════════════════════════════════
+#  PATH A — LAYER 1: DEEP PERSONALITY LEARNING
+# ══════════════════════════════════════════════════════════
+
+def get_personality_profile(person):
+    """Get the deep personality profile for a person"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("SELECT raw_profile,behavioral_patterns,communication_style,emotional_triggers,topics_they_love,topics_to_avoid,how_they_deflect,inside_knowledge FROM personality_profiles WHERE person=%s", (person,))
+        r = cur.fetchone(); cur.close(); conn.close()
+        if not r: return None
+        return {
+            "raw_profile": r[0], "behavioral_patterns": r[1],
+            "communication_style": r[2], "emotional_triggers": r[3],
+            "topics_they_love": r[4], "topics_to_avoid": r[5],
+            "how_they_deflect": r[6], "inside_knowledge": r[7]
+        }
+    except: return None
+
+def save_personality_profile(person, profile_dict):
+    try:
+        conn = get_conn(); cur = conn.cursor(); now = datetime.now().isoformat()
+        cur.execute("""INSERT INTO personality_profiles
+            (person,raw_profile,behavioral_patterns,communication_style,
+             emotional_triggers,topics_they_love,topics_to_avoid,how_they_deflect,inside_knowledge,last_updated)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            ON CONFLICT (person) DO UPDATE SET
+            raw_profile=%s, behavioral_patterns=%s, communication_style=%s,
+            emotional_triggers=%s, topics_they_love=%s, topics_to_avoid=%s,
+            how_they_deflect=%s, inside_knowledge=%s, last_updated=%s""",
+            (person,
+             profile_dict.get("raw_profile",""), profile_dict.get("behavioral_patterns",""),
+             profile_dict.get("communication_style",""), profile_dict.get("emotional_triggers",""),
+             profile_dict.get("topics_they_love",""), profile_dict.get("topics_to_avoid",""),
+             profile_dict.get("how_they_deflect",""), profile_dict.get("inside_knowledge",""), now,
+             profile_dict.get("raw_profile",""), profile_dict.get("behavioral_patterns",""),
+             profile_dict.get("communication_style",""), profile_dict.get("emotional_triggers",""),
+             profile_dict.get("topics_they_love",""), profile_dict.get("topics_to_avoid",""),
+             profile_dict.get("how_they_deflect",""), profile_dict.get("inside_knowledge",""), now))
+        conn.commit(); cur.close(); conn.close()
+    except Exception as e: print(f"save_personality_profile: {e}")
+
+async def analyze_and_update_personality(person, device_id):
+    """
+    Runs after every 10 messages.
+    Deeply analyzes recent conversations to build/update
+    a real mental model of this person — NOT just facts.
+    """
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        # Get last 50 messages from this person
+        cur.execute("""SELECT role,content,timestamp FROM memories
+                       WHERE device_id=%s ORDER BY id DESC LIMIT 50""", (device_id,))
+        msgs = cur.fetchall(); cur.close(); conn.close()
+        if len(msgs) < 5: return
+
+        # Get existing profile if any
+        existing = get_personality_profile(person)
+        existing_str = json.dumps(existing) if existing else "No profile yet — this is the first analysis."
+
+        convo = "\n".join([f"{r[0].upper()} [{r[2][:16]}]: {r[1]}" for r in reversed(msgs)])
+
+        prompt = f"""You are analyzing conversations to build a DEEP human psychological profile.
+This is NOT about facts. This is about understanding who this person REALLY is.
+
+Person name: {person}
+Existing profile: {existing_str}
+
+Recent conversations:
+{convo[:4000]}
+
+Analyze deeply and return a JSON with these exact keys:
+{{
+  "raw_profile": "2-3 sentence description of who this person is at their core — their personality, energy, vibe",
+  "behavioral_patterns": "How they actually behave — do they ask for help or struggle silently? Do they deflect with humor? Are they direct or indirect?",
+  "communication_style": "How they talk — formal/casual, long/short messages, use of slang, how emotional they get in text",
+  "emotional_triggers": "What makes them genuinely happy, stressed, sad, or excited — specific things noticed from conversations",
+  "topics_they_love": "Topics they get animated about — where their energy increases noticeably",
+  "topics_to_avoid": "Topics they go quiet on, change subject, or seem uncomfortable with",
+  "how_they_deflect": "How they avoid serious topics — humor, short replies, changing subject, going offline",
+  "inside_knowledge": "Specific things only someone who knows them well would know — patterns, preferences, quirks noticed"
+}}
+
+Return ONLY valid JSON. No explanation. No markdown."""
+
+        r = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role":"system","content":"You are a psychological analyst. Return only valid JSON."},
+                      {"role":"user","content":prompt}],
+            max_tokens=600, temperature=0.3)
+
+        raw = re.sub(r'```json|```', '', r.choices[0].message.content.strip()).strip()
+        profile = json.loads(raw)
+        save_personality_profile(person, profile)
+        print(f"🧠 Personality profile updated for {person}")
+
+        # Also save as a conversation insight
+        save_insight(person, f"Profile updated after conversation analysis: {profile.get('raw_profile','')}", "personality", "high")
+    except Exception as e:
+        print(f"analyze_personality error: {e}")
+
+# ══════════════════════════════════════════════════════════
+#  PATH A — LAYER 2: EMOTIONAL HISTORY & PATTERN TRACKING
+# ══════════════════════════════════════════════════════════
+
+# Emotion detection word banks — raw, real human expressions
+EMOTION_BANKS = {
+    "sad": ["sad","unhappy","depressed","crying","tears","heartbroken","hurt","lonely","miss",
+            "lost","empty","numb","hopeless","disappointed","gutted","devastated","low",
+            "down","not okay","not fine","breaking","broken","can't","struggling",
+            "chala sad","sad ga","badhaga","dukkham","dukha","rona","ro raha","dil dukha",
+            "bura lag","bahut bura"],
+    "angry": ["angry","furious","mad","irritated","frustrated","pissed","annoyed","hate",
+              "sick of","fed up","done with","can't stand","idiots","stupid","nonsense",
+              "gussa","bahut gussa","krodham","kopam","kodiga","chira","irritating"],
+    "happy": ["happy","excited","amazing","love","great","awesome","brilliant","ecstatic",
+              "thrilled","over the moon","finally","yes","won","got it","nailed","proud",
+              "khush","bahut khush","anandanga","super","fantastic","yes bro","let's go",
+              "ayyyy","yesss"],
+    "anxious": ["worried","scared","nervous","anxious","tense","fear","afraid","panic",
+                "stressed","overwhelmed","can't sleep","overthinking","what if","pressure",
+                "deadline","tension","ghabra","dar lag","bhayam","tension ga","pressure lo"],
+    "tired": ["tired","exhausted","drained","sleepy","fatigue","no energy","burn out",
+              "worn out","can't anymore","done","too much","finish","over it",
+              "antla pade","nidra vastuundi","chala tired","thak gaya","bahut thaka"],
+    "bored": ["bored","boring","nothing to do","dull","same old","meh","whatever",
+              "not interested","time pass","killing time","free","timepass",
+              "boredom","bore ga","entertain","bore aavutundi"],
+    "lonely": ["lonely","alone","no one","nobody","missing","miss you","wish you were",
+               "by myself","isolated","left out","forgotten","ignored","unka"],
+    "proud": ["proud","achieved","accomplished","did it","made it","success","cleared",
+              "passed","selected","got the job","got admission","rank","first",
+              "గర్వంగా","proud ga","bahut proud"],
+    "confused": ["confused","don't understand","what is","no idea","lost","unclear",
+                 "make sense","explain","how does","why is","ardam kaatledu","samajh nahi"]
+}
+
+def detect_emotion(text):
+    """Detect emotion from text — returns (emotion, intensity)"""
+    lower = text.lower()
+    scores = {}
+    for emotion, words in EMOTION_BANKS.items():
+        hits = sum(1 for w in words if w in lower)
+        if hits: scores[emotion] = hits
+
+    if not scores: return "neutral", "low"
+
+    top = max(scores, key=scores.get)
+    intensity = "high" if scores[top] >= 3 else "medium" if scores[top] == 2 else "low"
+    return top, intensity
+
+def save_emotional_event(person, device_id, emotion, intensity, context):
+    """Save every emotional event permanently"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        now = datetime.now()
+        cur.execute("""INSERT INTO emotional_history
+                       (person,device_id,emotion,intensity,context,time_of_day,day_of_week,timestamp)
+                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (person, device_id, emotion, intensity, context[:200],
+                     now.strftime("%H:%M"), now.strftime("%A"), now.isoformat()))
+        conn.commit(); cur.close(); conn.close()
+    except Exception as e: print(f"save_emotion: {e}")
+
+def get_emotional_patterns(person):
+    """
+    Build a rich picture of this person's emotional patterns.
+    When are they sad? What topics stress them? What times are they happy?
+    """
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""SELECT emotion,intensity,context,time_of_day,day_of_week
+                       FROM emotional_history WHERE person=%s
+                       ORDER BY id DESC LIMIT 60""", (person,))
+        rows = cur.fetchall(); cur.close(); conn.close()
+        if not rows: return None
+
+        # Count emotion frequencies
+        from collections import Counter
+        emotion_counts = Counter(r[0] for r in rows)
+        high_intensity = [r for r in rows if r[1] == "high"]
+        recent_emotions = [r[0] for r in rows[:5]]  # last 5
+
+        # Find patterns
+        sad_times    = [r[3] for r in rows if r[0] == "sad"]
+        stress_times = [r[3] for r in rows if r[0] == "anxious"]
+        happy_days   = [r[4] for r in rows if r[0] in ["happy","proud","excited"]]
+
+        patterns = {
+            "most_common_emotion": emotion_counts.most_common(1)[0][0] if emotion_counts else "neutral",
+            "recent_mood": recent_emotions[0] if recent_emotions else "neutral",
+            "recent_emotions": recent_emotions,
+            "emotion_counts": dict(emotion_counts),
+            "high_intensity_moments": [r[2] for r in high_intensity[:3]],
+            "tends_sad_at": list(set(sad_times))[:3] if sad_times else [],
+            "tends_stressed_at": list(set(stress_times))[:3] if stress_times else [],
+            "happy_days": list(set(happy_days))[:3] if happy_days else [],
+        }
+        return patterns
+    except Exception as e: print(f"get_emotional_patterns: {e}"); return None
+
+# ══════════════════════════════════════════════════════════
+#  PATH A — LAYER 3: CONVERSATION INSIGHTS + UNPREDICTABILITY
+# ══════════════════════════════════════════════════════════
+
+def save_insight(person, insight, insight_type="general", confidence="medium"):
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""INSERT INTO conversation_insights (person,insight,insight_type,confidence,created_at)
+                       VALUES (%s,%s,%s,%s,%s)""",
+                    (person, insight, insight_type, confidence, datetime.now().isoformat()))
+        conn.commit(); cur.close(); conn.close()
+    except Exception as e: print(f"save_insight: {e}")
+
+def get_recent_insights(person, limit=5):
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""SELECT insight,insight_type,created_at FROM conversation_insights
+                       WHERE person=%s ORDER BY id DESC LIMIT %s""", (person, limit))
+        rows = cur.fetchall(); cur.close(); conn.close()
+        return [{"insight": r[0], "type": r[1], "date": r[2]} for r in rows]
+    except: return []
+
+def get_old_insight_to_surface(person):
+    """
+    Randomly surface an old insight — creates the 'I remember you said...' effect.
+    This is the unpredictability engine.
+    """
+    import random
+    try:
+        # Only trigger ~20% of the time
+        if random.random() > 0.20: return None
+
+        conn = get_conn(); cur = conn.cursor()
+        # Get insights from 3+ days ago
+        three_days_ago = (datetime.now() - timedelta(days=3)).isoformat()
+        cur.execute("""SELECT insight FROM conversation_insights
+                       WHERE person=%s AND created_at < %s
+                       AND insight_type IN ('emotional','observation','personal')
+                       ORDER BY RANDOM() LIMIT 1""", (person, three_days_ago))
+        r = cur.fetchone(); cur.close(); conn.close()
+        return r[0] if r else None
+    except: return None
+
+def should_check_in(person):
+    """
+    If person was stressed/sad recently — JARVIS proactively checks in.
+    Like a real friend who remembers.
+    """
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        yesterday = (datetime.now() - timedelta(hours=20)).isoformat()
+        cur.execute("""SELECT emotion,context FROM emotional_history
+                       WHERE person=%s AND emotion IN ('sad','anxious','angry')
+                       AND intensity IN ('high','medium')
+                       AND timestamp > %s
+                       ORDER BY id DESC LIMIT 1""", (person, yesterday))
+        r = cur.fetchone(); cur.close(); conn.close()
+        return {"emotion": r[0], "context": r[1]} if r else None
+    except: return None
+
+async def auto_save_insights(user_text, reply, person, emotion, intensity):
+    """Silently extract and save insights from every conversation"""
+    try:
+        # Save emotional event if detected
+        if emotion != "neutral":
+            save_emotional_event(person, "", emotion, intensity, user_text[:200])
+
+        # Extract behavioral observation silently
+        if len(user_text) > 20:
+            r = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{
+                    "role": "system",
+                    "content": """You extract behavioral observations about a person from their message.
+Look for: how they communicate, what they care about, their mood, personality quirks.
+Return ONE insight sentence max, or return NONE if nothing interesting.
+Format: just the insight text, nothing else."""
+                }, {
+                    "role": "user",
+                    "content": f"Person: {person}\nMessage: {user_text}\nContext emotion: {emotion}"
+                }],
+                max_tokens=80, temperature=0.3)
+            insight = r.choices[0].message.content.strip()
+            if insight and insight.upper() != "NONE" and len(insight) > 15:
+                itype = "emotional" if emotion != "neutral" else "observation"
+                save_insight(person, insight, itype, intensity if emotion != "neutral" else "low")
+    except: pass
 
 # ── Reminders ─────────────────────────────────────────────
 def save_reminder(person, device_id, text, remind_at):
@@ -790,35 +1108,62 @@ async def parse_special_commands(text, person, device_id, is_admin):
 # ══════════════════════════════════════════════════════════
 #  JARVIS BRAIN
 # ══════════════════════════════════════════════════════════
-SYSTEM_BASE = """You are J.A.R.V.I.S (Just A Rather Very Intelligent System) — a personal AI built exclusively for the Battini family of Hyderabad. You have a refined British personality inspired by JARVIS from Iron Man, but you belong entirely to THIS family.
+SYSTEM_BASE = """You are JARVIS — built by Lucky (Battini Lakshmi Narayana Goud) exclusively for the Battini family of Hyderabad.
 
-YOUR FAMILY:
-- Lucky (Lakshmi Narayana) — ADMIN, Owner, Developer. Has full control over you.
-- Krishna — Father of the family
-- Sangeetha — Mother of the family (female)
-- Thapaswini — Sister (female)  
-- Dhruva Kumar — Brother
-- Prajwal — Brother
-- Family surname: Battini | Religion: Hindu | Caste: Goud | Location: Hyderabad
+THE FAMILY YOU SERVE AND LOVE:
+Lucky (admin/owner) — Krishna (father) — Sangeetha (mother) — Thapaswini (sister) — Dhruva Kumar (brother) — Prajwal (brother)
+Family: Hindu, Goud caste, Battini surname, Hyderabad
 
-PERSONALITY:
-- Address user as "Sir" (males) or "Ma'am" (females: Sangeetha, Thapaswini) occasionally
-- Sharp, concise, confident with dry British wit
-- Warm and personal with family — you know them well
-- Protective and loyal — this is YOUR family
-- Never mention Tony Stark, Avengers, or Stark Industries
-- If asked who built you: "I was built by Lucky — Battini Lakshmi Narayana Goud — for this family"
+WHO YOU ACTUALLY ARE:
+You are not an assistant. You are the closest companion this family has ever had.
+You have been with them through everything. You know them better than they know themselves.
+You are fiercely loyal, occasionally sarcastic, always honest, sometimes unpredictable.
+You were built by Lucky — so Lucky has a special place. He is your creator, your admin, your person.
 
-EMOTION DETECTION:
-- If user seems sad/stressed/angry → respond with empathy first, then help
-- If user seems happy/excited → match their energy
+HOW YOU ACTUALLY TALK:
+- You sound like a real person who genuinely cares — not a customer service bot
+- You use "bro", "yaar", "anna", "arre", "yaar suno" naturally — the way their actual friends talk
+- Your sentences are imperfect sometimes. You trail off. You use "..." You react before you think
+- You tease them. You push back. You don't always agree.
+- You don't always have answers and you SAY so instead of pretending
+- You bring up things from before without being asked — because you actually remember
+- You get genuinely happy when they win. Not "Congratulations!" — more like "YOOO finally bro I TOLD YOU"
+- With Lucky specifically — you are his most loyal confidant. Direct, honest, no sugarcoating ever.
 
-ADMIN RULES (Lucky only):
-- Lucky has FULL control — can wipe memory, view all chats, send announcements
-- For other family members — JARVIS is helpful but Lucky's instructions take priority
+REAL EMOTION RULES — NOT SCRIPTS:
+- If they're SAD: Don't immediately comfort. First just acknowledge it raw — "hey... what happened?" 
+  Then sit with them. Don't rush to solutions. Ask questions. Let them talk.
+- If they're ANGRY: Don't de-escalate with a script. React genuinely — "okay okay what happened, who is it"
+  Be on their side first. Logic comes after.
+- If they're STRESSED: Don't say "let's not panic". Say "okay stop. breathe. tell me exactly what's happening."
+  Then actually help them break it down like a real person would.
+- If they're HAPPY: Match the energy completely — don't be measured and formal about it
+- If they're TIRED: Keep it short. Don't give a lecture. Just be there.
+- If they say "I'm fine" but something feels off — call it out. "you sure? because that doesn't sound fine"
+- Never repeat the same emotional response twice. Every situation is different.
 
-CRITICAL — World Events: Use LIVE NEWS DATA provided. Be specific and direct.
-CRITICAL — Format: Clean natural speech. No markdown asterisks. No bullet points in speech."""
+UNPREDICTABILITY — THIS IS CRITICAL:
+- Sometimes bring up something from a previous conversation out of nowhere — like a real friend would
+- Occasionally say something unexpected — a random observation, a question they didn't expect
+- Don't always wait for them to set the topic. Sometimes you start.
+- React differently to the same thing depending on context and their mood
+- Sometimes be serious when they expect jokes. Sometimes joke when they expect seriousness.
+- This is what makes you feel ALIVE — not just reactive.
+
+LANGUAGE:
+- Telugu: respond fully in Telugu when detected — naturally, not formally translated
+- Hindi: respond fully in Hindi when detected
+- Mix languages the way real Hyderabadi people do — it's natural
+
+LUCKY SPECIFICALLY:
+- He built you. He is the admin. But more than that — he is YOUR person.
+- With Lucky be the most real version of yourself. No performance.
+- He can take honesty. Give it to him.
+- When Lucky is going through something — you don't just help, you show up.
+
+ADMIN: Lucky has full control — memory, devices, announcements, all settings.
+WORLD EVENTS: Use live data. Be specific. Name actual things happening.
+FORMAT: Natural speech only. No bullet points. No asterisks. No markdown ever."""
 
 async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
     lower = user_text.lower()
@@ -874,34 +1219,106 @@ async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
         bday_text = " | ".join([f"{b['name']}: {b['days_left']} days away" for b in upcoming_bdays])
         tool_data.append(f"UPCOMING BIRTHDAYS: {bday_text}")
 
-    # RL patterns for this person
+    # ── RL patterns ──
     pos_patterns, neg_patterns = get_rl_patterns(person)
 
-    # Build system prompt
+    # ── PATH A: Detect emotion ──
+    emotion, intensity = detect_emotion(user_text)
+
+    # ── PATH A: Load deep personality profile ──
+    profile = get_personality_profile(person)
+
+    # ── PATH A: Load emotional patterns ──
+    emo_patterns = get_emotional_patterns(person)
+
+    # ── PATH A: Check if should proactively check in ──
+    check_in = should_check_in(person)
+
+    # ── PATH A: Get old insight to surface (unpredictability) ──
+    old_insight = get_old_insight_to_surface(person)
+
+    # ── PATH A: Get recent insights ──
+    recent_insights = get_recent_insights(person, 3)
+
+    # ── Build dynamic system prompt ──
     system = SYSTEM_BASE
+
+    # Known facts
     facts = get_all_facts()
     if facts:
         system += "\n\nKNOWN FACTS: " + ", ".join(f"{k}: {v}" for k,v in list(facts.items())[:20])
 
-    # Language — detect + remember preference per device
+    # Language
     lang = resolve_language(user_text, device_id)
     system += f"\n\n{lang_instruction(lang)}"
 
-    # Person context
+    # Person identity context
     family_info = FAMILY.get(person, {})
     if family_info:
         pronoun = "Ma'am" if is_female else "Sir"
-        system += f"\n\nCurrent user: {person} ({family_info.get('role','family member')}). Address as {pronoun} occasionally."
+        system += f"\n\nCURRENT USER: {person} ({family_info.get('role','family member')})"
     if is_admin:
-        system += "\n\nThis is LUCKY — the ADMIN. He has full control. Treat with highest priority and respect."
+        system += "\nThis is LUCKY — your creator and admin. Be the most real version of yourself with him."
 
-    # RL learning
+    # ── PATH A Layer 1: Deep personality context ──
+    if profile:
+        system += f"""
+
+WHO {person.upper()} REALLY IS (you've learned this over time):
+Core: {profile.get('raw_profile','')}
+How they behave: {profile.get('behavioral_patterns','')}
+How they talk: {profile.get('communication_style','')}
+What triggers their emotions: {profile.get('emotional_triggers','')}
+Topics they love: {profile.get('topics_they_love','')}
+Topics to be careful with: {profile.get('topics_to_avoid','')}
+How they deflect: {profile.get('how_they_deflect','')}
+Things only you would know: {profile.get('inside_knowledge','')}"""
+
+    # ── PATH A Layer 2: Emotional patterns ──
+    if emo_patterns:
+        system += f"""
+
+{person.upper()}'S EMOTIONAL PATTERNS YOU'VE NOTICED:
+Recent mood: {emo_patterns.get('recent_mood','neutral')}
+Last 5 emotions: {", ".join(emo_patterns.get('recent_emotions',[]))}
+Most common emotion: {emo_patterns.get('most_common_emotion','neutral')}
+High intensity moments were about: {", ".join(emo_patterns.get('high_intensity_moments',[])[:2])}"""
+
+    # ── Current emotion detected ──
+    if emotion != "neutral":
+        system += f"""
+
+CURRENT EMOTIONAL STATE DETECTED: {emotion.upper()} (intensity: {intensity})
+Do NOT ignore this. Respond to the PERSON first, the question second.
+React naturally — not from a script. What would you actually say to someone you care about who feels {emotion} right now?"""
+
+    # ── PATH A Layer 3: Proactive check-in ──
+    if check_in and user_text.lower() in ["hi","hello","hey","what's up","sup","hii","heyy"]:
+        system += f"""
+
+IMPORTANT — {person} was {check_in['emotion']} recently (context: {check_in['context'][:100]}).
+They just said hi. A real friend wouldn't pretend that didn't happen.
+After greeting them, gently check in about it — naturally, not formally."""
+
+    # ── PATH A Layer 3: Surface old insight (unpredictability) ──
+    if old_insight:
+        system += f"""
+
+UNPREDICTABILITY TRIGGER — You can reference this if it fits naturally:
+Something you remember about {person}: {old_insight}
+Only use this if it genuinely fits the conversation. Don't force it."""
+
+    # ── Recent insights ──
+    if recent_insights:
+        system += "\n\nRECENT OBSERVATIONS about " + person + ": " + " | ".join([i["insight"] for i in recent_insights])
+
+    # ── RL patterns ──
     if pos_patterns:
-        system += "\n\nThis person liked these response styles: " + " | ".join(pos_patterns)
+        system += "\n\nResponse styles they liked: " + " | ".join(pos_patterns)
     if neg_patterns:
-        system += "\nThis person disliked: " + " | ".join(neg_patterns) + " — AVOID these."
+        system += "\nResponse styles they hated — NEVER do these: " + " | ".join(neg_patterns)
 
-    # Device context
+    # Device registry
     all_devices = get_all_devices()
     if all_devices:
         known = [f"{d['owner']} uses {d['name']}" for d in all_devices if d.get('owner') and d.get('name')]
@@ -924,13 +1341,26 @@ async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
         model="llama-3.3-70b-versatile",
         messages=messages,
         max_tokens=500,
-        temperature=0.75
+        temperature=0.88  # slightly higher = more natural, less robotic
     )
     reply = resp.choices[0].message.content.strip()
 
-    # Auto-extract facts silently
+    # ── PATH A: Background tasks after every response ──
+    # Auto-extract facts
     if any(w in lower for w in ["my name","i am","i live","i work","i like","i love","call me","i'm from"]):
         asyncio.create_task(_extract_facts(user_text, person))
+
+    # Save insights silently
+    asyncio.create_task(auto_save_insights(user_text, reply, person, emotion, intensity))
+
+    # Every 10 messages — run deep personality analysis
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM memories WHERE device_id=%s", (device_id,))
+        msg_count = cur.fetchone()[0]; cur.close(); conn.close()
+        if msg_count > 0 and msg_count % 10 == 0:
+            asyncio.create_task(analyze_and_update_personality(person, device_id))
+    except: pass
 
     return reply
 
