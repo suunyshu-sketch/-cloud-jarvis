@@ -104,14 +104,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .apply-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 16px rgba(0,212,255,.2)}
 
 /* ── Owner Setup ── */
-.owner-modal{position:fixed;inset:0;background:rgba(0,5,15,.93);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-.owner-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:370px;width:90%;text-align:center}
-.owner-card h2{font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:.95rem;letter-spacing:.15em;margin-bottom:7px}
-.owner-card p{color:var(--dim);font-size:.75rem;margin-bottom:18px;line-height:1.7}
-.owner-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:9px 12px;outline:none;margin-bottom:9px}
-.owner-input:focus{border-color:var(--cyan)}
-.owner-btn{width:100%;padding:10px;background:linear-gradient(90deg,rgba(0,100,255,.3),rgba(0,212,255,.2));border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
-.owner-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 20px rgba(0,212,255,.2)}
+/* ── Auth Screen ── */
+.auth-screen{position:fixed;inset:0;background:#000d1a;z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(0)}
+.auth-box{width:92%;max-width:380px;background:rgba(0,12,30,.98);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(0,212,255,.1)}
+.auth-header{padding:28px 28px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.auth-logo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.auth-sub{font-size:.65rem;color:var(--dim);letter-spacing:.12em}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border)}
+.auth-tab{flex:1;padding:11px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.08em}
+.auth-tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.auth-body{padding:22px}
+.auth-panel{display:none}
+.auth-panel.on{display:block}
+.auth-field{margin-bottom:14px}
+.auth-label{font-size:.6rem;color:var(--dim);letter-spacing:.12em;margin-bottom:5px;display:block}
+.auth-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:11px 13px;outline:none;transition:all .2s}
+.auth-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.07)}
+.auth-btn{width:100%;padding:12px;background:linear-gradient(90deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:10px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.12em;cursor:pointer;transition:all .2s;margin-top:4px}
+.auth-btn:hover{background:linear-gradient(90deg,rgba(0,80,200,.7),rgba(0,212,255,.5));box-shadow:0 0 20px rgba(0,212,255,.2)}
+.auth-btn:disabled{opacity:.4;cursor:not-allowed}
+.auth-error{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.25);border-radius:8px;padding:9px 12px;font-size:.72rem;color:#ff6680;margin-bottom:12px;display:none}
+.auth-success{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:9px 12px;font-size:.72rem;color:#00ff88;margin-bottom:12px;display:none}
+.auth-hint{font-size:.62rem;color:rgba(0,212,255,.35);text-align:center;margin-top:12px;line-height:1.6}
+.auth-divider{height:1px;background:var(--border);margin:16px 0}
+.register-fields{display:none}
+/* keep owner-* for fallback */
+.owner-modal{display:none}
+.owner-card{display:none}
+.owner-input{display:none}
+.owner-btn{display:none}
 
 /* ── Main ── */
 main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin:0 auto;padding:12px 14px;gap:10px;position:relative;z-index:5}
@@ -465,52 +486,83 @@ main{padding-bottom:90px}
 <body>
 
 <!-- Owner Setup -->
-<div class="owner-modal" id="ownerModal">
-  <div class="owner-card" id="setupCard">
-
-    <!-- Step 1 -->
-    <div id="setupStep1">
-      <div style="font-size:2rem;margin-bottom:10px">⚡</div>
-      <h2>J.A.R.V.I.S</h2>
-      <p>Battini Family AI System.<br>Identify yourself to continue.</p>
-      <input class="owner-input" id="ownerName" placeholder="Enter your name..." maxlength="30"/>
-      <button class="owner-btn" onclick="checkIdentity()">Continue →</button>
+<!-- ══ AUTH SCREEN ══ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="auth-logo">J.A.R.V.I.S</div>
+      <div class="auth-sub">BATTINI FAMILY · PRIVATE AI SYSTEM</div>
     </div>
 
-    <!-- Step 2a: Known family -->
-    <div id="setupStep2Known" style="display:none">
-      <div style="font-size:2rem;margin-bottom:10px" id="knownEmoji">👋</div>
-      <h2 id="knownTitle">Welcome!</h2>
-      <p id="knownSubtitle">What should I call this device?</p>
-      <input class="owner-input" id="deviceNick" placeholder="e.g. Dad's Samsung, My Phone" maxlength="40"/>
-      <button class="owner-btn" onclick="confirmKnown()">⚡ Start JARVIS</button>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tabLogin"    onclick="switchAuthTab('login')">SIGN IN</div>
+      <div class="auth-tab"    id="tabRegister" onclick="switchAuthTab('register')">NEW USER</div>
     </div>
 
-    <!-- Step 2b: Unknown -->
-    <div id="setupStep2Unknown" style="display:none">
-      <div style="font-size:1.8rem;margin-bottom:10px">🔍</div>
-      <h2>Don't Know You Yet</h2>
-      <p>How do you know the Battini family?</p>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('relative')">👨‍👩‍👧 Relative / Extended Family</button>
-        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('friend')">🤝 Friend of the Family</button>
-        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('guest')">🏠 Guest / Visitor</button>
-        <button class="owner-btn" style="background:rgba(0,212,255,.06);font-size:.7rem" onclick="setRelation('other')">❓ Other</button>
+    <div class="auth-body">
+
+      <!-- ── LOGIN PANEL ── -->
+      <div class="auth-panel on" id="panelLogin">
+        <div class="auth-error"   id="loginError"></div>
+        <div class="auth-success" id="loginSuccess"></div>
+        <div class="auth-field">
+          <label class="auth-label">USERNAME</label>
+          <input class="auth-input" id="loginUser" placeholder="e.g. lucky, krishna..." autocomplete="username" autocapitalize="none"/>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">PASSWORD</label>
+          <input class="auth-input" id="loginPass" type="password" placeholder="Your password" autocomplete="current-password"/>
+        </div>
+        <button class="auth-btn" id="loginBtn" onclick="doLogin()">⚡ ENTER JARVIS</button>
+        <div class="auth-hint">
+          Family members — use your assigned username &amp; password.<br>
+          First time? Ask Lucky for your credentials.
+        </div>
       </div>
-    </div>
 
-    <!-- Step 3: Unknown details -->
-    <div id="setupStep3Unknown" style="display:none">
-      <div style="font-size:1.8rem;margin-bottom:10px">📝</div>
-      <h2>Almost Done</h2>
-      <p id="unknownRelDetail">Which family member do you know?</p>
-      <input class="owner-input" id="unknownRelName" placeholder="e.g. I know Lucky / Krishna uncle..." maxlength="60"/>
-      <input class="owner-input" id="deviceNickUnknown" placeholder="Device name (optional)" maxlength="40" style="margin-top:6px"/>
-      <button class="owner-btn" onclick="confirmUnknown()">→ Enter JARVIS</button>
-    </div>
+      <!-- ── REGISTER PANEL ── -->
+      <div class="auth-panel" id="panelRegister">
+        <div class="auth-error"   id="regError"></div>
+        <div class="auth-success" id="regSuccess"></div>
+        <div class="auth-field">
+          <label class="auth-label">YOUR NAME</label>
+          <input class="auth-input" id="regDisplay" placeholder="Your full name" autocapitalize="words"/>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">CHOOSE USERNAME</label>
+          <input class="auth-input" id="regUser" placeholder="e.g. ramesh123" autocapitalize="none"/>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">CHOOSE PASSWORD</label>
+          <input class="auth-input" id="regPass" type="password" placeholder="Min 6 characters"/>
+        </div>
+        <div class="auth-divider"></div>
+        <div class="auth-field">
+          <label class="auth-label">HOW DO YOU KNOW THE BATTINI FAMILY?</label>
+          <select class="auth-input" id="regRelation" style="cursor:pointer">
+            <option value="relative">👨‍👩‍👧 Relative / Extended Family</option>
+            <option value="friend">🤝 Friend of the Family</option>
+            <option value="guest">🏠 Guest / Visitor</option>
+            <option value="other">❓ Other</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">WHICH FAMILY MEMBER DO YOU KNOW?</label>
+          <input class="auth-input" id="regKnows" placeholder="e.g. Lucky, Krishna Garu..." autocapitalize="words"/>
+        </div>
+        <button class="auth-btn" id="regBtn" onclick="doRegister()">→ REQUEST ACCESS</button>
+        <div class="auth-hint">
+          Your account will need approval from Lucky<br>before you can access JARVIS.
+        </div>
+      </div>
 
+    </div>
   </div>
 </div>
+
+<!-- Keep legacy hidden inputs for compatibility -->
+<input id="ownerName" style="display:none"/>
+<input id="deviceNick" style="display:none"/>
 
 <!-- Voice Engine Modal -->
 <div class="modal-overlay" id="veOverlay" onclick="closeModal('veOverlay',event)">
@@ -546,6 +598,7 @@ main{padding-bottom:90px}
     <div class="atab on" onclick="switchTab('users')"   id="tab_users">👥 USERS</div>
     <div class="atab"    onclick="switchTab('stats')"   id="tab_stats">📊 STATS</div>
     <div class="atab"    onclick="switchTab('comms')"   id="tab_comms">📢 BROADCAST</div>
+    <div class="atab"    onclick="switchTab('pending')" id="tab_pending">🔔 PENDING <span id="pendingBadge" style="background:var(--red);color:#fff;border-radius:8px;font-size:.55rem;padding:1px 5px;margin-left:3px;display:none">0</span></div>
     <div class="atab"    onclick="switchTab('memory')"  id="tab_memory">🗃️ MEMORY</div>
   </div>
 
@@ -620,6 +673,16 @@ main{padding-bottom:90px}
       <div class="tree-wrap">
         <div class="tree-title"><span>📋</span> ACTIVE ANNOUNCEMENTS</div>
         <div id="activeAnnouncements" style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── TAB: PENDING USERS ── -->
+    <div class="admin-tab-panel" id="panel_pending">
+      <div class="tree-wrap" style="border-color:rgba(255,100,0,.2)">
+        <div class="tree-title" style="color:#ff8844"><span>🔔</span> PENDING APPROVAL REQUESTS</div>
+        <div id="pendingList">
+          <div style="color:rgba(255,100,0,.3);text-align:center;padding:20px;font-size:.72rem">Loading...</div>
+        </div>
       </div>
     </div>
 
@@ -762,6 +825,10 @@ main{padding-bottom:90px}
           <div class="di-icon">👑</div>
           <div><div class="di-label">Admin Panel</div><div class="di-desc">Memory, devices, controls</div></div>
         </div>
+        <div class="di" onclick="closeDrawer();logoutJarvis()" style="margin-top:8px">
+          <div class="di-icon">🚪</div>
+          <div><div class="di-label" style="color:var(--dim)">Sign Out</div><div class="di-desc">Log out of JARVIS</div></div>
+        </div>
       </div>
     </div>
 
@@ -902,122 +969,150 @@ function detectDeviceName(){
   return 'Browser';
 }
 
-// ── Known family for setup flow ──────────────────────────
-const KNOWN_FAMILY = {
-  'lucky':             {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
-  'lakshmi narayana':  {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
-  'lakshminarayana':   {emoji:'👑', title:'Welcome back, Lucky Sir!',     sub:'Admin access granted.',          role:'admin'},
-  'krishna':           {emoji:'🙏', title:'Welcome, Krishna Garu!',        sub:'JARVIS is ready to assist you.', role:'father'},
-  'sangeetha':         {emoji:'🌸', title:'Welcome, Sangeetha Amma!',      sub:'JARVIS is here for you.',        role:'mother'},
-  'thapaswini':        {emoji:'✨', title:'Welcome, Thapaswini!',          sub:'JARVIS is ready.',               role:'sister'},
-  'dhruva kumar':      {emoji:'⚡', title:'Hey Dhruva Kumar!',             sub:'JARVIS is online, bro.',          role:'brother'},
-  'dhruva':            {emoji:'⚡', title:'Hey Dhruva!',                   sub:'JARVIS is online, bro.',          role:'brother'},
-  'prajwal':           {emoji:'🔥', title:'Hey Prajwal!',                  sub:'JARVIS is ready, bro.',          role:'brother'},
-};
-let unknownRelation = '';
+// ══════════════════════════════════════════════════════════
+//  AUTH SYSTEM
+// ══════════════════════════════════════════════════════════
 
-function showStep(stepId){
-  ['setupStep1','setupStep2Known','setupStep2Unknown','setupStep3Unknown']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.style.display = (id === stepId) ? 'block' : 'none';
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').classList.toggle('on', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('on', tab==='register');
+  document.getElementById('panelLogin').classList.toggle('on', tab==='login');
+  document.getElementById('panelRegister').classList.toggle('on', tab==='register');
+}
+
+function showAuthMsg(elId, msg, isError){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function doLogin(){
+  const user = (document.getElementById('loginUser').value||'').trim().toLowerCase();
+  const pass = (document.getElementById('loginPass').value||'').trim();
+  if(!user || !pass){ showAuthMsg('loginError','Please enter both username and password.',true); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  showAuthMsg('loginError','',true);
+
+  try{
+    const res = await fetch('/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:user, password:pass, device_id:deviceId })
     });
-}
-
-function findFamily(name){
-  const key = name.trim().toLowerCase();
-  if(KNOWN_FAMILY[key]) return KNOWN_FAMILY[key];
-  // partial match
-  const found = Object.entries(KNOWN_FAMILY).find(([k]) => k.includes(key) || key.includes(k));
-  return found ? found[1] : null;
-}
-
-function checkIdentity(){
-  const nameEl = document.getElementById('ownerName');
-  if(!nameEl) return;
-  const n = nameEl.value.trim();
-  if(!n){ nameEl.focus(); return; }
-
-  const fdata = findFamily(n);
-  if(fdata){
-    // Known family — show device step
-    const e1 = document.getElementById('knownEmoji');
-    const t1 = document.getElementById('knownTitle');
-    const s1 = document.getElementById('knownSubtitle');
-    const dn = document.getElementById('deviceNick');
-    if(e1) e1.textContent   = fdata.emoji;
-    if(t1) t1.textContent   = fdata.title;
-    if(s1) s1.textContent   = fdata.sub;
-    if(dn) dn.value         = detectDeviceName();
-    localStorage.setItem('j_owner', n);
-    showStep('setupStep2Known');
-  } else {
-    // Unknown — questioning flow
-    localStorage.setItem('j_owner_temp', n);
-    showStep('setupStep2Unknown');
+    const d = await res.json();
+    if(d.success){
+      // Store auth data
+      localStorage.setItem('j_token',    d.token);
+      localStorage.setItem('j_owner',    d.family_member || d.display_name);
+      localStorage.setItem('j_username', d.username);
+      localStorage.setItem('j_role',     d.role);
+      localStorage.setItem('j_dname',    detectDeviceName());
+      deviceOwner = d.family_member || d.display_name;
+      deviceName  = detectDeviceName();
+      document.getElementById('authScreen').style.display = 'none';
+      updateIdentity();
+      setTimeout(()=>{
+        const greet = getGreeting(d.role, d.display_name);
+        addMessage('jarvis', greet);
+        speak(greet);
+      }, 400);
+    } else {
+      showAuthMsg('loginError', d.error || 'Login failed.', true);
+      btn.disabled = false; btn.textContent = '⚡ ENTER JARVIS';
+    }
+  } catch(e){
+    showAuthMsg('loginError','Connection error. Please try again.',true);
+    btn.disabled = false; btn.textContent = '⚡ ENTER JARVIS';
   }
 }
 
-function confirmKnown(){
-  const n = localStorage.getItem('j_owner') || '';
-  const dnEl = document.getElementById('deviceNick');
-  const d = (dnEl && dnEl.value.trim()) || detectDeviceName();
-  if(!n) return;
-  deviceOwner = n;
-  deviceName  = d;
-  localStorage.setItem('j_owner', n);
-  localStorage.setItem('j_dname', d);
-  const modal = document.getElementById('ownerModal');
-  if(modal) modal.style.display = 'none';
-  updateIdentity();
-  const fdata = findFamily(n);
-  const greeting = fdata ? fdata.title : ('Welcome, ' + n + '!');
-  setTimeout(()=>{
-    addMessage('jarvis', greeting + ' JARVIS is fully operational. How can I help you today?');
-    speak(greeting + ' JARVIS is ready.');
-  }, 300);
+async function doRegister(){
+  const display  = (document.getElementById('regDisplay').value||'').trim();
+  const user     = (document.getElementById('regUser').value||'').trim().toLowerCase();
+  const pass     = (document.getElementById('regPass').value||'').trim();
+  const relation = document.getElementById('regRelation').value;
+  const knows    = (document.getElementById('regKnows').value||'').trim();
+  if(!display||!user||!pass){ showAuthMsg('regError','Please fill all fields.',true); return; }
+
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true; btn.textContent = 'Sending request...';
+  showAuthMsg('regError','',true);
+
+  try{
+    const res = await fetch('/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:user, password:pass, display_name:display, relation, knows_member:knows })
+    });
+    const d = await res.json();
+    if(d.success){
+      showAuthMsg('regSuccess', '✅ ' + d.message, false);
+      btn.textContent = 'Request Sent!';
+    } else {
+      showAuthMsg('regError', d.error||'Registration failed.',true);
+      btn.disabled = false; btn.textContent = '→ REQUEST ACCESS';
+    }
+  } catch(e){
+    showAuthMsg('regError','Connection error.',true);
+    btn.disabled = false; btn.textContent = '→ REQUEST ACCESS';
+  }
 }
 
-function setRelation(rel){
-  unknownRelation = rel;
-  const msgs = {
-    'relative': 'Which family member are you related to?',
-    'friend':   'Which family member are you friends with?',
-    'guest':    'Who invited you or whose guest are you?',
-    'other':    'Can you tell me your connection to the family?'
+function getGreeting(role, name){
+  const greetings = {
+    admin:   `Welcome back, ${name} Sir! JARVIS is fully online. All systems ready.`,
+    father:  `Welcome, ${name} Garu! JARVIS is at your service, Sir.`,
+    mother:  `Welcome, ${name} Amma! JARVIS is ready for you, Ma'am.`,
+    sister:  `Welcome, ${name}! JARVIS is online for you, Ma'am.`,
+    brother: `Hey ${name}! JARVIS is online, bro. What's up?`,
+    guest:   `Hello ${name}! Welcome to JARVIS. How can I help you today?`,
   };
-  const urd = document.getElementById('unknownRelDetail');
-  if(urd) urd.textContent = msgs[rel] || 'Which family member do you know?';
-  showStep('setupStep3Unknown');
+  return greetings[role] || `Welcome, ${name}! JARVIS is ready.`;
 }
 
-function confirmUnknown(){
-  const tempName  = localStorage.getItem('j_owner_temp') || 'Guest';
-  const urnEl     = document.getElementById('unknownRelName');
-  const dnuEl     = document.getElementById('deviceNickUnknown');
-  const relDetail = (urnEl && urnEl.value.trim()) || 'not specified';
-  const d         = (dnuEl && dnuEl.value.trim()) || detectDeviceName();
-  const fullTag   = tempName + ' (' + unknownRelation + ', knows: ' + relDetail + ')';
-  deviceOwner = fullTag;
-  deviceName  = d;
-  localStorage.setItem('j_owner', fullTag);
-  localStorage.setItem('j_dname', d);
-  localStorage.removeItem('j_owner_temp');
-  const modal = document.getElementById('ownerModal');
-  if(modal) modal.style.display = 'none';
-  updateIdentity();
-  setTimeout(()=>{
-    const msg = 'Hello ' + tempName + '! I have noted you are a ' + unknownRelation + ' of the Battini family. How can I help you today?';
-    addMessage('jarvis', msg);
-    speak('Hello ' + tempName + '. Welcome to JARVIS.');
-  }, 300);
+async function checkExistingSession(){
+  const token = localStorage.getItem('j_token');
+  if(!token){ showAuth(); return; }
+  try{
+    const res = await fetch('/auth/verify',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, device_id:deviceId })
+    });
+    const d = await res.json();
+    if(d.valid && d.user){
+      deviceOwner = d.user.family_member || d.user.display_name;
+      deviceName  = localStorage.getItem('j_dname') || detectDeviceName();
+      localStorage.setItem('j_owner', deviceOwner);
+      document.getElementById('authScreen').style.display = 'none';
+      updateIdentity();
+    } else {
+      // Token expired — clear and show login
+      localStorage.removeItem('j_token');
+      showAuth();
+    }
+  } catch(e){ showAuth(); }
 }
 
-function setupDevice(){ checkIdentity(); }
+function showAuth(){
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+// Enter key support
+document.addEventListener('DOMContentLoaded', ()=>{
+  const lp = document.getElementById('loginPass');
+  const lu = document.getElementById('loginUser');
+  if(lu) lu.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+  if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+function setupDevice(){ /* legacy no-op */ }
+function checkIdentity(){ /* legacy no-op */ }
 
 function updateIdentity(){
   if(!deviceOwner) return;
-  isAdmin = ADMIN_NAMES.includes(deviceOwner.toLowerCase());
+  isAdmin = ['lucky','lakshmi narayana','lakshminarayana'].includes(deviceOwner.toLowerCase()) 
+         || localStorage.getItem('j_role') === 'admin';
   const ob = document.getElementById('ownerBadge');
   const db = document.getElementById('deviceBadge');
   const ab = document.getElementById('adminBadge');
@@ -1028,13 +1123,10 @@ function updateIdentity(){
   if(dai) dai.style.display = isAdmin ? 'flex' : 'none';
 }
 
-if(deviceOwner){
-  document.getElementById('ownerModal').style.display='none';
-  if(!deviceName){deviceName=detectDeviceName();localStorage.setItem('j_dname',deviceName);}
-  updateIdentity();
-}
-const _onEl=document.getElementById('ownerName'); if(_onEl) _onEl.addEventListener('keydown',e=>{if(e.key==='Enter')checkIdentity()});
-const _dnEl=document.getElementById('deviceNick'); if(_dnEl) _dnEl.addEventListener('keydown',e=>{if(e.key==='Enter')confirmKnown()});
+// Check existing session on load
+checkExistingSession();
+
+
 
 // ── WebSocket ────────────────────────────────────────────
 let ws=null, msgCount=0;
@@ -1445,6 +1537,16 @@ async function openAdmin(){
   if(!isAdmin) return;
   document.getElementById('adminScreen').classList.add('open');
   await loadAdminData();
+  loadPendingUsers();
+}
+
+function logoutJarvis(){
+  if(!confirm('Sign out of JARVIS?')) return;
+  localStorage.removeItem('j_token');
+  localStorage.removeItem('j_owner');
+  localStorage.removeItem('j_username');
+  localStorage.removeItem('j_role');
+  location.reload();
 }
 
 function closeAdmin(){
@@ -2030,6 +2132,43 @@ const _origSetup = window.completeSetup;
 window.completeSetup = function(){
   if(typeof _origSetup === 'function') _origSetup();
 };
+
+
+async function loadPendingUsers(){
+  try{
+    const res = await fetch('/admin/pending');
+    const d = await res.json();
+    const list = d.pending || [];
+    const badge = document.getElementById('pendingBadge');
+    if(badge){ badge.textContent = list.length; badge.style.display = list.length ? 'inline' : 'none'; }
+    const el = document.getElementById('pendingList');
+    if(!el) return;
+    if(!list.length){
+      el.innerHTML = '<div style="color:rgba(255,100,0,.3);text-align:center;padding:20px;font-size:.72rem">No pending requests. ✅</div>';
+      return;
+    }
+    el.innerHTML = list.map(u=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,100,0,.05);border:1px solid rgba(255,100,0,.15);border-radius:11px;margin-bottom:8px">
+        <div style="font-size:1.2rem">👤</div>
+        <div style="flex:1">
+          <div style="font-size:.78rem;color:#ff8844;font-family:'Orbitron',monospace">${escHtml(u.display_name)}</div>
+          <div style="font-size:.62rem;color:rgba(255,100,0,.5);margin-top:2px">@${escHtml(u.username)} · ${escHtml(u.relation||'')}</div>
+          <div style="font-size:.6rem;color:var(--dim);margin-top:2px">Registered: ${u.created_at?u.created_at.slice(0,10):''}</div>
+        </div>
+        <button onclick="approveUser('${escHtml(u.username)}')" style="padding:7px 14px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);border-radius:8px;color:#00ff88;font-size:.65rem;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap">✅ Approve</button>
+      </div>`).join('');
+  } catch(e){ console.error(e); }
+}
+
+async function approveUser(username){
+  if(!confirm('Approve ' + username + '? They will get access to JARVIS.')) return;
+  const res = await fetch('/admin/approve',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username})
+  });
+  const d = await res.json();
+  if(d.success){ addMessage('jarvis', username + ' has been approved, Sir. They can now log in.'); loadPendingUsers(); }
+}
 
 </script>
 
