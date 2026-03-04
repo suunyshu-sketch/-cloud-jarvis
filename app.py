@@ -243,6 +243,15 @@ def save_device(device_id, device_name, owner, user_agent):
         if owner: _update_person(owner, device_id)
     except Exception as e: print(f"save_device: {e}")
 
+def touch_device(device_id):
+    """Just update last_seen — called on connect and ping"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        now = datetime.now().isoformat()
+        cur.execute("UPDATE devices SET last_seen=%s WHERE device_id=%s", (now, device_id))
+        conn.commit(); cur.close(); conn.close()
+    except Exception as e: print(f"touch_device: {e}")
+
 def get_device(device_id):
     try:
         conn = get_conn(); cur = conn.cursor()
@@ -1441,6 +1450,7 @@ async def _extract_facts(text, person="family"):
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
+    connected_device_id = None
     try:
         while True:
             raw = await ws.receive_text()
@@ -1453,6 +1463,10 @@ async def ws_endpoint(ws: WebSocket):
             user_agent = data.get("user_agent", "")
             image_b64 = data.get("image", None)
             private   = data.get("private", False)
+            # Touch last_seen on very first message to mark as online immediately
+            if connected_device_id is None and device_id != "unknown":
+                connected_device_id = device_id
+                touch_device(device_id)
 
             # Handle feedback
             if msg_type == "feedback":
@@ -1464,6 +1478,13 @@ async def ws_endpoint(ws: WebSocket):
                 continue
 
             if not text and not image_b64: continue
+
+            # Heartbeat ping — just update last_seen, no response needed
+            if msg_type == "ping":
+                if device_id != "unknown":
+                    touch_device(device_id)
+                await ws.send_text(json.dumps({"type":"pong"}))
+                continue
 
             # Register device
             if device_id != "unknown":
