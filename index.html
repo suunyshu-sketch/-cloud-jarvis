@@ -227,7 +227,86 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
 .reminder-text{font-size:.76rem;color:var(--text)}
 .reminder-time{font-size:.62rem;color:var(--yellow)}
 
-/* ── Admin Panel ── */
+/* ── Admin Panel (full screen) ── */
+.admin-screen{position:fixed;inset:0;background:#00050f;z-index:300;display:none;flex-direction:column;overflow:hidden}
+.admin-screen.open{display:flex}
+.admin-topbar{height:52px;border-bottom:1px solid rgba(255,215,0,.2);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;background:rgba(0,3,10,.98)}
+.admin-topbar-title{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--yellow);letter-spacing:.2em;flex:1}
+.admin-close{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,215,0,.2);background:none;color:var(--yellow);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.admin-close:hover{background:rgba(255,68,102,.15);border-color:var(--red);color:var(--red)}
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,215,0,.15);flex-shrink:0;padding:0 20px;background:rgba(0,3,10,.9)}
+.atab{padding:11px 18px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:rgba(255,215,0,.4);letter-spacing:.1em;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.atab:hover{color:rgba(255,215,0,.7)}
+.atab.on{color:var(--yellow);border-bottom-color:var(--yellow)}
+.admin-content{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.2) transparent}
+.admin-tab-panel{display:none}
+.admin-tab-panel.on{display:block}
+
+/* Stat cards */
+.ast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:600px){.ast-grid{grid-template-columns:repeat(2,1fr)}}
+.ast-card{background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.ast-card:hover{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.07)}
+.ast-num{font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--yellow);margin-bottom:4px}
+.ast-lbl{font-size:.6rem;color:rgba(255,215,0,.5);letter-spacing:.12em}
+
+/* User Tree */
+.tree-wrap{background:rgba(0,3,10,.7);border:1px solid rgba(255,215,0,.12);border-radius:14px;padding:20px;margin-bottom:20px}
+.tree-title{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--yellow);letter-spacing:.15em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.tree-root{display:flex;flex-direction:column;gap:0}
+.tree-family-node{margin-bottom:4px}
+.tree-node{display:flex;align-items:center;gap:0;position:relative}
+.tree-connector{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0}
+.tree-vline{width:1px;background:rgba(255,215,0,.2);flex:1;min-height:12px}
+.tree-hline{width:20px;height:1px;background:rgba(255,215,0,.2);margin-bottom:0}
+.tree-dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--yellow);background:rgba(255,215,0,.2);flex-shrink:0;margin:0 6px}
+.tree-card{flex:1;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:11px 14px;margin:3px 0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.tree-card:hover{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.08)}
+.tree-card.online{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.04)}
+.tree-card.unknown-user{border-color:rgba(255,100,0,.3);background:rgba(255,100,0,.04)}
+.tc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1px solid rgba(255,215,0,.2);background:rgba(255,215,0,.06)}
+.tc-avatar.online-av{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.08)}
+.tc-info{flex:1;min-width:0}
+.tc-name{font-size:.8rem;color:var(--yellow);margin-bottom:2px;font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.06em}
+.tc-role{font-size:.62rem;color:rgba(255,215,0,.5);margin-bottom:3px}
+.tc-device{font-size:.6rem;color:rgba(0,212,255,.5)}
+.tc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.tc-badge{font-size:.55rem;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.tc-badge.online{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#00ff88}
+.tc-badge.offline{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);color:var(--dim)}
+.tc-badge.admin{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:var(--yellow)}
+.tc-badge.unknown{background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.25);color:#ff8844}
+.tc-msgs{font-size:.6rem;color:var(--dim)}
+.tree-devices{margin-left:28px;display:flex;flex-direction:column;gap:3px;padding-left:14px;border-left:1px dashed rgba(255,215,0,.12)}
+.td-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;background:rgba(0,10,25,.5);border:1px solid rgba(0,212,255,.08);transition:all .2s}
+.td-item:hover{border-color:rgba(0,212,255,.2)}
+.td-icon{font-size:.85rem;width:20px;text-align:center}
+.td-info{flex:1;min-width:0}
+.td-name{font-size:.73rem;color:var(--text)}
+.td-id{font-size:.57rem;color:var(--dim);font-family:monospace}
+.td-last{font-size:.57rem;color:rgba(0,212,255,.4)}
+.expand-btn{background:none;border:1px solid rgba(255,215,0,.15);border-radius:5px;color:rgba(255,215,0,.5);font-size:.6rem;padding:2px 7px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.expand-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* Controls */
+.admin-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+@media(max-width:500px){.admin-controls{grid-template-columns:1fr}}
+.ac-btn{padding:13px 16px;border-radius:11px;border:1px solid rgba(255,215,0,.18);background:rgba(255,215,0,.04);color:rgba(255,215,0,.8);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px}
+.ac-btn:hover{border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.09)}
+.ac-btn.danger{border-color:rgba(255,68,102,.2);color:rgba(255,68,102,.8)}
+.ac-btn.danger:hover{background:rgba(255,68,102,.08);border-color:var(--red)}
+.ac-btn-icon{font-size:1.1rem;flex-shrink:0}
+.ac-btn-text{}
+.ac-btn-label{font-size:.73rem;margin-bottom:2px}
+.ac-btn-sub{font-size:.6rem;color:rgba(255,255,255,.3)}
+.announce-box{background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:12px;padding:16px;margin-bottom:20px}
+.announce-title{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--yellow);letter-spacing:.12em;margin-bottom:12px}
+.announce-input{width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(255,215,0,.2);border-radius:8px;color:#ffe066;font-family:'Share Tech Mono',monospace;font-size:.82rem;padding:10px 13px;outline:none;margin-bottom:10px;resize:none}
+.announce-input:focus{border-color:var(--yellow)}
+.announce-send{padding:10px 20px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.announce-send:hover{background:rgba(255,215,0,.22)}
+
+/* stat section */
 .admin-section{padding:12px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:10px}
 .admin-section h3{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--yellow);letter-spacing:.12em;margin-bottom:10px}
 .admin-btn{width:100%;padding:8px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:7px;color:var(--yellow);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;margin-bottom:6px;transition:all .2s;text-align:left}
@@ -381,28 +460,127 @@ main{padding-bottom:80px}
 </div>
 
 <!-- Admin Panel Modal -->
-<div class="modal-overlay" id="adminOverlay" onclick="closeModal('adminOverlay',event)">
-  <div class="modal-box">
-    <div class="modal-head"><div class="modal-title">👑 ADMIN DASHBOARD</div><button class="close-btn" onclick="closeModalDirect('adminOverlay')">✕</button></div>
-    <div class="modal-body">
-      <div class="stat-grid" id="adminStats">
-        <div class="stat-box"><div class="stat-num" id="statMsgs">-</div><div class="stat-lbl">MESSAGES</div></div>
-        <div class="stat-box"><div class="stat-num" id="statArchive">-</div><div class="stat-lbl">ARCHIVED</div></div>
-        <div class="stat-box"><div class="stat-num" id="statDevices">-</div><div class="stat-lbl">DEVICES</div></div>
-        <div class="stat-box"><div class="stat-num" id="statFacts">-</div><div class="stat-lbl">FACTS KNOWN</div></div>
+<!-- ADMIN FULL SCREEN PANEL -->
+<div class="admin-screen" id="adminScreen">
+
+  <!-- Top bar -->
+  <div class="admin-topbar">
+    <div style="font-size:1.1rem">👑</div>
+    <div class="admin-topbar-title">ADMIN DASHBOARD — BATTINI FAMILY</div>
+    <div style="font-size:.65rem;color:rgba(255,215,0,.4);letter-spacing:.1em" id="adminClock">--:--:--</div>
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <div class="atab on" onclick="switchTab('users')"   id="tab_users">👥 USERS</div>
+    <div class="atab"    onclick="switchTab('stats')"   id="tab_stats">📊 STATS</div>
+    <div class="atab"    onclick="switchTab('comms')"   id="tab_comms">📢 BROADCAST</div>
+    <div class="atab"    onclick="switchTab('memory')"  id="tab_memory">🗃️ MEMORY</div>
+  </div>
+
+  <!-- Content -->
+  <div class="admin-content">
+
+    <!-- ── TAB: USERS TREE ── -->
+    <div class="admin-tab-panel on" id="panel_users">
+
+      <div class="tree-wrap">
+        <div class="tree-title">
+          <span>🏠</span> BATTINI FAMILY TREE
+          <span style="margin-left:auto;font-size:.6rem;color:rgba(255,215,0,.35);letter-spacing:.08em" id="treeLastRefresh">Loading...</span>
+          <button class="expand-btn" onclick="loadUserTree()" style="margin-left:8px">↻ Refresh</button>
+        </div>
+
+        <!-- Family root node -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:12px">
+          <div style="font-size:1.4rem">🏡</div>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--yellow);letter-spacing:.1em">BATTINI FAMILY</div>
+            <div style="font-size:.62rem;color:rgba(255,215,0,.4);margin-top:2px">Hyderabad · Hindu · Goud</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:.6rem;color:rgba(255,215,0,.4)" id="treeTotalUsers">— members</div>
+            <div style="font-size:.58rem;color:rgba(0,255,136,.5);margin-top:2px" id="treeOnlineCount">— online</div>
+          </div>
+        </div>
+
+        <!-- Tree nodes rendered by JS -->
+        <div id="familyTreeNodes">
+          <div style="text-align:center;padding:30px;color:rgba(255,215,0,.3);font-size:.75rem">Loading family tree...</div>
+        </div>
       </div>
-      <div class="admin-section">
-        <h3>🔊 ANNOUNCEMENTS</h3>
-        <input class="owner-input" id="announceTxt" placeholder="Type announcement for all family..."/>
-        <button class="admin-btn" onclick="sendAnnouncement()">📢 Send to All Family</button>
+
+      <!-- Unknown / Guest users -->
+      <div class="tree-wrap" id="guestWrap" style="border-color:rgba(255,100,0,.15)">
+        <div class="tree-title" style="color:#ff8844">
+          <span>🔍</span> UNKNOWN / GUEST USERS
+          <span style="margin-left:auto;font-size:.6rem;color:rgba(255,100,0,.4)" id="guestCount">0 guests</span>
+        </div>
+        <div id="guestTreeNodes">
+          <div style="text-align:center;padding:16px;color:rgba(255,100,0,.3);font-size:.72rem">No unknown users detected.</div>
+        </div>
       </div>
-      <div class="admin-section">
-        <h3>🗃️ MEMORY CONTROL</h3>
-        <button class="admin-btn" onclick="adminAction('wipe_chats')">🧹 Wipe Chat History (Keep Facts)</button>
-        <button class="admin-btn" onclick="adminAction('compress')">🗜️ Force Memory Compression</button>
-        <button class="admin-btn" onclick="adminAction('wipe_all')" style="color:var(--red);border-color:rgba(255,68,102,.3)">⚠️ Full Reset (Keep Family Data)</button>
+
+    </div>
+
+    <!-- ── TAB: STATS ── -->
+    <div class="admin-tab-panel" id="panel_stats">
+      <div class="ast-grid">
+        <div class="ast-card"><div class="ast-num" id="statMsgs">—</div><div class="ast-lbl">TOTAL MESSAGES</div></div>
+        <div class="ast-card"><div class="ast-num" id="statArchive">—</div><div class="ast-lbl">ARCHIVED TIERS</div></div>
+        <div class="ast-card"><div class="ast-num" id="statDevices">—</div><div class="ast-lbl">DEVICES REGISTERED</div></div>
+        <div class="ast-card"><div class="ast-num" id="statFacts">—</div><div class="ast-lbl">FACTS LEARNED</div></div>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>🧠</span> FACTS JARVIS KNOWS</div>
+        <div id="factsGrid" style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+        </div>
       </div>
     </div>
+
+    <!-- ── TAB: BROADCAST ── -->
+    <div class="admin-tab-panel" id="panel_comms">
+      <div class="announce-box">
+        <div class="announce-title">📢 SEND ANNOUNCEMENT TO ALL FAMILY</div>
+        <textarea class="announce-input" id="announceTxt" rows="3" placeholder="Type your message for all family members..."></textarea>
+        <button class="announce-send" onclick="sendAnnouncement()">⚡ BROADCAST NOW</button>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>📋</span> ACTIVE ANNOUNCEMENTS</div>
+        <div id="activeAnnouncements" style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── TAB: MEMORY ── -->
+    <div class="admin-tab-panel" id="panel_memory">
+      <div class="admin-controls">
+        <button class="ac-btn" onclick="adminAction('compress')">
+          <div class="ac-btn-icon">🗜️</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Compress Memory</div><div class="ac-btn-sub">Archive old conversations</div></div>
+        </button>
+        <button class="ac-btn" onclick="adminAction('wipe_chats')">
+          <div class="ac-btn-icon">🧹</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Wipe Chat History</div><div class="ac-btn-sub">Keeps facts &amp; family data</div></div>
+        </button>
+        <button class="ac-btn danger" onclick="adminAction('wipe_all')">
+          <div class="ac-btn-icon">⚠️</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Full Reset</div><div class="ac-btn-sub">Remove all chats, todos, notes</div></div>
+        </button>
+        <button class="ac-btn danger" onclick="adminAction('reset_device')">
+          <div class="ac-btn-icon">🔄</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Reset This Device</div><div class="ac-btn-sub">Re-register this device</div></div>
+        </button>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>📚</span> MEMORY TIERS</div>
+        <div id="memoryTiers" style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1121,38 +1299,283 @@ async function loadReminders(){
   body.innerHTML=active.map(r=>`<div class="reminder-item"><div class="reminder-text">${escHtml(r.text)}</div><div class="reminder-time">${r.time?r.time.slice(11,16):''}</div></div>`).join('');
 }
 
-// ── Admin Dashboard ───────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+//  ADMIN PANEL — Full Screen with User Tree
+// ══════════════════════════════════════════════════════════
+
+// Family definition for tree rendering
+const FAMILY_TREE = [
+  {name:'Lucky',        full:'Battini Lakshmi Narayana Goud', role:'Admin · Owner · Developer', emoji:'👑', gender:'male',   color:'#ffd700'},
+  {name:'Krishna',      full:'Battini Krishna Goud',           role:'Father',                    emoji:'👨', gender:'male',   color:'#00d4ff'},
+  {name:'Sangeetha',    full:'Battini Sangeetha Goud',         role:'Mother',                    emoji:'👩', gender:'female', color:'#ff88cc'},
+  {name:'Thapaswini',   full:'Battini Thapaswini Goud',        role:'Sister',                    emoji:'👧', gender:'female', color:'#cc88ff'},
+  {name:'Dhruva Kumar', full:'Battini Dhruva Kumar Goud',      role:'Brother',                   emoji:'👦', gender:'male',   color:'#00ff88'},
+  {name:'Prajwal',      full:'Battini Prajwal Goud',           role:'Brother',                   emoji:'👦', gender:'male',   color:'#00ff88'},
+];
+
+let adminData = null;
+let expandedNodes = new Set();
+let activeAdminTab = 'users';
+
+// Clock for admin panel
+setInterval(()=>{
+  const el = document.getElementById('adminClock');
+  if(el) el.textContent = new Date().toLocaleTimeString();
+}, 1000);
+
 async function openAdmin(){
   if(!isAdmin) return;
-  document.getElementById('adminOverlay').classList.add('open');
-  const res=await fetch('/memory');
-  const d=await res.json();
-  document.getElementById('statMsgs').textContent=d.stats?.hot||0;
-  document.getElementById('statArchive').textContent=d.stats?.archived||0;
-  document.getElementById('statDevices').textContent=d.devices?.length||0;
-  document.getElementById('statFacts').textContent=Object.keys(d.facts||{}).length;
+  document.getElementById('adminScreen').classList.add('open');
+  await loadAdminData();
 }
+
+function closeAdmin(){
+  document.getElementById('adminScreen').classList.remove('open');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab_'+tab).classList.add('on');
+  document.getElementById('panel_'+tab).classList.add('on');
+  activeAdminTab = tab;
+  if(tab==='users')   loadUserTree();
+  if(tab==='stats')   loadStats();
+  if(tab==='memory')  loadMemoryTiers();
+  if(tab==='comms')   loadAnnouncements();
+}
+
+async function loadAdminData(){
+  try{
+    const res = await fetch('/memory');
+    adminData  = await res.json();
+    loadUserTree();
+    loadStats();
+  } catch(e){ console.error('Admin load failed', e); }
+}
+
+// ── Build the family tree ──────────────────────────────────
+async function loadUserTree(){
+  const el = document.getElementById('familyTreeNodes');
+  el.innerHTML = '<div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:20px">Building tree...</div>';
+
+  const devices   = adminData?.devices || [];
+  const messages  = adminData?.stats   || {};
+
+  // Map devices to family members (case-insensitive)
+  const deviceMap = {};
+  devices.forEach(d => {
+    if(!d.owner) return;
+    const key = d.owner.toLowerCase().split('(')[0].trim();
+    if(!deviceMap[key]) deviceMap[key] = [];
+    deviceMap[key].push(d);
+  });
+
+  // Separate known vs unknown
+  const knownKeys = FAMILY_TREE.map(f => f.name.toLowerCase());
+  const unknownDevices = devices.filter(d => {
+    if(!d.owner) return true;
+    const key = d.owner.toLowerCase().split('(')[0].trim();
+    return !knownKeys.some(k => k === key || k.includes(key) || key.includes(k));
+  });
+
+  let totalOnline = 0;
+  const now = Date.now();
+
+  // Build HTML for each family member
+  const html = FAMILY_TREE.map((member, mi) => {
+    const key      = member.name.toLowerCase();
+    const mDevices = deviceMap[key] || 
+                     Object.entries(deviceMap).filter(([k])=>k.includes(key)||key.includes(k)).flatMap(([,v])=>v);
+    const isOnline = mDevices.some(d => {
+      if(!d.last_seen) return false;
+      const last = new Date(d.last_seen).getTime();
+      return (now - last) < 10 * 60 * 1000; // online if seen within 10 min
+    });
+    if(isOnline) totalOnline++;
+
+    const lastSeen = mDevices.length && mDevices[0].last_seen 
+      ? timeSince(mDevices[0].last_seen) : 'Never';
+    const msgCount = mDevices.reduce((acc, d) => acc + (d.message_count||0), 0);
+    const isAdmin  = member.role.includes('Admin');
+    const nodeId   = 'node_' + member.name.replace(/ /g,'_');
+
+    const deviceRows = mDevices.map(d => `
+      <div class="td-item">
+        <div class="td-icon">${getDeviceIcon(d.device_name||'')}</div>
+        <div class="td-info">
+          <div class="td-name">${escHtml(d.device_name||'Unknown Device')}</div>
+          <div class="td-id">${(d.device_id||'').slice(0,18)}...</div>
+        </div>
+        <div class="td-last">${d.last_seen ? timeSince(d.last_seen) : 'never'}</div>
+      </div>`).join('');
+
+    const isExpanded = expandedNodes.has(nodeId);
+
+    return `
+    <div class="tree-family-node" style="margin-bottom:8px">
+      <div class="tree-node">
+        <div class="tree-connector">
+          ${mi < FAMILY_TREE.length-1 ? '<div class="tree-vline" style="min-height:100%"></div>' : ''}
+          <div class="tree-hline"></div>
+          <div class="tree-dot" style="border-color:${member.color};background:${member.color}22"></div>
+        </div>
+        <div class="tree-card ${isOnline?'online':''}" onclick="toggleNode('${nodeId}')">
+          <div class="tc-avatar ${isOnline?'online-av':''}" style="border-color:${member.color}44">
+            ${member.emoji}
+          </div>
+          <div class="tc-info">
+            <div class="tc-name" style="color:${member.color}">${member.name}</div>
+            <div class="tc-role">${member.role}</div>
+            <div class="tc-device">${mDevices.length ? mDevices[0].device_name||'Unknown device' : 'No device registered'}</div>
+          </div>
+          <div class="tc-right">
+            ${isAdmin ? '<span class="tc-badge admin">ADMIN</span>' : ''}
+            <span class="tc-badge ${isOnline?'online':'offline'}">${isOnline?'● ONLINE':'○ OFFLINE'}</span>
+            <div class="tc-msgs">${msgCount} msgs</div>
+            <div class="tc-msgs" style="color:rgba(255,215,0,.3)">${lastSeen}</div>
+          </div>
+        </div>
+      </div>
+      <div class="tree-devices" id="${nodeId}" style="display:${isExpanded?'flex':'none'};margin-top:4px">
+        ${mDevices.length ? deviceRows : '<div style="padding:8px 12px;color:rgba(255,215,0,.25);font-size:.68rem">No devices registered yet</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+  document.getElementById('treeTotalUsers').textContent = FAMILY_TREE.length + ' family members';
+  document.getElementById('treeOnlineCount').textContent = totalOnline + ' currently online';
+  document.getElementById('treeLastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+  // Render guests
+  renderGuestTree(unknownDevices);
+}
+
+function toggleNode(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'flex';
+  if(isOpen) expandedNodes.delete(id);
+  else expandedNodes.add(id);
+}
+
+function renderGuestTree(unknownDevices){
+  const el = document.getElementById('guestTreeNodes');
+  const cnt = document.getElementById('guestCount');
+  cnt.textContent = unknownDevices.length + ' guests';
+
+  if(!unknownDevices.length){
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,100,0,.3);font-size:.72rem">No unknown users detected.</div>';
+    return;
+  }
+
+  el.innerHTML = unknownDevices.map(d => `
+    <div class="tree-card unknown-user" style="margin-bottom:6px">
+      <div class="tc-avatar" style="border-color:rgba(255,100,0,.3);background:rgba(255,100,0,.06)">👤</div>
+      <div class="tc-info">
+        <div class="tc-name" style="color:#ff8844">${escHtml(d.owner||'Unknown')}</div>
+        <div class="tc-role" style="color:rgba(255,100,0,.5)">Unregistered User</div>
+        <div class="tc-device">${escHtml(d.device_name||'Unknown device')}</div>
+      </div>
+      <div class="tc-right">
+        <span class="tc-badge unknown">GUEST</span>
+        <div class="tc-msgs" style="color:rgba(255,100,0,.4)">${d.last_seen ? timeSince(d.last_seen) : 'never'}</div>
+      </div>
+    </div>`).join('');
+}
+
+function loadStats(){
+  if(!adminData) return;
+  document.getElementById('statMsgs').textContent    = adminData.stats?.hot || 0;
+  document.getElementById('statArchive').textContent = adminData.stats?.archived || 0;
+  document.getElementById('statDevices').textContent = adminData.devices?.length || 0;
+  document.getElementById('statFacts').textContent   = Object.keys(adminData.facts||{}).length;
+
+  const factsEl = document.getElementById('factsGrid');
+  const facts = adminData.facts || {};
+  const entries = Object.entries(facts).filter(([k]) => !k.startsWith('family_'));
+  if(!entries.length){
+    factsEl.innerHTML = '<div style="color:rgba(255,215,0,.3);text-align:center;padding:16px;font-size:.72rem">No personal facts learned yet.</div>';
+    return;
+  }
+  factsEl.innerHTML = entries.slice(0,30).map(([k,v]) => `
+    <div style="display:flex;gap:10px;padding:8px 12px;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.08);border-radius:7px;align-items:center">
+      <div style="font-size:.62rem;color:rgba(255,215,0,.4);min-width:120px;font-family:monospace">${escHtml(k)}</div>
+      <div style="font-size:.75rem;color:rgba(255,215,0,.8);flex:1">${escHtml(String(v))}</div>
+    </div>`).join('');
+}
+
+function loadMemoryTiers(){
+  const el = document.getElementById('memoryTiers');
+  const tiers = [
+    {icon:'🔥', label:'Hot Memory',    desc:'Last 15 conversations — instant access',      val: adminData?.stats?.hot||'—'},
+    {icon:'🌡️', label:'Warm Archive',  desc:'30-90 day summaries — loaded when needed',    val: adminData?.stats?.archived||'—'},
+    {icon:'🧊', label:'Cold Archive',  desc:'90+ day long-term compressed summaries',       val: '—'},
+  ];
+  el.innerHTML = tiers.map(t => `
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.1);border-radius:11px">
+      <div style="font-size:1.4rem">${t.icon}</div>
+      <div style="flex:1">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--yellow);margin-bottom:3px">${t.label}</div>
+        <div style="font-size:.64rem;color:rgba(255,215,0,.4)">${t.desc}</div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:1.3rem;color:var(--yellow)">${t.val}</div>
+    </div>`).join('');
+}
+
+function loadAnnouncements(){
+  const el = document.getElementById('activeAnnouncements');
+  el.innerHTML = '<div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">No active announcements.</div>';
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function timeSince(ts){
+  if(!ts) return 'never';
+  const diff = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(diff/60000);
+  if(m < 1)   return 'just now';
+  if(m < 60)  return m + 'm ago';
+  if(m < 1440) return Math.floor(m/60) + 'h ago';
+  return Math.floor(m/1440) + 'd ago';
+}
+function getDeviceIcon(name){
+  const n = name.toLowerCase();
+  if(n.includes('samsung')||n.includes('android')) return '📱';
+  if(n.includes('iphone')||n.includes('apple'))   return '📱';
+  if(n.includes('windows')||n.includes('pc'))     return '💻';
+  if(n.includes('mac'))                           return '💻';
+  if(n.includes('ipad')||n.includes('tablet'))    return '📟';
+  return '📡';
+}
+
 async function adminAction(action){
   if(action==='wipe_chats'){
     if(!confirm('Wipe all chat history? Facts and family data will be preserved.')) return;
     await fetch('/memory/chats',{method:'DELETE'});
-    addMessage('jarvis','Chat history wiped. All family facts and device registrations preserved, Sir.');
+    addMessage('jarvis','Chat history wiped. Family facts preserved, Sir.');
   } else if(action==='compress'){
     await fetch('/compress',{method:'POST'});
-    addMessage('jarvis','Memory compression complete, Sir. Old conversations archived.');
+    addMessage('jarvis','Memory compression complete, Sir.');
   } else if(action==='wipe_all'){
-    if(!confirm('FULL RESET? This removes all chats, todos, notes, reminders. Family facts preserved.')) return;
+    if(!confirm('FULL RESET? All chats, todos, notes, reminders will be removed.')) return;
     await fetch('/memory/all',{method:'DELETE'});
-    addMessage('jarvis','Full system reset complete. Battini family core data preserved, Sir.');
+    addMessage('jarvis','Full reset complete. Battini family core data preserved, Sir.');
+  } else if(action==='reset_device'){
+    if(!confirm('Reset this device identity?')) return;
+    localStorage.removeItem('j_owner'); localStorage.removeItem('j_dname');
+    location.reload();
   }
-  closeModalDirect('adminOverlay');
+  closeAdmin();
 }
+
 async function sendAnnouncement(){
-  const txt=document.getElementById('announceTxt').value.trim();
+  const txt = document.getElementById('announceTxt').value.trim();
   if(!txt) return;
-  sq(`announce: ${txt}`);
-  document.getElementById('announceTxt').value='';
-  closeModalDirect('adminOverlay');
+  sq('announce: ' + txt);
+  document.getElementById('announceTxt').value = '';
+  closeAdmin();
 }
 
 // ── Modal Helpers ─────────────────────────────────────────
