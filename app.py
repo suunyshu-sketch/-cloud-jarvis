@@ -144,6 +144,24 @@ def init_db():
             time_of_day TEXT, day_of_week TEXT,
             timestamp TEXT)""",
 
+        """CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password_hash TEXT NOT NULL,
+            display_name TEXT,
+            role TEXT DEFAULT 'guest',
+            family_member TEXT,
+            approved BOOLEAN DEFAULT FALSE,
+            created_at TEXT,
+            last_login TEXT,
+            login_count INTEGER DEFAULT 0)""",
+
+        """CREATE TABLE IF NOT EXISTS sessions (
+            token TEXT PRIMARY KEY,
+            username TEXT,
+            device_id TEXT,
+            created_at TEXT,
+            last_seen TEXT)""",
+
         """CREATE TABLE IF NOT EXISTS conversation_insights (
             id SERIAL PRIMARY KEY,
             person TEXT,
@@ -186,6 +204,151 @@ try:
     init_db()
 except Exception as e:
     print(f"⚠️ DB init error: {e}")
+
+# ══════════════════════════════════════════════════════════
+#  AUTH SYSTEM
+# ══════════════════════════════════════════════════════════
+
+FAMILY_CREDENTIALS = [
+    {"username": "lucky",       "password": "lucky@jarvis",    "display": "Lucky",        "role": "admin",   "family_member": "Lucky",        "approved": True},
+    {"username": "krishna",     "password": "krishna@jarvis",  "display": "Krishna",      "role": "father",  "family_member": "Krishna",      "approved": True},
+    {"username": "sangeetha",   "password": "sangeetha@jarvis","display": "Sangeetha",    "role": "mother",  "family_member": "Sangeetha",    "approved": True},
+    {"username": "thapaswini",  "password": "thapu@jarvis",    "display": "Thapaswini",   "role": "sister",  "family_member": "Thapaswini",   "approved": True},
+    {"username": "dhruva",      "password": "dhruva@jarvis",   "display": "Dhruva Kumar", "role": "brother", "family_member": "Dhruva Kumar", "approved": True},
+    {"username": "prajwal",     "password": "prajwal@jarvis",  "display": "Prajwal",      "role": "brother", "family_member": "Prajwal",      "approved": True},
+]
+
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.strip().encode()).hexdigest()
+
+def seed_family_users():
+    """Seed family credentials — runs once, skips if already exists"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        now = datetime.now().isoformat()
+        for u in FAMILY_CREDENTIALS:
+            cur.execute("""INSERT INTO users 
+                (username,password_hash,display_name,role,family_member,approved,created_at,login_count)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,0)
+                ON CONFLICT (username) DO NOTHING""",
+                (u["username"], hash_password(u["password"]),
+                 u["display"], u["role"], u["family_member"], u["approved"], now))
+        conn.commit(); cur.close(); conn.close()
+        print("✅ Family credentials seeded")
+    except Exception as e:
+        print(f"seed_family_users error: {e}")
+
+def auth_login(username: str, password: str, device_id: str) -> dict:
+    """Verify credentials — return user info or error"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""SELECT username,display_name,role,family_member,approved,login_count
+                       FROM users WHERE username=%s AND password_hash=%s""",
+                    (username.strip().lower(), hash_password(password)))
+        row = cur.fetchone()
+        if not row:
+            cur.close(); conn.close()
+            return {"success": False, "error": "Wrong username or password. Please try again."}
+        if not row[4]:  # not approved
+            cur.close(); conn.close()
+            return {"success": False, "error": "Your account is pending approval from Lucky. Please wait."}
+        # Update login stats
+        now = datetime.now().isoformat()
+        cur.execute("UPDATE users SET last_login=%s, login_count=%s WHERE username=%s",
+                    (now, (row[5] or 0) + 1, row[0]))
+        # Create session token
+        token = secrets.token_hex(32)
+        cur.execute("""INSERT INTO sessions (token,username,device_id,created_at,last_seen)
+                       VALUES (%s,%s,%s,%s,%s)
+                       ON CONFLICT (token) DO NOTHING""",
+                    (token, row[0], device_id, now, now))
+        conn.commit(); cur.close(); conn.close()
+        return {
+            "success": True,
+            "token": token,
+            "username": row[0],
+            "display_name": row[1],
+            "role": row[2],
+            "family_member": row[3],
+        }
+    except Exception as e:
+        print(f"auth_login error: {e}")
+        return {"success": False, "error": "Login failed. Please try again."}
+
+def auth_register_guest(username: str, password: str, display_name: str, 
+                         relation: str, knows_member: str) -> dict:
+    """Register a new guest user — pending Lucky's approval"""
+    try:
+        username = username.strip().lower()
+        if len(username) < 3:
+            return {"success": False, "error": "Username must be at least 3 characters."}
+        if len(password) < 6:
+            return {"success": False, "error": "Password must be at least 6 characters."}
+        conn = get_conn(); cur = conn.cursor()
+        # Check if username taken
+        cur.execute("SELECT username FROM users WHERE username=%s", (username,))
+        if cur.fetchone():
+            cur.close(); conn.close()
+            return {"success": False, "error": "Username already taken. Try another."}
+        now = datetime.now().isoformat()
+        note = f"{relation}, knows {knows_member}"
+        cur.execute("""INSERT INTO users 
+            (username,password_hash,display_name,role,family_member,approved,created_at,login_count)
+            VALUES (%s,%s,%s,%s,%s,FALSE,%s,0)""",
+            (username, hash_password(password), display_name or username,
+             "guest", note, now))
+        conn.commit(); cur.close(); conn.close()
+        # Notify admin via fact
+        save_fact(f"pending_user_{username}", f"{display_name} ({note}) — registered {now[:10]}", "admin")
+        return {"success": True, "message": "Account created! Waiting for Lucky to approve. Please check back soon."}
+    except Exception as e:
+        print(f"auth_register_guest error: {e}")
+        return {"success": False, "error": "Registration failed. Please try again."}
+
+def auth_verify_token(token: str, device_id: str) -> dict:
+    """Verify session token — returns user info or None"""
+    try:
+        if not token: return None
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""SELECT s.username, u.display_name, u.role, u.family_member, u.approved
+                       FROM sessions s JOIN users u ON s.username=u.username
+                       WHERE s.token=%s""", (token,))
+        row = cur.fetchone()
+        if not row or not row[4]:
+            cur.close(); conn.close(); return None
+        # Update last_seen
+        cur.execute("UPDATE sessions SET last_seen=%s WHERE token=%s",
+                    (datetime.now().isoformat(), token))
+        conn.commit(); cur.close(); conn.close()
+        return {"username": row[0], "display_name": row[1], "role": row[2], "family_member": row[3]}
+    except Exception as e:
+        print(f"auth_verify_token error: {e}"); return None
+
+def admin_approve_user(username: str) -> bool:
+    """Lucky approves a pending guest"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("UPDATE users SET approved=TRUE WHERE username=%s", (username,))
+        conn.commit(); cur.close(); conn.close()
+        return True
+    except: return False
+
+def admin_list_pending() -> list:
+    """Get all pending guest accounts"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("""SELECT username,display_name,family_member,created_at 
+                       FROM users WHERE approved=FALSE ORDER BY created_at DESC""")
+        rows = cur.fetchall(); cur.close(); conn.close()
+        return [{"username":r[0],"display_name":r[1],"relation":r[2],"created_at":r[3]} for r in rows]
+    except: return []
+
+# Seed on startup
+try:
+    seed_family_users()
+except Exception as e:
+    print(f"⚠️ Seed error: {e}")
+
 
 # ── Chat Messages ─────────────────────────────────────────
 def save_message(role, content, device_id="unknown", private=False):
@@ -1447,6 +1610,76 @@ async def _extract_facts(text, person="family"):
 # ══════════════════════════════════════════════════════════
 #  WEBSOCKET
 # ══════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════
+#  AUTH ENDPOINTS
+# ══════════════════════════════════════════════════════════
+
+@app.post("/auth/login")
+async def login_endpoint(request: Request):
+    try:
+        data = await request.json()
+        result = auth_login(
+            data.get("username",""),
+            data.get("password",""),
+            data.get("device_id","unknown")
+        )
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/auth/register")
+async def register_endpoint(request: Request):
+    try:
+        data = await request.json()
+        result = auth_register_guest(
+            data.get("username",""),
+            data.get("password",""),
+            data.get("display_name",""),
+            data.get("relation","guest"),
+            data.get("knows_member","")
+        )
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/auth/verify")
+async def verify_endpoint(request: Request):
+    try:
+        data = await request.json()
+        user = auth_verify_token(data.get("token",""), data.get("device_id",""))
+        return {"valid": user is not None, "user": user}
+    except Exception as e:
+        return {"valid": False, "user": None}
+
+@app.get("/admin/pending")
+async def pending_users():
+    return {"pending": admin_list_pending()}
+
+@app.post("/admin/approve")
+async def approve_user(request: Request):
+    try:
+        data = await request.json()
+        ok = admin_approve_user(data.get("username",""))
+        return {"success": ok}
+    except Exception as e:
+        return {"success": False}
+
+@app.post("/admin/change-password")
+async def change_password(request: Request):
+    try:
+        data = await request.json()
+        username = data.get("username","").lower()
+        new_pass = data.get("new_password","")
+        if len(new_pass) < 6:
+            return {"success": False, "error": "Password too short"}
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("UPDATE users SET password_hash=%s WHERE username=%s",
+                    (hash_password(new_pass), username))
+        conn.commit(); cur.close(); conn.close()
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
