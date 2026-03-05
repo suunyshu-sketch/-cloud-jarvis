@@ -79,42 +79,50 @@ def resolve_person(raw_name):
 # ══════════════════════════════════════════════════════════
 def parse_db_url(url):
     """Robust URL parser — handles @ in password correctly"""
-    # Strip scheme
     url = url.strip()
     for scheme in ('postgresql://', 'postgres://'):
         if url.startswith(scheme):
             url = url[len(scheme):]
             break
-    # Split on LAST @ to separate credentials from host
-    # e.g. user:Pass@word@host:5432/db  → credentials=user:Pass@word, rest=host:5432/db
     at = url.rfind('@')
     credentials = url[:at]
     rest = url[at+1:]
-    # credentials = user:password (password may contain colons but not the first)
     colon = credentials.find(':')
     user = credentials[:colon]
     password = credentials[colon+1:]
-    # rest = host:port/dbname  or  host/dbname
     slash = rest.find('/')
     hostport = rest[:slash]
-    dbname = rest[slash+1:].split('?')[0]  # strip query params
+    dbname = rest[slash+1:].split('?')[0]
     if ':' in hostport:
         host, port_str = hostport.rsplit(':', 1)
         port = int(port_str)
     else:
         host, port = hostport, 5432
+    # Render free tier blocks port 5432 — force pooler port 6543 for Supabase direct URLs
+    if '.supabase.co' in host and port == 5432:
+        import re
+        # Extract project ref from host like db.PROJECTREF.supabase.co
+        m = re.search(r'(?:db\.)?([a-z0-9]+)\.supabase\.co', host)
+        if m:
+            ref = m.group(1)
+            host = f'aws-1-ap-south-1.pooler.supabase.com'
+            user = f'postgres.{ref}' if '.' not in user else user
+        port = 6543
+        print(f"⚡ Auto-switched to Supabase pooler: {host}:{port} user={user}")
     return user, password, host, port, dbname
 
 def get_conn():
     import socket
     user, password, host, port, dbname = parse_db_url(DATABASE_URL)
-    print(f"DB connect → host={host} db={dbname} user={user}")
+    print(f"DB connect → host={host}:{port} db={dbname} user={user}")
     try:
-        host = socket.gethostbyname(host)
+        resolved = socket.gethostbyname(host)
+        print(f"DNS resolved: {host} → {resolved}")
     except Exception as ex:
         print(f"DNS warning: {ex}")
+        resolved = host
     return pg.connect(
-        host        = host,
+        host        = resolved,
         database    = dbname,
         user        = user,
         password    = password,
