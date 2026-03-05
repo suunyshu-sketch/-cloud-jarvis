@@ -237,9 +237,14 @@ def seed_family_users():
             cur.execute("""INSERT INTO users 
                 (username,password_hash,display_name,role,family_member,approved,created_at,login_count)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,0)
-                ON CONFLICT (username) DO NOTHING""",
+                ON CONFLICT (username) DO UPDATE SET
+                password_hash=%s, display_name=%s, role=%s,
+                family_member=%s, approved=%s""",
                 (u["username"], hash_password(u["password"]),
-                 u["display"], u["role"], u["family_member"], u["approved"], now))
+                 u["display"], u["role"], u["family_member"], u["approved"], now,
+                 hash_password(u["password"]), u["display"], u["role"],
+                 u["family_member"], u["approved"]))
+            print(f"  ✅ Seeded: {u['username']}")
         conn.commit(); cur.close(); conn.close()
         print("✅ Family credentials seeded")
     except Exception as e:
@@ -248,17 +253,33 @@ def seed_family_users():
 def auth_login(username: str, password: str, device_id: str) -> dict:
     """Verify credentials — return user info or error"""
     try:
+        # Auto-seed if table is empty (first deploy recovery)
+        seed_family_users()
         conn = get_conn(); cur = conn.cursor()
+        uname = username.strip().lower()
+        phash = hash_password(password)
+        print(f"🔐 Login attempt: user='{uname}' hash='{phash[:12]}...'")
+        # First check if user exists at all
+        cur.execute("SELECT username, password_hash, approved FROM users WHERE username=%s", (uname,))
+        user_row = cur.fetchone()
+        if not user_row:
+            cur.close(); conn.close()
+            print(f"❌ User '{uname}' not found in DB")
+            return {"success": False, "error": f"Username '{uname}' not found. Check your username or ask Lucky."}
+        if user_row[1] != phash:
+            cur.close(); conn.close()
+            print(f"❌ Wrong password for '{uname}'")
+            return {"success": False, "error": "Wrong password. Please try again."}
+        if not user_row[2]:
+            cur.close(); conn.close()
+            return {"success": False, "error": "Your account is pending approval from Lucky. Please wait."}
+        # Full fetch
         cur.execute("""SELECT username,display_name,role,family_member,approved,login_count
-                       FROM users WHERE username=%s AND password_hash=%s""",
-                    (username.strip().lower(), hash_password(password)))
+                       FROM users WHERE username=%s""", (uname,))
         row = cur.fetchone()
         if not row:
             cur.close(); conn.close()
-            return {"success": False, "error": "Wrong username or password. Please try again."}
-        if not row[4]:  # not approved
-            cur.close(); conn.close()
-            return {"success": False, "error": "Your account is pending approval from Lucky. Please wait."}
+            return {"success": False, "error": "Login error. Please try again."}
         # Update login stats
         now = datetime.now().isoformat()
         cur.execute("UPDATE users SET last_login=%s, login_count=%s WHERE username=%s",
@@ -1625,14 +1646,30 @@ async def _extract_facts(text, person="family"):
 async def login_endpoint(request: Request):
     try:
         data = await request.json()
-        result = auth_login(
-            data.get("username",""),
-            data.get("password",""),
-            data.get("device_id","unknown")
-        )
+        username = data.get("username","").strip().lower()
+        password = data.get("password","").strip()
+        device_id = data.get("device_id","unknown")
+        print(f"📡 /auth/login called: username='{username}'")
+        if not username or not password:
+            return {"success": False, "error": "Username and password are required."}
+        result = auth_login(username, password, device_id)
+        print(f"📡 /auth/login result: {result.get('success')} — {result.get('error','')}")
         return result
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        print(f"❌ /auth/login exception: {e}")
+        import traceback; traceback.print_exc()
+        return {"success": False, "error": f"Server error: {str(e)}"}
+
+@app.get("/auth/status")
+async def auth_status():
+    """Debug endpoint — check users table"""
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("SELECT username, display_name, role, approved FROM users ORDER BY username")
+        rows = cur.fetchall(); cur.close(); conn.close()
+        return {"users": [{"username":r[0],"display":r[1],"role":r[2],"approved":r[3]} for r in rows]}
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.post("/auth/register")
 async def register_endpoint(request: Request):
