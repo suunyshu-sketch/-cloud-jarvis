@@ -77,21 +77,48 @@ def resolve_person(raw_name):
 # ══════════════════════════════════════════════════════════
 #  DATABASE
 # ══════════════════════════════════════════════════════════
+def parse_db_url(url):
+    """Robust URL parser — handles @ in password correctly"""
+    # Strip scheme
+    url = url.strip()
+    for scheme in ('postgresql://', 'postgres://'):
+        if url.startswith(scheme):
+            url = url[len(scheme):]
+            break
+    # Split on LAST @ to separate credentials from host
+    # e.g. user:Pass@word@host:5432/db  → credentials=user:Pass@word, rest=host:5432/db
+    at = url.rfind('@')
+    credentials = url[:at]
+    rest = url[at+1:]
+    # credentials = user:password (password may contain colons but not the first)
+    colon = credentials.find(':')
+    user = credentials[:colon]
+    password = credentials[colon+1:]
+    # rest = host:port/dbname  or  host/dbname
+    slash = rest.find('/')
+    hostport = rest[:slash]
+    dbname = rest[slash+1:].split('?')[0]  # strip query params
+    if ':' in hostport:
+        host, port_str = hostport.rsplit(':', 1)
+        port = int(port_str)
+    else:
+        host, port = hostport, 5432
+    return user, password, host, port, dbname
+
 def get_conn():
     import socket
-    r = urlparse(DATABASE_URL)
-    host = r.hostname or ''
-    # Resolve hostname to plain IP string — pg8000 requires this
+    user, password, host, port, dbname = parse_db_url(DATABASE_URL)
+    print(f"DB connect → host={host} db={dbname} user={user}")
     try:
         host = socket.gethostbyname(host)
     except Exception as ex:
-        print(f"DNS resolve warning: {ex}")
+        print(f"DNS warning: {ex}")
     return pg.connect(
-        host     = host,
-        database = r.path.lstrip('/'),
-        user     = r.username,
-        password = r.password,
-        port     = r.port or 5432,
+        host        = host,
+        database    = dbname,
+        user        = user,
+        password    = password,
+        port        = port,
         ssl_context = True
     )
 
