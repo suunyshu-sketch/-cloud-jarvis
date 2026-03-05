@@ -19,7 +19,7 @@ Features:
 - Private Mode
 """
 
-import os, json, httpx, asyncio, re, base64
+import os, json, httpx, asyncio, re, base64, hashlib, secrets
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
