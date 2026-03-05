@@ -22,7 +22,7 @@ Features:
 import os, json, httpx, asyncio, re, base64
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import FileResponse
 from groq import Groq
 from dotenv import load_dotenv
@@ -78,8 +78,15 @@ def resolve_person(raw_name):
 #  DATABASE
 # ══════════════════════════════════════════════════════════
 def get_conn():
+    import socket
     r = urlparse(DATABASE_URL)
-    return pg.connect(host=r.hostname, database=r.path[1:],
+    hostname = r.hostname
+    # pg8000 needs IP address — resolve hostname via DNS
+    try:
+        ip = socket.getaddrinfo(hostname, None)[0][4][0]
+    except Exception:
+        ip = hostname  # fallback to hostname if resolution fails
+    return pg.connect(host=ip, database=r.path[1:],
                       user=r.username, password=r.password,
                       port=r.port or 5432, ssl_context=True)
 
