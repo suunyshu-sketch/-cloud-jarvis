@@ -1673,9 +1673,9 @@ Things only you would know: {profile.get('inside_knowledge','')}"""
 
 {person.upper()}'S EMOTIONAL PATTERNS YOU'VE NOTICED:
 Recent mood: {emo_patterns.get('recent_mood','neutral')}
-Last 5 emotions: {", ".join(emo_patterns.get('recent_emotions',[]))}
-Most common emotion: {emo_patterns.get('most_common_emotion','neutral')}
-High intensity moments were about: {", ".join(emo_patterns.get('high_intensity_moments',[])[:2])}"""
+Last 5 emotions: {", ".join(emo_patterns.get('last_5', []))}
+Most common emotion: {emo_patterns.get('most_common','neutral')}
+High intensity moments were about: {", ".join(emo_patterns.get('high_intensity', [])[:2])}"""
 
     # ── Current emotion detected ──
     if emotion != "neutral":
@@ -1703,7 +1703,7 @@ Only use this if it genuinely fits the conversation. Don't force it."""
 
     # ── Recent insights ──
     if recent_insights:
-        system += "\n\nRECENT OBSERVATIONS about " + person + ": " + " | ".join([i["insight"] for i in recent_insights])
+        system += "\n\nRECENT OBSERVATIONS about " + person + ": " + " | ".join([i if isinstance(i, str) else i.get("insight","") for i in recent_insights])
 
     # ── RL patterns ──
     if pos_patterns:
