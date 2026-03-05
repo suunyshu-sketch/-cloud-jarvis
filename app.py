@@ -26,7 +26,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import FileResponse
 from groq import Groq
 from dotenv import load_dotenv
-import psycopg2
+import pg8000.dbapi as pg
 
 load_dotenv()
 app = FastAPI(title="JARVIS Ultimate")
@@ -78,8 +78,22 @@ def resolve_person(raw_name):
 #  DATABASE
 # ══════════════════════════════════════════════════════════
 def get_conn():
-    # psycopg2 handles hostnames natively — no IP resolution needed
-    return psycopg2.connect(DATABASE_URL, sslmode='require')
+    import socket
+    r = urlparse(DATABASE_URL)
+    host = r.hostname or ''
+    # Resolve hostname to plain IP string — pg8000 requires this
+    try:
+        host = socket.gethostbyname(host)
+    except Exception as ex:
+        print(f"DNS resolve warning: {ex}")
+    return pg.connect(
+        host     = host,
+        database = r.path.lstrip('/'),
+        user     = r.username,
+        password = r.password,
+        port     = r.port or 5432,
+        ssl_context = True
+    )
 
 def init_db():
     conn = get_conn(); cur = conn.cursor()
