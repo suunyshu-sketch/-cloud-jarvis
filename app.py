@@ -116,24 +116,31 @@ def parse_db_url(url):
         print(f"⚡ Fixed pooler port to 6543")
     return user, password, host, port, dbname
 
-def get_conn():
+# ── Connection cache — resolve DNS once, reuse credentials ──
+_db_cache = {}
+
+def _get_db_params():
+    """Parse + resolve once, cache forever"""
+    if _db_cache:
+        return _db_cache
     import socket
     user, password, host, port, dbname = parse_db_url(DATABASE_URL)
-    print(f"DB connect → host={host}:{port} db={dbname} user={user}")
     try:
         resolved = socket.gethostbyname(host)
-        print(f"DNS resolved: {host} → {resolved}")
+        print(f"✅ DNS resolved: {host} → {resolved}")
     except Exception as ex:
         print(f"DNS warning: {ex}")
         resolved = host
-    return pg.connect(
-        host        = resolved,
-        database    = dbname,
-        user        = user,
-        password    = password,
-        port        = port,
-        ssl_context = True
-    )
+    _db_cache.update({"host": resolved, "database": dbname,
+                      "user": user, "password": password, "port": port})
+    print(f"✅ DB params cached: {host}:{port} db={dbname}")
+    return _db_cache
+
+def get_conn():
+    p = _get_db_params()
+    return pg.connect(host=p["host"], database=p["database"],
+                      user=p["user"], password=p["password"],
+                      port=p["port"], ssl_context=True)
 
 def init_db():
     conn = get_conn(); cur = conn.cursor()
@@ -1260,10 +1267,29 @@ async def compression_scheduler():
         await asyncio.sleep(7*24*60*60)
         await compress_old_messages()
 
+async def keep_alive():
+    """Ping self every 10 min to prevent Render free tier cold start"""
+    await asyncio.sleep(60)  # wait for server to fully start
+    url = os.getenv("RENDER_EXTERNAL_URL", "")
+    if not url:
+        print("⚠️  RENDER_EXTERNAL_URL not set — keep-alive disabled")
+        return
+    print(f"💓 Keep-alive started → pinging {url} every 10 min")
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=10) as cl:
+                await cl.get(url)
+            print("💓 keep-alive ping sent")
+        except Exception as e:
+            print(f"💓 keep-alive error: {e}")
+        await asyncio.sleep(10 * 60)  # 10 minutes
+
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(compression_scheduler())
+    asyncio.create_task(keep_alive())
     print("⏰ Compression scheduler started")
+    print("💓 Keep-alive task started")
 
 # ══════════════════════════════════════════════════════════
 #  COMMAND PARSER — handle special commands
@@ -1437,6 +1463,82 @@ ADMIN: Lucky has full control — memory, devices, announcements, all settings.
 WORLD EVENTS: Use live data. Be specific. Name actual things happening.
 FORMAT: Natural speech only. No bullet points. No asterisks. No markdown ever."""
 
+def _batch_context(device_id, person, is_admin):
+    """Load all per-message DB data in ONE connection — much faster"""
+    result = {
+        "history": [], "facts": {}, "rl": ([], []),
+        "personality": None, "emotions": None,
+        "insights": [], "old_insight": None,
+        "check_in": False, "announcements": []
+    }
+    try:
+        conn = get_conn(); cur = conn.cursor()
+        # 1. History
+        if is_admin:
+            cur.execute("SELECT role,content FROM memories WHERE private=FALSE ORDER BY id DESC LIMIT 15")
+        else:
+            cur.execute("SELECT role,content FROM memories WHERE device_id=%s ORDER BY id DESC LIMIT 15", (device_id,))
+        rows = cur.fetchall()
+        result["history"] = [{"role": r[0], "content": r[1]} for r in reversed(rows)]
+
+        # 2. Facts
+        cur.execute("SELECT key,value FROM facts LIMIT 40")
+        result["facts"] = {r[0]: r[1] for r in cur.fetchall()}
+
+        # 3. RL patterns
+        cur.execute("SELECT user_msg,jarvis_response FROM rl_feedback WHERE person=%s AND feedback='positive' ORDER BY id DESC LIMIT 5", (person,))
+        pos = [f"User said '{r[0]}' → responded well: '{r[1][:60]}'" for r in cur.fetchall()]
+        cur.execute("SELECT user_msg,jarvis_response FROM rl_feedback WHERE person=%s AND feedback='negative' ORDER BY id DESC LIMIT 5", (person,))
+        neg = [f"Avoid this style when '{r[0]}': '{r[1][:60]}'" for r in cur.fetchall()]
+        result["rl"] = (pos, neg)
+
+        # 4. Personality profile
+        cur.execute("SELECT raw_profile,behavioral_patterns,communication_style,emotional_triggers,topics_they_love,topics_to_avoid,how_they_deflect,inside_knowledge FROM personality_profiles WHERE person=%s", (person,))
+        row = cur.fetchone()
+        if row:
+            keys = ["raw_profile","behavioral_patterns","communication_style","emotional_triggers","topics_they_love","topics_to_avoid","how_they_deflect","inside_knowledge"]
+            result["personality"] = dict(zip(keys, row))
+
+        # 5. Emotional patterns
+        cur.execute("SELECT emotion,intensity,context,time_of_day,day_of_week FROM emotional_history WHERE person=%s ORDER BY id DESC LIMIT 20", (person,))
+        rows = cur.fetchall()
+        if rows:
+            from collections import Counter
+            emotions = [r[0] for r in rows if r[0]]
+            result["emotions"] = {
+                "most_common": Counter(emotions).most_common(1)[0][0] if emotions else "neutral",
+                "recent_mood": emotions[0] if emotions else "neutral",
+                "last_5": emotions[:5],
+                "high_intensity": [r[2] for r in rows if r[1] == "high"][:3],
+            }
+
+        # 6. Recent insights
+        cur.execute("SELECT insight FROM conversation_insights WHERE person=%s ORDER BY id DESC LIMIT 3", (person,))
+        result["insights"] = [r[0] for r in cur.fetchall()]
+
+        # 7. Old insight (20% chance)
+        import random
+        if random.random() < 0.20:
+            three_days_ago = (datetime.now() - timedelta(days=3)).isoformat()
+            cur.execute("SELECT insight FROM conversation_insights WHERE person=%s AND created_at<%s ORDER BY RANDOM() LIMIT 1", (person, three_days_ago))
+            row = cur.fetchone()
+            result["old_insight"] = row[0] if row else None
+
+        # 8. Check-in (if recently sad/anxious)
+        twenty_hrs_ago = (datetime.now() - timedelta(hours=20)).isoformat()
+        cur.execute("SELECT emotion,context FROM emotional_history WHERE person=%s AND emotion IN ('sad','anxious','angry') AND timestamp>%s ORDER BY id DESC LIMIT 1", (person, twenty_hrs_ago))
+        row = cur.fetchone()
+        result["check_in"] = {"emotion": row[0], "context": row[1]} if row else False
+
+        # 9. Announcements
+        cur.execute("SELECT title,content,from_person FROM announcements WHERE active=TRUE ORDER BY id DESC LIMIT 3")
+        result["announcements"] = [{"title":r[0],"content":r[1],"from":r[2]} for r in cur.fetchall()]
+
+        cur.close(); conn.close()
+    except Exception as e:
+        print(f"_batch_context error: {e}")
+    return result
+
 async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
     lower = user_text.lower()
     device_info = get_device(device_id)
@@ -1499,32 +1601,19 @@ async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
         bday_text = " | ".join([f"{b['name']}: {b['days_left']} days away" for b in upcoming_bdays])
         tool_data.append(f"UPCOMING BIRTHDAYS: {bday_text}")
 
-    # ── RL patterns ──
-    pos_patterns, neg_patterns = get_rl_patterns(person)
-
-    # ── PATH A: Detect emotion ──
+    # ── Load all context in ONE DB connection (fast) ──
     emotion, intensity = detect_emotion(user_text)
-
-    # ── PATH A: Load deep personality profile ──
-    profile = get_personality_profile(person)
-
-    # ── PATH A: Load emotional patterns ──
-    emo_patterns = get_emotional_patterns(person)
-
-    # ── PATH A: Check if should proactively check in ──
-    check_in = should_check_in(person)
-
-    # ── PATH A: Get old insight to surface (unpredictability) ──
-    old_insight = get_old_insight_to_surface(person)
-
-    # ── PATH A: Get recent insights ──
-    recent_insights = get_recent_insights(person, 3)
+    ctx = _batch_context(device_id, person, is_admin)
+    pos_patterns, neg_patterns = ctx["rl"]
+    profile       = ctx["personality"]
+    emo_patterns  = ctx["emotions"]
+    check_in      = ctx["check_in"]
+    old_insight   = ctx["old_insight"]
+    recent_insights = ctx["insights"]
+    facts         = ctx["facts"]
 
     # ── Build dynamic system prompt ──
     system = SYSTEM_BASE
-
-    # Known facts
-    facts = get_all_facts()
     if facts:
         system += "\n\nKNOWN FACTS: " + ", ".join(f"{k}: {v}" for k,v in list(facts.items())[:20])
 
@@ -1630,7 +1719,7 @@ Only use this if it genuinely fits the conversation. Don't force it."""
 
     # Announcements for non-admin
     if not is_admin:
-        announcements = get_announcements()
+        announcements = ctx["announcements"]
         if announcements:
             ann_text = " | ".join([f"[{a['title']}]: {a['content']}" for a in announcements])
             tool_data.append(f"FAMILY ANNOUNCEMENTS FROM LUCKY: {ann_text}")
@@ -1638,7 +1727,7 @@ Only use this if it genuinely fits the conversation. Don't force it."""
     if tool_data:
         system += "\n\nREAL-TIME DATA:\n" + "\n\n".join(tool_data)
 
-    history = get_history(15, device_id, is_admin)
+    history = ctx["history"]
     messages = [{"role":"system","content":system}] + history[-10:] + [{"role":"user","content":user_text}]
 
     resp = client.chat.completions.create(
