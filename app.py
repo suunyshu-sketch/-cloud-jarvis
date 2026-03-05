@@ -98,17 +98,22 @@ def parse_db_url(url):
         port = int(port_str)
     else:
         host, port = hostport, 5432
-    # Render free tier blocks port 5432 — force pooler port 6543 for Supabase direct URLs
-    if '.supabase.co' in host and port == 5432:
+    # Render free tier blocks port 5432 — auto-convert direct URL to pooler URL
+    if '.supabase.co' in host:
         import re
-        # Extract project ref from host like db.PROJECTREF.supabase.co
         m = re.search(r'(?:db\.)?([a-z0-9]+)\.supabase\.co', host)
         if m:
             ref = m.group(1)
-            host = f'aws-1-ap-south-1.pooler.supabase.com'
-            user = f'postgres.{ref}' if '.' not in user else user
+            host = 'aws-1-ap-south-1.pooler.supabase.com'
+            # Pooler requires username format: postgres.PROJECTREF
+            if '.' not in user:
+                user = f'postgres.{ref}'
+            port = 6543
+            print(f"⚡ Auto-converted to pooler: host={host} port={port} user={user}")
+    # Also fix if pooler host used but still port 5432
+    if 'pooler.supabase.com' in host and port == 5432:
         port = 6543
-        print(f"⚡ Auto-switched to Supabase pooler: {host}:{port} user={user}")
+        print(f"⚡ Fixed pooler port to 6543")
     return user, password, host, port, dbname
 
 def get_conn():
