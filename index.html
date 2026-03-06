@@ -42,12 +42,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #app{display:none;flex-direction:column;height:100vh;height:100dvh}
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
-#header{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+#header{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
 #menuBtn{width:36px;height:36px;background:rgba(0,212,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--cyan);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .hc{display:flex;flex-direction:column;gap:2px;min-width:0}
 .h-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.2em;color:var(--cyan)}
 .h-sub{font-size:.58rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#reactor{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,212,255,.3);background:rgba(0,212,255,.05);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s}
+#reactor{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,212,255,.3);background:rgba(0,212,255,.05);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s;cursor:pointer}
 #reactor.talking{border-color:var(--cyan);background:rgba(0,212,255,.15);box-shadow:0 0 16px rgba(0,212,255,.3)}
 
 /* ── Chat ───────────────────────────────────────────────────────────────── */
@@ -214,7 +214,8 @@ code{font-family:'Share Tech Mono',monospace}
       <div class="h-title">J.A.R.V.I.S</div>
       <div class="h-sub" id="headerSub">Initializing...</div>
     </div>
-    <div id="reactor">⚡</div>
+    <div id="reactor" onclick="toggleSpeak()" title="Tap to toggle voice">⚡</div>
+  <div id="speakIndicator" style="position:absolute;top:6px;right:10px;font-size:.5rem;color:var(--green);letter-spacing:.1em">🔊 VOICE ON</div>
   </div>
 
   <!-- Chat -->
@@ -322,7 +323,7 @@ let deviceOwner = '';
 let userRole    = '';
 let isAdmin     = false;
 let isPrivate   = false;
-let autoSpeak   = false;
+let autoSpeak   = true;
 let SR          = null;
 let streamEl    = null;
 let streamText  = '';
@@ -396,17 +397,40 @@ async function doRegister(){
 
 async function checkSession(){
   const token = localStorage.getItem('j_token');
-  if(!token){ return; }
-  try{
-    const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token})});
-    const d = await r.json();
-    if(d.valid && d.user){
-      startApp(d.user.family_member||d.user.display_name, d.user.role);
-    } else {
-      localStorage.removeItem('j_token');
-    }
-  } catch(e){}
+  const owner = localStorage.getItem('j_owner');
+  const role  = localStorage.getItem('j_role');
+  // If we have cached credentials — start immediately, verify in background
+  if(token && owner && role){
+    startApp(owner, role);
+    // Verify in background — sign out silently if invalid
+    try{
+      const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token})});
+      const d = await r.json();
+      if(!d.valid){
+        // Token expired — clear and reload to show login
+        ['j_token','j_owner','j_role'].forEach(k=>localStorage.removeItem(k));
+        location.reload();
+      }
+    } catch(e){} // Network error — keep session, try again next time
+    return;
+  }
+  // No cached session — show login
+  if(token){
+    // Have token but no cached details — verify fully
+    try{
+      const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token})});
+      const d = await r.json();
+      if(d.valid && d.user){
+        localStorage.setItem('j_owner', d.user.family_member||d.user.display_name);
+        localStorage.setItem('j_role',  d.user.role);
+        startApp(d.user.family_member||d.user.display_name, d.user.role);
+      } else {
+        localStorage.removeItem('j_token');
+      }
+    } catch(e){}
+  }
 }
 
 function signOut(){
@@ -459,6 +483,7 @@ function connectWS(){
       if(streamEl){
         finalStream(streamEl, streamText);
         lastJarvis = streamText;
+        // Speak full response
         if(autoSpeak) speak(streamText);
         streamEl = null; streamText = '';
         document.getElementById('reactor').classList.remove('talking');
@@ -608,11 +633,30 @@ function startVoice(){
   rec.onend = () => document.getElementById('voiceBtn').classList.remove('on');
 }
 
+function toggleSpeak(){
+  autoSpeak = !autoSpeak;
+  const ind = document.getElementById('speakIndicator');
+  if(ind) ind.innerHTML = autoSpeak ? '🔊 VOICE ON' : '🔇 MUTED';
+  if(ind) ind.style.color = autoSpeak ? 'var(--green)' : 'var(--dim)';
+  toast(autoSpeak ? '🔊 Voice ON' : '🔇 Voice muted');
+  if(!autoSpeak) window.speechSynthesis.cancel();
+}
+
 function speak(text){
   if(!autoSpeak) return;
-  const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'').slice(0,300));
-  u.rate=1; u.pitch=1; u.lang='en-IN';
   window.speechSynthesis.cancel();
+  const clean = text.replace(/<[^>]+>/g,'').replace(/[*_`#]/g,'').trim().slice(0,400);
+  if(!clean) return;
+  const u = new SpeechSynthesisUtterance(clean);
+  u.rate = 1.05;  // slightly faster = more natural
+  u.pitch = 1;
+  u.lang = 'en-IN';
+  // Pick best available voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v=>v.lang==='en-IN') ||
+                    voices.find(v=>v.lang.startsWith('en') && v.localService) ||
+                    voices.find(v=>v.lang.startsWith('en')) || null;
+  if(preferred) u.voice = preferred;
   window.speechSynthesis.speak(u);
 }
 
@@ -719,6 +763,12 @@ function detectDevice(){
 
 /* ══ INPUT HANDLING ════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', ()=>{
+  // Pre-load voices (required for some browsers)
+  window.speechSynthesis.getVoices();
+  if(window.speechSynthesis.onvoiceschanged !== undefined){
+    window.speechSynthesis.onvoiceschanged = ()=> window.speechSynthesis.getVoices();
+  }
+
   const inp = document.getElementById('textInput');
 
   // Auto-resize textarea
