@@ -1,310 +1,717 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>J.A.R.V.I.S</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J.A.R.V.I.S — Battini Family</title>
 <style>
-/* ══ RESET & VARS ══════════════════════════════════════════════════════════ */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#000d1a; --panel:#030f20; --border:rgba(0,212,255,.12);
-  --cyan:#00d4ff; --cyan2:#7ee8ff; --blue:#0050ff; --dim:rgba(0,212,255,.4);
-  --red:#ff4466; --green:#00ff88; --text:#cce8ff;
+  --cyan:#00d4ff;--cyan2:#00fff7;--blue:#0066ff;--dark:#000a14;
+  --panel:rgba(0,30,60,0.88);--border:rgba(0,212,255,0.22);
+  --text:#c8f0ff;--dim:rgba(0,212,255,0.45);--green:#00ff88;
+  --yellow:#ffd700;--red:#ff4466;--orange:#ff8c00;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace}
+body{background:var(--dark);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column}
+body.light-theme{--dark:#f0f4f8;--panel:rgba(255,255,255,0.92);--border:rgba(0,100,200,0.2);--text:#1a2a3a;--dim:rgba(0,100,200,0.5);--cyan:#0066cc;background:#f0f4f8}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.035) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;animation:gridMove 20s linear infinite}
+body.light-theme::before{background-image:linear-gradient(rgba(0,100,200,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,100,200,0.04) 1px,transparent 1px)}
+@keyframes gridMove{0%{background-position:0 0}100%{background-position:40px 40px}}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:1}
 
-/* ══ AUTH SCREEN ═══════════════════════════════════════════════════════════ */
-#authScreen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.auth-box{width:92%;max-width:370px;background:rgba(0,12,30,.98);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(0,212,255,.1)}
-.auth-header{padding:26px 24px 18px;text-align:center;border-bottom:1px solid var(--border)}
-.auth-logo{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.auth-sub{font-size:.6rem;color:var(--dim);letter-spacing:.15em;margin-top:4px}
+/* ── Header ── */
+header{position:relative;z-index:10;padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(0,5,15,0.97);backdrop-filter:blur(14px);flex-shrink:0}
+body.light-theme header{background:rgba(230,240,255,0.97)}
+.logo{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;letter-spacing:.28em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-center{display:flex;align-items:center;gap:10px;font-size:.6rem;color:var(--dim);letter-spacing:.1em}
+.dot-status{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:pulse 2s infinite}
+.dot-status.off{background:var(--red);box-shadow:0 0 7px var(--red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.menu-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:rgba(0,30,60,.8);color:var(--cyan);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.menu-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.1);box-shadow:0 0 14px rgba(0,212,255,.2)}
+.theme-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(0,30,60,.6);color:var(--dim);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.theme-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── Side Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,5,15,.7);z-index:190;display:none;backdrop-filter:blur(4px)}
+.drawer-overlay.open{display:block}
+.drawer{position:fixed;right:0;top:0;height:100vh;width:300px;background:rgba(0,8,22,.99);border-left:1px solid var(--border);z-index:195;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{transform:none}
+.drawer-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--cyan);letter-spacing:.15em}
+.drawer-close{width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--dim);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.drawer-close:hover{border-color:var(--red);color:var(--red)}
+.drawer-body{flex:1;overflow-y:auto;padding:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.drawer-section{margin-bottom:20px}
+.drawer-section-title{font-size:.58rem;color:var(--dim);letter-spacing:.18em;padding:0 4px;margin-bottom:8px;text-transform:uppercase}
+.drawer-items{display:flex;flex-direction:column;gap:4px}
+.di{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:all .18s}
+.di:hover{background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.15)}
+.di:active{background:rgba(0,212,255,.1)}
+.di-icon{font-size:1.05rem;width:24px;text-align:center;flex-shrink:0}
+.di-label{font-size:.78rem;color:var(--text);flex:1}
+.di-desc{font-size:.6rem;color:var(--dim);margin-top:2px}
+.di.active-item{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2)}
+.di.admin-item{border-color:rgba(255,215,0,.1)}
+.di.admin-item .di-label{color:var(--yellow)}
+.di.admin-item:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}
+.drawer-divider{height:1px;background:var(--border);margin:4px 0 16px}
+.drawer-user{padding:12px 14px;background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;display:flex;align-items:center;gap:11px}
+.drawer-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--cyan);background:rgba(0,212,255,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.drawer-user-info{}
+.drawer-user-name{font-size:.78rem;color:var(--cyan);font-family:'Orbitron',monospace;letter-spacing:.06em}
+.drawer-user-sub{font-size:.6rem;color:var(--dim);margin-top:2px}
+
+/* ── Status row (inline in header) ── */
+.status-row{display:flex;gap:8px;align-items:center;font-size:.6rem;color:var(--dim);letter-spacing:.07em}
+.hbtn{display:none} /* hide old hbtns */
+
+/* ── Modals ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,5,15,0.9);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:rgba(0,15,35,0.98);border:1px solid var(--border);border-radius:14px;width:90%;max-width:460px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 50px rgba(0,212,255,.12);animation:slideIn .2s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:.82rem;color:var(--cyan);letter-spacing:.12em}
+.modal-body{padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.close-btn{background:none;border:none;color:var(--dim);font-size:1.1rem;cursor:pointer;padding:0 4px;transition:color .2s}
+.close-btn:hover{color:var(--red)}
+
+/* ── Voice Engine ── */
+.voice-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.vi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:all .15s;background:rgba(0,0,0,.3)}
+.vi:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.05)}
+.vi.sel{border-color:var(--cyan);background:rgba(0,212,255,.08)}
+.vi-radio{width:9px;height:9px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;transition:all .15s}
+.vi.sel .vi-radio{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.vi-info{flex:1;min-width:0}
+.vi-name{font-size:.76rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vi-meta{font-size:.6rem;color:var(--dim);margin-top:1px}
+.vi-test{background:none;border:1px solid rgba(0,212,255,.2);border-radius:4px;color:var(--dim);font-size:.58rem;padding:2px 6px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .15s}
+.vi-test:hover{border-color:var(--cyan);color:var(--cyan)}
+.badge{font-size:.52rem;padding:2px 5px;border-radius:8px;flex-shrink:0}
+.badge.best{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.25)}
+.badge.good{background:rgba(255,215,0,.1);color:var(--yellow);border:1px solid rgba(255,215,0,.2)}
+.sec-label{font-size:.63rem;color:var(--dim);letter-spacing:.13em;margin-bottom:6px}
+.slider-row{display:flex;align-items:center;gap:8px}
+.slider-label{font-size:.67rem;color:var(--dim);min-width:55px}
+.slider-val{font-size:.67rem;color:var(--cyan);min-width:28px;text-align:right}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:linear-gradient(90deg,var(--cyan) var(--pct,50%),rgba(0,212,255,.15) var(--pct,50%));border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);cursor:pointer}
+.apply-btn{width:100%;padding:10px;background:linear-gradient(90deg,rgba(0,80,200,.3),rgba(0,212,255,.2));border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.apply-btn:hover{background:rgba(0,212,255,.2);box-shadow:0 0 16px rgba(0,212,255,.2)}
+
+/* ── Owner Setup ── */
+/* ── Auth Screen ── */
+.auth-screen{position:fixed;inset:0;background:#000d1a;z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(0)}
+.auth-box{width:92%;max-width:380px;background:rgba(0,12,30,.98);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(0,212,255,.1)}
+.auth-header{padding:28px 28px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.auth-logo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.auth-sub{font-size:.65rem;color:var(--dim);letter-spacing:.12em}
 .auth-tabs{display:flex;border-bottom:1px solid var(--border)}
-.auth-tab{flex:1;padding:11px;text-align:center;font-size:.65rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;letter-spacing:.1em}
+.auth-tab{flex:1;padding:11px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.08em}
 .auth-tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
-.auth-body{padding:20px}
-.auth-panel{display:none}.auth-panel.on{display:block}
-.auth-field{margin-bottom:13px}
-.auth-label{font-size:.58rem;color:var(--dim);letter-spacing:.12em;display:block;margin-bottom:5px}
-.auth-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:11px 13px;outline:none;transition:.2s}
-.auth-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
-.auth-btn{width:100%;padding:12px;background:linear-gradient(90deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:10px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.12em;cursor:pointer;transition:.2s;margin-top:2px}
-.auth-btn:hover{background:linear-gradient(90deg,rgba(0,80,200,.7),rgba(0,212,255,.5))}
+.auth-body{padding:22px}
+.auth-panel{display:none}
+.auth-panel.on{display:block}
+.auth-field{margin-bottom:14px}
+.auth-label{font-size:.6rem;color:var(--dim);letter-spacing:.12em;margin-bottom:5px;display:block}
+.auth-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:11px 13px;outline:none;transition:all .2s}
+.auth-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.07)}
+.auth-btn{width:100%;padding:12px;background:linear-gradient(90deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:10px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.12em;cursor:pointer;transition:all .2s;margin-top:4px}
+.auth-btn:hover{background:linear-gradient(90deg,rgba(0,80,200,.7),rgba(0,212,255,.5));box-shadow:0 0 20px rgba(0,212,255,.2)}
 .auth-btn:disabled{opacity:.4;cursor:not-allowed}
-.auth-error{background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:8px;padding:9px 12px;font-size:.7rem;color:#ff6680;margin-bottom:11px;display:none}
-.auth-ok{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.18);border-radius:8px;padding:9px 12px;font-size:.7rem;color:#00ff88;margin-bottom:11px;display:none}
-.auth-hint{font-size:.6rem;color:rgba(0,212,255,.3);text-align:center;margin-top:11px;line-height:1.7}
-.auth-divider{height:1px;background:var(--border);margin:14px 0}
+.auth-error{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.25);border-radius:8px;padding:9px 12px;font-size:.72rem;color:#ff6680;margin-bottom:12px;display:none}
+.auth-success{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:9px 12px;font-size:.72rem;color:#00ff88;margin-bottom:12px;display:none}
+.auth-hint{font-size:.62rem;color:rgba(0,212,255,.35);text-align:center;margin-top:12px;line-height:1.6}
+.auth-divider{height:1px;background:var(--border);margin:16px 0}
+.register-fields{display:none}
+/* keep owner-* for fallback */
+.owner-modal{display:none}
+.owner-card{display:none}
+.owner-input{display:none}
+.owner-btn{display:none}
 
-/* ══ MAIN APP ══════════════════════════════════════════════════════════════ */
-#app{display:none;flex-direction:column;height:100vh;height:100dvh}
+/* ── Main ── */
+main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin:0 auto;padding:12px 14px;gap:10px;position:relative;z-index:5}
+.arc-reactor{display:flex;justify-content:center;padding:4px 0 0}
+.reactor-ring{width:70px;height:70px;border-radius:50%;border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;position:relative;animation:reactorGlow 3s ease-in-out infinite}
+@keyframes reactorGlow{0%,100%{box-shadow:0 0 18px rgba(0,212,255,.3),inset 0 0 12px rgba(0,212,255,.1)}50%{box-shadow:0 0 42px rgba(0,212,255,.6),inset 0 0 28px rgba(0,212,255,.2)}}
+.reactor-ring::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(0,212,255,.3)}
+.reactor-core{width:25px;height:25px;border-radius:50%;background:radial-gradient(circle,#fff 0%,var(--cyan2) 30%,var(--blue) 70%,transparent 100%);box-shadow:0 0 18px var(--cyan2),0 0 36px var(--cyan)}
+.reactor-ring.talking .reactor-core{animation:talkPulse .22s ease-in-out infinite alternate}
+@keyframes talkPulse{from{transform:scale(.65);box-shadow:0 0 6px var(--cyan2)}to{transform:scale(1.4);box-shadow:0 0 32px var(--cyan2),0 0 55px var(--cyan)}}
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
-#header{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
-#menuBtn{width:36px;height:36px;background:rgba(0,212,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--cyan);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.hc{display:flex;flex-direction:column;gap:2px;min-width:0}
-.h-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.2em;color:var(--cyan)}
-.h-sub{font-size:.58rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#reactor{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,212,255,.3);background:rgba(0,212,255,.05);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s;cursor:pointer}
-#reactor.talking{border-color:var(--cyan);background:rgba(0,212,255,.15);box-shadow:0 0 16px rgba(0,212,255,.3)}
+.device-badge{text-align:center;font-size:.65rem;color:var(--dim);letter-spacing:.1em}
+.device-badge span{color:var(--cyan)}
+.admin-badge{display:inline-block;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--yellow);font-size:.58rem;padding:1px 7px;border-radius:10px;margin-left:6px;letter-spacing:.08em}
+.stats{display:flex;gap:12px;justify-content:center;font-size:.6rem;color:var(--dim);letter-spacing:.07em;flex-wrap:wrap}
+.stats .val{color:var(--cyan)}
 
-/* ── Chat ───────────────────────────────────────────────────────────────── */
-#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
-#chat::-webkit-scrollbar{width:3px}
-#chat::-webkit-scrollbar-thumb{background:rgba(0,212,255,.2);border-radius:3px}
-
-.msg-wrap{display:flex;flex-direction:column;max-width:85%}
-.user-wrap{align-self:flex-end;align-items:flex-end}
-.jarvis-wrap{align-self:flex-start}
-.msg{padding:10px 14px;border-radius:14px;font-size:.82rem;line-height:1.6}
-.msg.user{background:linear-gradient(135deg,rgba(0,80,200,.35),rgba(0,212,255,.15));border:1px solid rgba(0,212,255,.2);border-bottom-right-radius:4px}
-.msg.jarvis{background:rgba(3,15,32,.95);border:1px solid var(--border);border-bottom-left-radius:4px}
-.msg-label{font-size:.55rem;letter-spacing:.12em;margin-bottom:4px;opacity:.6}
-.user-wrap .msg-label{color:var(--cyan2)}
-.jarvis-wrap .msg-label{color:var(--cyan)}
-.feedback-row{display:flex;gap:8px;margin-top:8px}
-.fb-btn{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:6px;color:var(--dim);font-size:.6rem;padding:4px 10px;cursor:pointer;transition:.2s}
-.fb-btn:hover{background:rgba(0,212,255,.12);color:var(--cyan)}
+/* ── Chat ── */
+.chat-window{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:14px;min-height:280px;max-height:370px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.chat-window::-webkit-scrollbar{width:3px}.chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.msg{display:flex;flex-direction:column;gap:4px;animation:msgIn .3s ease-out}
+@keyframes msgIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.msg-row{display:flex;gap:9px;align-items:flex-start}
+.msg-label{font-family:'Orbitron',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.14em;padding-top:3px;min-width:54px;flex-shrink:0}
+.msg.user .msg-label{color:#88ccff}.msg.jarvis .msg-label{color:var(--cyan)}
+.msg-text{font-size:.83rem;line-height:1.65;color:var(--text)}
+.msg.jarvis .msg-text{color:#e8f8ff}
+.msg-feedback{display:flex;gap:6px;padding-left:63px;margin-top:2px}
+.fb-btn{background:none;border:1px solid rgba(0,212,255,.15);border-radius:5px;color:var(--dim);font-size:.68rem;padding:2px 8px;cursor:pointer;transition:all .15s}
+.fb-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.fb-btn.active-pos{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.08)}
+.fb-btn.active-neg{border-color:var(--red);color:var(--red);background:rgba(255,68,102,.08)}
 .thinking-dots span{animation:blink 1.2s ease-in-out infinite;color:var(--cyan)}
-.thinking-dots span:nth-child(2){animation-delay:.2s}
-.thinking-dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
-.stream-cursor{display:inline-block;color:var(--cyan);animation:cur .5s step-end infinite;margin-left:1px}
-@keyframes cur{0%,100%{opacity:1}50%{opacity:0}}
-pre{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:10px;overflow-x:auto;font-size:.75rem;margin:6px 0}
-code{font-family:'Share Tech Mono',monospace}
+.thinking-dots span:nth-child(2){animation-delay:.2s}.thinking-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
-/* ── Input bar ──────────────────────────────────────────────────────────── */
-#inputBar{display:grid;grid-template-columns:38px 1fr 38px 38px 56px;gap:6px;padding:10px 12px;background:var(--panel);border-top:1px solid var(--border);flex-shrink:0}
-@media(max-width:380px){#inputBar{grid-template-columns:34px 1fr 34px 34px 50px;gap:5px;padding:8px 10px}}
-.ib-btn{background:rgba(0,212,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--cyan);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;width:100%;height:42px}
-.ib-btn:hover{background:rgba(0,212,255,.12)}
-.ib-btn.on{background:rgba(0,212,255,.18);border-color:var(--cyan)}
-#textInput{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.82rem;padding:11px 13px;outline:none;resize:none;height:42px;line-height:1.3;overflow:hidden;transition:.2s}
-#textInput:focus{border-color:rgba(0,212,255,.35)}
-#sendBtn{background:linear-gradient(135deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:9px;color:var(--cyan);font-size:.7rem;font-family:'Orbitron',sans-serif;cursor:pointer;height:42px;letter-spacing:.05em;transition:.2s}
-#sendBtn:hover{background:linear-gradient(135deg,rgba(0,80,200,.7),rgba(0,212,255,.5))}
-#sendBtn:disabled{opacity:.4}
+/* ── Reminder Toast ── */
+.reminder-toast{position:fixed;top:70px;right:16px;z-index:500;display:flex;flex-direction:column;gap:8px;max-width:300px}
+.toast{background:rgba(0,15,35,.97);border:1px solid var(--yellow);border-radius:10px;padding:12px 14px;animation:toastIn .3s ease-out;box-shadow:0 0 20px rgba(255,215,0,.2)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast-title{font-family:'Orbitron',sans-serif;font-size:.62rem;color:var(--yellow);letter-spacing:.1em;margin-bottom:4px}
+.toast-text{font-size:.75rem;color:var(--text);line-height:1.5}
+.toast-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:.9rem}
 
-/* ── Drawer ─────────────────────────────────────────────────────────────── */
-#drawerOverlay{position:fixed;inset:0;z-index:200;display:none}
-#drawerOverlay.on{display:block}
-#drawer{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--panel);border-right:1px solid var(--border);z-index:201;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;display:flex;flex-direction:column}
-#drawer.on{transform:translateX(0)}
-.drawer-header{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
-.drawer-logo{font-family:'Orbitron',sans-serif;font-size:.85rem;letter-spacing:.2em;color:var(--cyan)}
-.drawer-user{font-size:.65rem;color:var(--dim);margin-top:4px}
-.drawer-section{padding:10px 12px 4px;font-size:.55rem;letter-spacing:.15em;color:rgba(0,212,255,.3)}
-.di{display:flex;align-items:center;gap:11px;padding:11px 14px;cursor:pointer;border-radius:10px;margin:2px 8px;transition:.2s}
-.di:hover{background:rgba(0,212,255,.06)}
-.di-icon{font-size:1rem;width:22px;text-align:center}
-.di-label{font-size:.72rem;color:var(--cyan2)}
-.di-desc{font-size:.6rem;color:var(--dim);margin-top:1px}
-.drawer-footer{margin-top:auto;padding:12px}
-.drawer-out{width:100%;padding:10px;background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:9px;color:rgba(255,68,102,.7);font-size:.65rem;cursor:pointer;font-family:'Share Tech Mono',monospace}
-.drawer-out:hover{background:rgba(255,68,102,.12)}
+/* ── Speaking ── */
+.speaking-row{display:flex;align-items:center;justify-content:center;gap:10px;min-height:22px}
+.speaking-indicator{display:none;align-items:center;gap:6px;font-size:.63rem;color:var(--cyan);letter-spacing:.1em}
+.speaking-indicator.active{display:flex}
+.voice-bars{display:flex;gap:3px;align-items:center;height:16px}
+.voice-bar{width:3px;background:var(--cyan);border-radius:2px;transition:height .1s}
 
-/* ── Toast ──────────────────────────────────────────────────────────────── */
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,12,30,.98);border:1px solid var(--cyan);border-radius:12px;padding:11px 18px;font-size:.72rem;color:var(--cyan);opacity:0;transition:.3s;z-index:400;text-align:center;pointer-events:none;white-space:nowrap}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ── Image Preview ── */
+.img-preview{display:none;position:relative;margin:4px 0}
+.img-preview img{max-height:80px;border-radius:7px;border:1px solid var(--border)}
+.img-preview .remove-img{position:absolute;top:2px;right:2px;background:rgba(255,68,102,.8);border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-/* ══ ADMIN ═════════════════════════════════════════════════════════════════ */
-#adminScreen{position:fixed;inset:0;z-index:300;background:var(--bg);display:none;flex-direction:column}
-#adminScreen.on{display:flex}
-.admin-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
-.admin-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.2em;color:var(--cyan)}
-.admin-close{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);border-radius:8px;color:var(--red);font-size:.7rem;padding:7px 14px;cursor:pointer}
-.admin-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
-.atab{padding:10px 16px;font-size:.62rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.08em}
-.atab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
-.admin-body{flex:1;overflow-y:auto;padding:14px}
-.admin-panel{display:none}.admin-panel.on{display:block}
-.a-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
-.a-card-title{font-size:.6rem;letter-spacing:.15em;color:var(--dim);margin-bottom:10px}
-.user-row{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,212,255,.03);border:1px solid var(--border);border-radius:10px;margin-bottom:7px}
-.user-emoji{font-size:1.3rem}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:.75rem;color:var(--cyan2)}
-.user-meta{font-size:.58rem;color:var(--dim);margin-top:2px}
-.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
-.online-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
-.online-dot.off{background:rgba(255,255,255,.2)}
-.a-input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:9px 12px;outline:none;margin-bottom:8px}
-.a-input:focus{border-color:var(--cyan)}
-.a-btn{padding:9px 18px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:8px;color:var(--cyan);font-size:.65rem;cursor:pointer;transition:.2s}
-.a-btn:hover{background:rgba(0,212,255,.2)}
-.a-btn.red{background:rgba(255,68,102,.08);border-color:rgba(255,68,102,.2);color:var(--red)}
-.a-btn.green{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2);color:var(--green)}
-.pending-card{display:flex;align-items:center;gap:10px;padding:11px 13px;background:rgba(255,150,0,.04);border:1px solid rgba(255,150,0,.12);border-radius:10px;margin-bottom:8px}
-.pending-info{flex:1}
-.pending-name{font-size:.75rem;color:#ffaa44}
-.pending-meta{font-size:.6rem;color:rgba(255,150,0,.5);margin-top:2px}
+/* ── Quick Commands ── */
+.quick-cmds{display:none} /* hidden — moved to drawer */
+.qbtn{display:none}
+
+/* ── FAB (floating action) ── */
+.fab-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.fab{width:42px;height:42px;border-radius:11px;border:1px solid var(--border);background:rgba(0,30,60,.9);color:var(--cyan);font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.fab:hover{border-color:var(--cyan);background:rgba(0,212,255,.1);box-shadow:0 0 14px rgba(0,212,255,.2)}
+
+/* ── Shortcut Grid (pops up above input) ── */
+.shortcut-tray{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(12px);width:calc(100% - 28px);max-width:860px;background:rgba(0,8,22,.98);border:1px solid var(--border);border-radius:16px;padding:16px;z-index:160;display:none;grid-template-columns:repeat(4,1fr);gap:8px;box-shadow:0 -4px 40px rgba(0,212,255,.1);backdrop-filter:blur(14px);animation:trayUp .2s ease-out}
+@keyframes trayUp{from{opacity:0;transform:translateX(-50%) translateY(18px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.shortcut-tray.open{display:grid}
+.st-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:11px;border:1px solid rgba(0,212,255,.1);background:rgba(0,25,55,.6);cursor:pointer;transition:all .18s}
+.st-item:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.07)}
+.st-icon{font-size:1.2rem}
+.st-label{font-size:.58rem;color:var(--dim);text-align:center;letter-spacing:.05em;white-space:nowrap}
+.st-item:hover .st-label{color:var(--cyan)}
+
+/* ── Input Bar ── */
+.input-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  padding:8px 12px 12px;
+  background:rgba(0,5,15,.98);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.input-area{
+  display:grid;
+  grid-template-columns: 40px 1fr 40px 40px 64px;
+  grid-template-rows: auto;
+  gap:7px;
+  align-items:center;
+  max-width:860px;
+  margin:0 auto;
+}
+#textInput{
+  grid-column:2;
+  width:100%;
+  background:rgba(0,20,45,.95);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--cyan2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:.88rem;
+  padding:11px 14px;
+  outline:none;
+  transition:all .2s;
+  caret-color:var(--cyan);
+  min-width:0;
+}
+#textInput::placeholder{color:rgba(0,212,255,.22)}
+#textInput:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+.btn{
+  width:40px;height:40px;
+  border:1px solid var(--border);border-radius:10px;
+  background:rgba(0,30,60,.9);color:var(--cyan);
+  font-size:1rem;cursor:pointer;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;padding:0;
+}
+.btn:hover:not(:disabled){background:rgba(0,212,255,.1);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.12)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+#trayBtn{grid-column:1}
+#voiceLangBtn{
+  grid-column:3;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.58rem;
+  letter-spacing:.03em;
+  width:40px;height:40px;
+  padding:0;
+  white-space:nowrap;
+  overflow:hidden;
+}
+#voiceBtn{grid-column:4;font-size:1.05rem;}
+#sendBtn{
+  grid-column:5;
+  width:100%;height:40px;
+  padding:0 10px;
+  font-family:'Orbitron',sans-serif;
+  font-size:.6rem;font-weight:700;letter-spacing:.08em;
+  background:linear-gradient(90deg,rgba(0,80,200,.45),rgba(0,212,255,.28));
+  border-color:var(--cyan);
+}
+#sendBtn:hover:not(:disabled){background:linear-gradient(90deg,rgba(0,80,200,.65),rgba(0,212,255,.45));box-shadow:0 0 18px rgba(0,212,255,.2)}
+#voiceBtn.listening{background:rgba(0,212,255,.15);border-color:var(--cyan);animation:vpulse 1s ease-in-out infinite}
+@keyframes vpulse{0%,100%{box-shadow:0 0 7px rgba(0,212,255,.2)}50%{box-shadow:0 0 22px rgba(0,212,255,.5)}}
+.stream-cursor{display:inline-block;color:var(--cyan);animation:cursorBlink .5s step-end infinite;margin-left:1px}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── Mobile: tighter layout ── */
+@media(max-width:420px){
+  .input-bar{padding:7px 10px 11px}
+  .input-area{
+    grid-template-columns: 36px 1fr 36px 36px 54px;
+    gap:5px;
+  }
+  .btn{width:36px;height:38px;border-radius:9px}
+  #voiceLangBtn{width:36px;height:38px;font-size:.52rem}
+  #sendBtn{height:38px;font-size:.55rem;letter-spacing:.04em}
+  #textInput{padding:10px 11px;font-size:.82rem}
+}
+
+/* ── Panels (Todos / Notes / Memory) ── */
+.side-panel{position:fixed;right:0;top:0;height:100vh;width:340px;background:rgba(0,12,28,.97);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;backdrop-filter:blur(10px)}
+.side-panel.open{transform:none}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-title{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--cyan);letter-spacing:.1em}
+.panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.todo-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px}
+.todo-item.done-item{opacity:.5}
+.todo-check{width:16px;height:16px;border-radius:4px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;transition:all .15s}
+.todo-check.checked{background:var(--green);border-color:var(--green);color:#000}
+.todo-text{flex:1;font-size:.78rem;color:var(--text)}
+.todo-item.done-item .todo-text{text-decoration:line-through;color:var(--dim)}
+.panel-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.panel-input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:7px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:8px 11px;outline:none}
+.panel-input:focus{border-color:var(--cyan)}
+.panel-add-btn{background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:7px;color:var(--cyan);font-size:.75rem;padding:0 12px;cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:.08em;transition:all .2s}
+.panel-add-btn:hover{background:rgba(0,212,255,.2)}
+.note-item{padding:10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px}
+.note-title{font-size:.72rem;color:var(--cyan);margin-bottom:4px}
+.note-body{font-size:.76rem;color:var(--text);line-height:1.5}
+.note-date{font-size:.58rem;color:var(--dim);margin-top:4px}
+.reminder-item{padding:8px 10px;background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+.reminder-text{font-size:.76rem;color:var(--text)}
+.reminder-time{font-size:.62rem;color:var(--yellow)}
+
+/* ── Admin Panel (full screen) ── */
+.admin-screen{position:fixed;inset:0;background:#00050f;z-index:300;display:none;flex-direction:column;overflow:hidden}
+.admin-screen.open{display:flex}
+.admin-topbar{height:52px;border-bottom:1px solid rgba(255,215,0,.2);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;background:rgba(0,3,10,.98)}
+.admin-topbar-title{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--yellow);letter-spacing:.2em;flex:1}
+.admin-close{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,215,0,.2);background:none;color:var(--yellow);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.admin-close:hover{background:rgba(255,68,102,.15);border-color:var(--red);color:var(--red)}
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,215,0,.15);flex-shrink:0;padding:0 20px;background:rgba(0,3,10,.9)}
+.atab{padding:11px 18px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:rgba(255,215,0,.4);letter-spacing:.1em;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.atab:hover{color:rgba(255,215,0,.7)}
+.atab.on{color:var(--yellow);border-bottom-color:var(--yellow)}
+.admin-content{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:rgba(255,215,0,.2) transparent}
+.admin-tab-panel{display:none}
+.admin-tab-panel.on{display:block}
+
+/* Stat cards */
+.ast-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:600px){.ast-grid{grid-template-columns:repeat(2,1fr)}}
+.ast-card{background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:12px;padding:16px;text-align:center;transition:all .2s}
+.ast-card:hover{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.07)}
+.ast-num{font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--yellow);margin-bottom:4px}
+.ast-lbl{font-size:.6rem;color:rgba(255,215,0,.5);letter-spacing:.12em}
+
+/* User Tree */
+.tree-wrap{background:rgba(0,3,10,.7);border:1px solid rgba(255,215,0,.12);border-radius:14px;padding:20px;margin-bottom:20px}
+.tree-title{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--yellow);letter-spacing:.15em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.tree-root{display:flex;flex-direction:column;gap:0}
+.tree-family-node{margin-bottom:4px}
+.tree-node{display:flex;align-items:center;gap:0;position:relative}
+.tree-connector{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0}
+.tree-vline{width:1px;background:rgba(255,215,0,.2);flex:1;min-height:12px}
+.tree-hline{width:20px;height:1px;background:rgba(255,215,0,.2);margin-bottom:0}
+.tree-dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--yellow);background:rgba(255,215,0,.2);flex-shrink:0;margin:0 6px}
+.tree-card{flex:1;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:11px 14px;margin:3px 0;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.tree-card:hover{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.08)}
+.tree-card.online{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.04)}
+.tree-card.unknown-user{border-color:rgba(255,100,0,.3);background:rgba(255,100,0,.04)}
+.tc-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1px solid rgba(255,215,0,.2);background:rgba(255,215,0,.06)}
+.tc-avatar.online-av{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.08)}
+.tc-info{flex:1;min-width:0}
+.tc-name{font-size:.8rem;color:var(--yellow);margin-bottom:2px;font-family:'Orbitron',sans-serif;font-size:.72rem;letter-spacing:.06em}
+.tc-role{font-size:.62rem;color:rgba(255,215,0,.5);margin-bottom:3px}
+.tc-device{font-size:.6rem;color:rgba(0,212,255,.5)}
+.tc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.tc-badge{font-size:.55rem;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.tc-badge.online{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:#00ff88}
+.tc-badge.offline{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);color:var(--dim)}
+.tc-badge.admin{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:var(--yellow)}
+.tc-badge.unknown{background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.25);color:#ff8844}
+.tc-msgs{font-size:.6rem;color:var(--dim)}
+.tree-devices{margin-left:28px;display:flex;flex-direction:column;gap:3px;padding-left:14px;border-left:1px dashed rgba(255,215,0,.12)}
+.td-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;background:rgba(0,10,25,.5);border:1px solid rgba(0,212,255,.08);transition:all .2s}
+.td-item:hover{border-color:rgba(0,212,255,.2)}
+.td-icon{font-size:.85rem;width:20px;text-align:center}
+.td-info{flex:1;min-width:0}
+.td-name{font-size:.73rem;color:var(--text)}
+.td-id{font-size:.57rem;color:var(--dim);font-family:monospace}
+.td-last{font-size:.57rem;color:rgba(0,212,255,.4)}
+.expand-btn{background:none;border:1px solid rgba(255,215,0,.15);border-radius:5px;color:rgba(255,215,0,.5);font-size:.6rem;padding:2px 7px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.expand-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* Controls */
+.admin-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+@media(max-width:500px){.admin-controls{grid-template-columns:1fr}}
+.ac-btn{padding:13px 16px;border-radius:11px;border:1px solid rgba(255,215,0,.18);background:rgba(255,215,0,.04);color:rgba(255,215,0,.8);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:10px}
+.ac-btn:hover{border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.09)}
+.ac-btn.danger{border-color:rgba(255,68,102,.2);color:rgba(255,68,102,.8)}
+.ac-btn.danger:hover{background:rgba(255,68,102,.08);border-color:var(--red)}
+.ac-btn-icon{font-size:1.1rem;flex-shrink:0}
+.ac-btn-text{}
+.ac-btn-label{font-size:.73rem;margin-bottom:2px}
+.ac-btn-sub{font-size:.6rem;color:rgba(255,255,255,.3)}
+.announce-box{background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:12px;padding:16px;margin-bottom:20px}
+.announce-title{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--yellow);letter-spacing:.12em;margin-bottom:12px}
+.announce-input{width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(255,215,0,.2);border-radius:8px;color:#ffe066;font-family:'Share Tech Mono',monospace;font-size:.82rem;padding:10px 13px;outline:none;margin-bottom:10px;resize:none}
+.announce-input:focus{border-color:var(--yellow)}
+.announce-send{padding:10px 20px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.announce-send:hover{background:rgba(255,215,0,.22)}
+
+/* stat section */
+.admin-section{padding:12px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:10px}
+.admin-section h3{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--yellow);letter-spacing:.12em;margin-bottom:10px}
+.admin-btn{width:100%;padding:8px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:7px;color:var(--yellow);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;margin-bottom:6px;transition:all .2s;text-align:left}
+.admin-btn:hover{background:rgba(255,215,0,.15);border-color:var(--yellow)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-box{background:rgba(0,30,60,.5);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:1.2rem;color:var(--cyan)}
+.stat-lbl{font-size:.58rem;color:var(--dim);margin-top:3px}
+
+/* ── Private Mode indicator ── */
+.private-indicator{display:none;align-items:center;gap:5px;font-size:.62rem;color:var(--orange);letter-spacing:.08em}
+.private-indicator.active{display:flex}
+
+
+/* ── Music ── */
+.music-menu-overlay{position:fixed;inset:0;background:rgba(0,5,15,.88);z-index:170;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(7px)}
+.music-menu-overlay.open{display:flex}
+.music-menu-card{background:rgba(0,10,25,.99);border:1px solid var(--border);border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:22px 18px 34px;animation:slideUp .25s ease-out}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.music-menu-title{font-family:'Orbitron',sans-serif;font-size:.88rem;color:var(--cyan);letter-spacing:.16em;text-align:center;margin-bottom:5px}
+.music-menu-sub{font-size:.68rem;color:var(--dim);text-align:center;margin-bottom:20px}
+.music-options{display:flex;flex-direction:column;gap:10px}
+.music-option{display:flex;align-items:center;gap:14px;padding:15px 16px;background:rgba(0,30,60,.6);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s}
+.music-option:hover{border-color:var(--cyan);background:rgba(0,212,255,.07);transform:translateX(5px)}
+.mo-icon{font-size:1.5rem;width:38px;text-align:center;flex-shrink:0}
+.mo-info{flex:1}
+.mo-name{font-family:'Orbitron',sans-serif;font-size:.74rem;color:var(--cyan);letter-spacing:.08em;margin-bottom:3px}
+.mo-desc{font-size:.66rem;color:var(--dim);line-height:1.5}
+.mo-arrow{color:var(--border);font-size:1rem;flex-shrink:0}
+.music-option:hover .mo-arrow{color:var(--cyan)}
+.music-screen{position:fixed;inset:0;background:rgba(0,8,20,.98);z-index:175;display:none;flex-direction:column}
+.music-screen.open{display:flex}
+.ms-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:rgba(0,5,15,.95)}
+.ms-back{background:rgba(0,30,60,.8);border:1px solid var(--border);border-radius:7px;color:var(--cyan);font-size:.78rem;padding:6px 13px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s}
+.ms-back:hover{border-color:var(--cyan)}
+.ms-title{font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--cyan);letter-spacing:.12em;flex:1}
+.ms-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.vsbar{display:flex;align-items:center;gap:11px;background:rgba(0,30,60,.7);border:1px solid var(--border);border-radius:13px;padding:12px 14px;transition:border-color .2s}
+.vsbar.on{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,.12)}
+.vsb-mic{width:44px;height:44px;border-radius:50%;border:2px solid var(--cyan);background:rgba(0,212,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.15rem;cursor:pointer;transition:all .2s;flex-shrink:0}
+.vsb-mic:hover,.vsb-mic.on{background:rgba(0,212,255,.22);box-shadow:0 0 18px rgba(0,212,255,.35)}
+.vsb-mic.on{animation:micGlow .7s ease-in-out infinite alternate}
+@keyframes micGlow{from{box-shadow:0 0 8px rgba(0,212,255,.3)}to{box-shadow:0 0 26px rgba(0,212,255,.75)}}
+.vsb-mid{flex:1;min-width:0}
+.vsb-lbl{font-size:.6rem;color:var(--dim);letter-spacing:.1em;margin-bottom:4px}
+.vsb-q{font-size:.88rem;color:var(--cyan2);min-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vsb-go{background:linear-gradient(90deg,rgba(0,80,200,.4),rgba(0,212,255,.2));border:1px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.6rem;padding:9px 12px;cursor:pointer;letter-spacing:.08em;white-space:nowrap;display:none;transition:all .2s}
+.vsb-go:hover{background:rgba(0,212,255,.25)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:rgba(0,30,60,.6);border:1px solid rgba(0,212,255,.13);border-radius:20px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.67rem;padding:5px 13px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.chip:hover{border-color:var(--cyan);color:var(--cyan2);background:rgba(0,212,255,.08)}
+.ms-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:11px 14px;outline:none;transition:border-color .2s}
+.ms-input:focus{border-color:var(--cyan)}
+.ms-row{display:flex;gap:8px}
+.ms-btn{background:rgba(0,212,255,.1);border:1px solid var(--cyan);border-radius:9px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.62rem;padding:0 16px;cursor:pointer;letter-spacing:.08em;white-space:nowrap;transition:all .2s}
+.ms-btn:hover{background:rgba(0,212,255,.2)}
+.ms-btn.yt{background:rgba(255,68,68,.12);border-color:rgba(255,68,68,.4);color:#ff6666}
+.ms-btn.yt:hover{background:rgba(255,68,68,.2)}
+.np-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.18);border-radius:13px;padding:14px;display:none;flex-direction:column;gap:10px}
+.np-box.on{display:flex}
+.np-top{display:flex;align-items:center;gap:12px}
+.np-art{width:54px;height:54px;border-radius:9px;background:rgba(0,30,60,.8);flex-shrink:0;object-fit:cover}
+.np-inf{flex:1;min-width:0}
+.np-song{font-size:.84rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-artist{font-size:.64rem;color:var(--dim);margin-top:2px}
+.np-badge{font-size:.57rem;padding:2px 8px;border-radius:8px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:#00ff88;flex-shrink:0;white-space:nowrap}
+audio.jarvis-audio{width:100%;accent-color:var(--cyan)}
+.np-ctrl{display:flex;gap:8px;justify-content:center}
+.npc{background:rgba(0,30,60,.7);border:1px solid var(--border);border-radius:8px;color:var(--cyan);font-size:.9rem;padding:7px 16px;cursor:pointer;transition:all .18s}
+.npc:hover{border-color:var(--cyan);background:rgba(0,212,255,.12)}
+.np-note{font-size:.59rem;color:var(--dim);text-align:center}
+.song-list{display:flex;flex-direction:column;gap:8px}
+.si{display:flex;align-items:center;gap:11px;padding:11px 13px;background:rgba(0,25,55,.6);border:1px solid var(--border);border-radius:11px;transition:all .2s}
+.si:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.05)}
+.si-art{width:46px;height:46px;border-radius:7px;object-fit:cover;flex-shrink:0;background:rgba(0,30,60,.8)}
+.si-inf{flex:1;min-width:0}
+.si-name{font-size:.79rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.si-meta{font-size:.62rem;color:var(--dim)}
+.si-btns{display:flex;gap:6px;flex-shrink:0}
+.sib{background:none;border:1px solid var(--border);border-radius:6px;font-size:.67rem;padding:4px 9px;cursor:pointer;transition:all .15s;font-family:'Share Tech Mono',monospace;white-space:nowrap}
+.sib.p{color:#00ff88;border-color:rgba(0,255,136,.25)}.sib.p:hover{background:rgba(0,255,136,.08);border-color:#00ff88}
+.sib.y{color:#ff6666;border-color:rgba(255,68,68,.25)}.sib.y:hover{background:rgba(255,68,68,.08);border-color:#ff4444}
+
+main{padding-bottom:90px}
+@media(max-width:480px){.logo{font-size:.95rem}.chat-window{min-height:260px;max-height:calc(100vh - 230px)}.side-panel{width:100%}.shortcut-tray{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 
-<!-- ══ AUTH ═══════════════════════════════════════════════════════════════════ -->
-<div id="authScreen">
+<!-- Owner Setup -->
+<!-- ══ AUTH SCREEN ══ -->
+<div class="auth-screen" id="authScreen">
   <div class="auth-box">
     <div class="auth-header">
       <div class="auth-logo">J.A.R.V.I.S</div>
-      <div class="auth-sub">BATTINI FAMILY · PRIVATE AI</div>
+      <div class="auth-sub">BATTINI FAMILY · PRIVATE AI SYSTEM</div>
     </div>
+
     <div class="auth-tabs">
-      <div class="auth-tab on" id="tabLogin"    onclick="switchTab('login')">SIGN IN</div>
-      <div class="auth-tab"    id="tabReg"      onclick="switchTab('reg')">NEW USER</div>
+      <div class="auth-tab on" id="tabLogin"    onclick="switchAuthTab('login')">SIGN IN</div>
+      <div class="auth-tab"    id="tabRegister" onclick="switchAuthTab('register')">NEW USER</div>
     </div>
+
     <div class="auth-body">
 
-      <!-- Login -->
+      <!-- ── LOGIN PANEL ── -->
       <div class="auth-panel on" id="panelLogin">
-        <div class="auth-error" id="loginErr"></div>
-        <div class="auth-field"><label class="auth-label">USERNAME</label>
-          <input class="auth-input" id="loginUser" placeholder="e.g. lucky, krishna" autocapitalize="none" autocomplete="username"/>
+        <div class="auth-error"   id="loginError"></div>
+        <div class="auth-success" id="loginSuccess"></div>
+        <div class="auth-field">
+          <label class="auth-label">USERNAME</label>
+          <input class="auth-input" id="loginUser" placeholder="e.g. lucky, krishna..." autocomplete="username" autocapitalize="none"/>
         </div>
-        <div class="auth-field"><label class="auth-label">PASSWORD</label>
-          <input class="auth-input" id="loginPass" type="password" autocomplete="current-password"/>
+        <div class="auth-field">
+          <label class="auth-label">PASSWORD</label>
+          <input class="auth-input" id="loginPass" type="password" placeholder="Your password" autocomplete="current-password"/>
         </div>
         <button class="auth-btn" id="loginBtn" onclick="doLogin()">⚡ ENTER JARVIS</button>
-        <div class="auth-hint">Family members — use your assigned credentials.<br>First time? Ask Lucky for your username & password.</div>
+        <div class="auth-hint">
+          Family members — use your assigned username &amp; password.<br>
+          First time? Ask Lucky for your credentials.
+        </div>
       </div>
 
-      <!-- Register -->
-      <div class="auth-panel" id="panelReg">
-        <div class="auth-error" id="regErr"></div>
-        <div class="auth-ok"    id="regOk"></div>
-        <div class="auth-field"><label class="auth-label">YOUR NAME</label>
-          <input class="auth-input" id="regName" placeholder="Full name" autocapitalize="words"/>
+      <!-- ── REGISTER PANEL ── -->
+      <div class="auth-panel" id="panelRegister">
+        <div class="auth-error"   id="regError"></div>
+        <div class="auth-success" id="regSuccess"></div>
+        <div class="auth-field">
+          <label class="auth-label">YOUR NAME</label>
+          <input class="auth-input" id="regDisplay" placeholder="Your full name" autocapitalize="words"/>
         </div>
-        <div class="auth-field"><label class="auth-label">USERNAME</label>
-          <input class="auth-input" id="regUser" placeholder="Choose a username" autocapitalize="none"/>
+        <div class="auth-field">
+          <label class="auth-label">CHOOSE USERNAME</label>
+          <input class="auth-input" id="regUser" placeholder="e.g. ramesh123" autocapitalize="none"/>
         </div>
-        <div class="auth-field"><label class="auth-label">PASSWORD</label>
+        <div class="auth-field">
+          <label class="auth-label">CHOOSE PASSWORD</label>
           <input class="auth-input" id="regPass" type="password" placeholder="Min 6 characters"/>
         </div>
         <div class="auth-divider"></div>
-        <div class="auth-field"><label class="auth-label">HOW DO YOU KNOW THE BATTINIS?</label>
-          <select class="auth-input" id="regRel">
-            <option value="relative">👨‍👩‍👧 Relative</option>
-            <option value="friend">🤝 Friend</option>
-            <option value="guest">🏠 Guest</option>
+        <div class="auth-field">
+          <label class="auth-label">HOW DO YOU KNOW THE BATTINI FAMILY?</label>
+          <select class="auth-input" id="regRelation" style="cursor:pointer">
+            <option value="relative">👨‍👩‍👧 Relative / Extended Family</option>
+            <option value="friend">🤝 Friend of the Family</option>
+            <option value="guest">🏠 Guest / Visitor</option>
             <option value="other">❓ Other</option>
           </select>
         </div>
-        <div class="auth-field"><label class="auth-label">WHICH FAMILY MEMBER DO YOU KNOW?</label>
-          <input class="auth-input" id="regKnows" placeholder="e.g. Lucky, Krishna Garu"/>
+        <div class="auth-field">
+          <label class="auth-label">WHICH FAMILY MEMBER DO YOU KNOW?</label>
+          <input class="auth-input" id="regKnows" placeholder="e.g. Lucky, Krishna Garu..." autocapitalize="words"/>
         </div>
         <button class="auth-btn" id="regBtn" onclick="doRegister()">→ REQUEST ACCESS</button>
-        <div class="auth-hint">Needs Lucky's approval before you can log in.</div>
+        <div class="auth-hint">
+          Your account will need approval from Lucky<br>before you can access JARVIS.
+        </div>
       </div>
 
     </div>
   </div>
 </div>
 
-<!-- ══ MAIN APP ════════════════════════════════════════════════════════════════ -->
-<div id="app">
+<!-- Keep legacy hidden inputs for compatibility -->
+<input id="ownerName" style="display:none"/>
+<input id="deviceNick" style="display:none"/>
 
-  <!-- Header -->
-  <div id="header">
-    <button id="menuBtn" onclick="openDrawer()">☰</button>
-    <div class="hc">
-      <div class="h-title">J.A.R.V.I.S</div>
-      <div class="h-sub" id="headerSub">Initializing...</div>
+<!-- Voice Engine Modal -->
+<div class="modal-overlay" id="veOverlay" onclick="closeModal('veOverlay',event)">
+  <div class="modal-box" id="veModal">
+    <div class="modal-head">
+      <div class="modal-title">🔊 VOICE ENGINE</div>
+      <button class="close-btn" onclick="closeModalDirect('veOverlay')">✕</button>
     </div>
-    <div id="reactor" onclick="toggleSpeak()" title="Tap to toggle voice">⚡</div>
-  <div id="speakIndicator" style="position:absolute;top:6px;right:10px;font-size:.5rem;color:var(--green);letter-spacing:.1em">🔊 VOICE ON</div>
-  </div>
-
-  <!-- Chat -->
-  <div id="chat"></div>
-
-  <!-- Input bar -->
-  <div id="inputBar">
-    <button class="ib-btn" id="trayBtn"  onclick="toggleTray()"   title="Menu">⊞</button>
-    <textarea id="textInput" placeholder="Message JARVIS..." rows="1"></textarea>
-    <button class="ib-btn" id="imgBtn"   onclick="pickImage()"    title="Image">📷</button>
-    <button class="ib-btn" id="voiceBtn" onclick="startVoice()"   title="Voice">🎤</button>
-    <button id="sendBtn"                 onclick="sendMessage()">SEND</button>
-  </div>
-  <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImage(event)"/>
-
-</div>
-
-<!-- ══ DRAWER ══════════════════════════════════════════════════════════════════ -->
-<div id="drawerOverlay" onclick="closeDrawer()"></div>
-<div id="drawer">
-  <div class="drawer-header">
-    <div class="drawer-logo">J.A.R.V.I.S</div>
-    <div class="drawer-user" id="drawerUser">Not signed in</div>
-  </div>
-  <div class="drawer-section">FEATURES</div>
-  <div class="di" onclick="closeDrawer();sendText('show my todos')">
-    <div class="di-icon">✅</div><div><div class="di-label">Todos</div><div class="di-desc">Your task list</div></div>
-  </div>
-  <div class="di" onclick="closeDrawer();sendText('show my reminders')">
-    <div class="di-icon">⏰</div><div><div class="di-label">Reminders</div><div class="di-desc">Upcoming reminders</div></div>
-  </div>
-  <div class="di" onclick="closeDrawer();sendText('whats the weather')">
-    <div class="di-icon">🌤️</div><div><div class="di-label">Weather</div><div class="di-desc">Hyderabad weather</div></div>
-  </div>
-  <div class="di" onclick="closeDrawer();sendText('latest news')">
-    <div class="di-icon">📰</div><div><div class="di-label">News</div><div class="di-desc">Latest headlines</div></div>
-  </div>
-  <div class="di" onclick="closeDrawer();togglePrivate()">
-    <div class="di-icon">🔒</div><div><div class="di-label" id="privLabel">Private Mode</div><div class="di-desc">Messages won't be saved</div></div>
-  </div>
-  <div class="drawer-section">SETTINGS</div>
-  <div class="di" id="adminDrawerBtn" style="display:none" onclick="closeDrawer();openAdmin()">
-    <div class="di-icon">👑</div><div><div class="di-label">Admin Panel</div><div class="di-desc">Users, memory, controls</div></div>
-  </div>
-  <div class="drawer-footer">
-    <button class="drawer-out" onclick="signOut()">🚪 Sign Out</button>
+    <div class="modal-body">
+      <div><div class="sec-label">SELECT VOICE</div><div class="voice-list" id="voiceList"><div style="color:var(--dim);font-size:.75rem">Loading voices...</div></div></div>
+      <div><div class="sec-label">PITCH</div><div class="slider-row"><span class="slider-label">Low ←</span><input type="range" id="pitchSlider" min="0.5" max="1.5" step="0.05" value="0.75" oninput="updateSlider(this,'pitchVal')"><span class="slider-val" id="pitchVal">0.75</span></div></div>
+      <div><div class="sec-label">SPEED</div><div class="slider-row"><span class="slider-label">Slow ←</span><input type="range" id="rateSlider" min="0.5" max="1.5" step="0.05" value="0.88" oninput="updateSlider(this,'rateVal')"><span class="slider-val" id="rateVal">0.88</span></div></div>
+      <div><div class="sec-label">VOLUME</div><div class="slider-row"><span class="slider-label">Quiet ←</span><input type="range" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="updateSlider(this,'volVal')"><span class="slider-val" id="volVal">1.0</span></div></div>
+      <button class="apply-btn" onclick="applyVoice()">⚡ APPLY & TEST</button>
+    </div>
   </div>
 </div>
 
-<!-- ══ ADMIN PANEL ═════════════════════════════════════════════════════════════ -->
-<div id="adminScreen">
+<!-- Admin Panel Modal -->
+<!-- ADMIN FULL SCREEN PANEL -->
+<div class="admin-screen" id="adminScreen">
+
+  <!-- Top bar -->
   <div class="admin-topbar">
-    <div class="admin-title">⚡ ADMIN PANEL</div>
-    <button class="admin-close" onclick="closeAdmin()">✕ CLOSE</button>
+    <div style="font-size:1.1rem">👑</div>
+    <div class="admin-topbar-title">ADMIN DASHBOARD — BATTINI FAMILY</div>
+    <div style="font-size:.65rem;color:rgba(255,215,0,.4);letter-spacing:.1em" id="adminClock">--:--:--</div>
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
   </div>
+
+  <!-- Tabs -->
   <div class="admin-tabs">
-    <div class="atab on" onclick="aTab('users')"    id="atab_users">👥 USERS</div>
-    <div class="atab"    onclick="aTab('pending')"  id="atab_pending">🔔 PENDING <span id="pendingBadge" style="display:none;background:var(--red);color:#fff;border-radius:6px;font-size:.5rem;padding:1px 5px;margin-left:3px">0</span></div>
-    <div class="atab"    onclick="aTab('broadcast')" id="atab_broadcast">📢 BROADCAST</div>
-    <div class="atab"    onclick="aTab('controls')" id="atab_controls">🗃️ CONTROLS</div>
+    <div class="atab on" onclick="switchTab('users')"   id="tab_users">👥 USERS</div>
+    <div class="atab"    onclick="switchTab('stats')"   id="tab_stats">📊 STATS</div>
+    <div class="atab"    onclick="switchTab('comms')"   id="tab_comms">📢 BROADCAST</div>
+    <div class="atab"    onclick="switchTab('pending')" id="tab_pending">🔔 PENDING <span id="pendingBadge" style="background:var(--red);color:#fff;border-radius:8px;font-size:.55rem;padding:1px 5px;margin-left:3px;display:none">0</span></div>
+    <div class="atab"    onclick="switchTab('memory')"  id="tab_memory">🗃️ MEMORY</div>
   </div>
-  <div class="admin-body">
 
-    <!-- Users -->
-    <div class="admin-panel on" id="apanel_users">
-      <div id="usersList">Loading...</div>
+  <!-- Content -->
+  <div class="admin-content">
+
+    <!-- ── TAB: USERS TREE ── -->
+    <div class="admin-tab-panel on" id="panel_users">
+
+      <div class="tree-wrap">
+        <div class="tree-title">
+          <span>🏠</span> BATTINI FAMILY TREE
+          <span style="margin-left:auto;font-size:.6rem;color:rgba(255,215,0,.35);letter-spacing:.08em" id="treeLastRefresh">Loading...</span>
+          <button class="expand-btn" onclick="loadUserTree()" style="margin-left:8px">↻ Refresh</button>
+        </div>
+
+        <!-- Family root node -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 14px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:12px">
+          <div style="font-size:1.4rem">🏡</div>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--yellow);letter-spacing:.1em">BATTINI FAMILY</div>
+            <div style="font-size:.62rem;color:rgba(255,215,0,.4);margin-top:2px">Hyderabad · Hindu · Goud</div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:.6rem;color:rgba(255,215,0,.4)" id="treeTotalUsers">— members</div>
+            <div style="font-size:.58rem;color:rgba(0,255,136,.5);margin-top:2px" id="treeOnlineCount">— online</div>
+          </div>
+        </div>
+
+        <!-- Tree nodes rendered by JS -->
+        <div id="familyTreeNodes">
+          <div style="text-align:center;padding:30px;color:rgba(255,215,0,.3);font-size:.75rem">Loading family tree...</div>
+        </div>
+      </div>
+
+      <!-- Unknown / Guest users -->
+      <div class="tree-wrap" id="guestWrap" style="border-color:rgba(255,100,0,.15)">
+        <div class="tree-title" style="color:#ff8844">
+          <span>🔍</span> UNKNOWN / GUEST USERS
+          <span style="margin-left:auto;font-size:.6rem;color:rgba(255,100,0,.4)" id="guestCount">0 guests</span>
+        </div>
+        <div id="guestTreeNodes">
+          <div style="text-align:center;padding:16px;color:rgba(255,100,0,.3);font-size:.72rem">No unknown users detected.</div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Pending -->
-    <div class="admin-panel" id="apanel_pending">
-      <div id="pendingList">Loading...</div>
-    </div>
-
-    <!-- Broadcast -->
-    <div class="admin-panel" id="apanel_broadcast">
-      <div class="a-card">
-        <div class="a-card-title">SEND ANNOUNCEMENT TO FAMILY</div>
-        <input class="a-input" id="bcTitle" placeholder="Title"/>
-        <textarea class="a-input" id="bcMsg" placeholder="Message..." rows="4" style="height:auto;resize:vertical"></textarea>
-        <button class="a-btn" onclick="sendBroadcast()">📢 Send to All</button>
+    <!-- ── TAB: STATS ── -->
+    <div class="admin-tab-panel" id="panel_stats">
+      <div class="ast-grid">
+        <div class="ast-card"><div class="ast-num" id="statMsgs">—</div><div class="ast-lbl">TOTAL MESSAGES</div></div>
+        <div class="ast-card"><div class="ast-num" id="statArchive">—</div><div class="ast-lbl">ARCHIVED TIERS</div></div>
+        <div class="ast-card"><div class="ast-num" id="statDevices">—</div><div class="ast-lbl">DEVICES REGISTERED</div></div>
+        <div class="ast-card"><div class="ast-num" id="statFacts">—</div><div class="ast-lbl">FACTS LEARNED</div></div>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>🧠</span> FACTS JARVIS KNOWS</div>
+        <div id="factsGrid" style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+        </div>
       </div>
     </div>
 
-    <!-- Controls -->
-    <div class="admin-panel" id="apanel_controls">
-      <div class="a-card">
-        <div class="a-card-title">MEMORY CONTROLS</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="a-btn red" onclick="wipeChat()">🗑️ Wipe All Chat</button>
+    <!-- ── TAB: BROADCAST ── -->
+    <div class="admin-tab-panel" id="panel_comms">
+      <div class="announce-box">
+        <div class="announce-title">📢 SEND ANNOUNCEMENT TO ALL FAMILY</div>
+        <textarea class="announce-input" id="announceTxt" rows="3" placeholder="Type your message for all family members..."></textarea>
+        <button class="announce-send" onclick="sendAnnouncement()">⚡ BROADCAST NOW</button>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>📋</span> ACTIVE ANNOUNCEMENTS</div>
+        <div id="activeAnnouncements" style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ── TAB: PENDING USERS ── -->
+    <div class="admin-tab-panel" id="panel_pending">
+      <div class="tree-wrap" style="border-color:rgba(255,100,0,.2)">
+        <div class="tree-title" style="color:#ff8844"><span>🔔</span> PENDING APPROVAL REQUESTS</div>
+        <div id="pendingList">
+          <div style="color:rgba(255,100,0,.3);text-align:center;padding:20px;font-size:.72rem">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: MEMORY ── -->
+    <div class="admin-tab-panel" id="panel_memory">
+      <div class="admin-controls">
+        <button class="ac-btn" onclick="adminAction('compress')">
+          <div class="ac-btn-icon">🗜️</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Compress Memory</div><div class="ac-btn-sub">Archive old conversations</div></div>
+        </button>
+        <button class="ac-btn" onclick="adminAction('wipe_chats')">
+          <div class="ac-btn-icon">🧹</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Wipe Chat History</div><div class="ac-btn-sub">Keeps facts &amp; family data</div></div>
+        </button>
+        <button class="ac-btn danger" onclick="adminAction('wipe_all')">
+          <div class="ac-btn-icon">⚠️</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Full Reset</div><div class="ac-btn-sub">Remove all chats, todos, notes</div></div>
+        </button>
+        <button class="ac-btn danger" onclick="adminAction('reset_device')">
+          <div class="ac-btn-icon">🔄</div>
+          <div class="ac-btn-text"><div class="ac-btn-label">Reset This Device</div><div class="ac-btn-sub">Re-register this device</div></div>
+        </button>
+      </div>
+      <div class="tree-wrap">
+        <div class="tree-title"><span>📚</span> MEMORY TIERS</div>
+        <div id="memoryTiers" style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">Loading...</div>
         </div>
       </div>
     </div>
@@ -312,483 +719,1693 @@ code{font-family:'Share Tech Mono',monospace}
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast"></div>
+<!-- Reminder Toast Container -->
+<div class="reminder-toast" id="toastContainer"></div>
+
+<!-- Header -->
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- Side Drawer -->
+<div class="drawer" id="mainDrawer">
+  <div class="drawer-head">
+    <div class="drawer-title">MENU</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <!-- User info -->
+    <div class="drawer-user" id="drawerUser">
+      <div class="drawer-avatar">👤</div>
+      <div class="drawer-user-info">
+        <div class="drawer-user-name" id="drawerName">—</div>
+        <div class="drawer-user-sub" id="drawerDevice">—</div>
+      </div>
+    </div>
+
+    <!-- Personal -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Personal</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();openPanel('todoPanel')">
+          <div class="di-icon">📋</div>
+          <div><div class="di-label">My List</div><div class="di-desc">Todos &amp; tasks</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openPanel('notePanel')">
+          <div class="di-icon">📝</div>
+          <div><div class="di-label">Notes</div><div class="di-desc">Save anything</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openPanel('reminderPanel')">
+          <div class="di-icon">⏰</div>
+          <div><div class="di-label">Reminders</div><div class="di-desc">Upcoming alerts</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What upcoming birthdays are there?')">
+          <div class="di-icon">🎂</div>
+          <div><div class="di-label">Birthdays</div><div class="di-desc">Family calendar</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entertainment -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Entertainment</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();openMusicMenu()">
+          <div class="di-icon">🎵</div>
+          <div><div class="di-label">Music</div><div class="di-desc">Voice search, play, YouTube</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('Give me today cricket score')">
+          <div class="di-icon">🏏</div>
+          <div><div class="di-label">Cricket</div><div class="di-desc">Live scores</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Data -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Live Data</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();sq('What is the weather now?')">
+          <div class="di-icon">🌤</div>
+          <div><div class="di-label">Weather</div><div class="di-desc">Hyderabad right now</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What are the major news and events happening in the world right now?')">
+          <div class="di-icon">🌍</div>
+          <div><div class="di-label">World News</div><div class="di-desc">Latest headlines</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What is the current price of Bitcoin Ethereum and Dogecoin?')">
+          <div class="di-icon">₿</div>
+          <div><div class="di-label">Crypto Prices</div><div class="di-desc">BTC, ETH, DOGE in ₹</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('Convert 100 USD to INR')">
+          <div class="di-icon">💱</div>
+          <div><div class="di-label">Currency</div><div class="di-desc">Converter</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();sq('What is Rahu Kalam and Gulika Kalam today?')">
+          <div class="di-icon">🕉</div>
+          <div><div class="di-label">Hindu Calendar</div><div class="di-desc">Rahu Kalam, pooja times</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="drawer-section">
+      <div class="drawer-section-title">Settings</div>
+      <div class="drawer-items">
+        <div class="di" onclick="closeDrawer();toggleTheme()">
+          <div class="di-icon">🌓</div>
+          <div><div class="di-label">Toggle Theme</div><div class="di-desc">Dark / Light mode</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();togglePrivate()" id="drawerPrivateItem">
+          <div class="di-icon">🔒</div>
+          <div><div class="di-label" id="drawerPrivateLabel">Private Mode</div><div class="di-desc">Chats not saved</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();openVE()">
+          <div class="di-icon">🎙</div>
+          <div><div class="di-label">Voice Engine</div><div class="di-desc">Voice, speed, pitch</div></div>
+        </div>
+        <div class="di admin-item" id="drawerAdminItem" style="display:none" onclick="closeDrawer();openAdmin()">
+          <div class="di-icon">👑</div>
+          <div><div class="di-label">Admin Panel</div><div class="di-desc">Memory, devices, controls</div></div>
+        </div>
+        <div class="di" onclick="closeDrawer();logoutJarvis()" style="margin-top:8px">
+          <div class="di-icon">🚪</div>
+          <div><div class="di-label" style="color:var(--dim)">Sign Out</div><div class="di-desc">Log out of JARVIS</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<header>
+  <div class="logo">J.A.R.V.I.S</div>
+  <div class="hdr-center">
+    <div id="statusDot" class="dot-status off"></div>
+    <span id="statusText">CONNECTING</span>
+    <span id="clockEl" style="font-size:.58rem;color:var(--dim);letter-spacing:.08em">--:--:--</span>
+  </div>
+  <div class="hdr-right">
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+    <button class="menu-btn" onclick="openDrawer()" title="Menu">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="arc-reactor"><div class="reactor-ring" id="reactor"><div class="reactor-core"></div></div></div>
+
+  <div class="device-badge">
+    <span id="ownerBadge">—</span> on <span id="deviceBadge">—</span>
+    <span class="admin-badge" id="adminBadge" style="display:none">ADMIN</span>
+  </div>
+
+  <div class="stats">
+    <span>MSGS <span class="val" id="msgCount">0</span></span>
+    <span>VOICE <span class="val" id="voiceStatus">READY</span></span>
+    <span>MEMORY <span class="val">TIERED ✅</span></span>
+    <span>RL <span class="val">ACTIVE ✅</span></span>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div style="text-align:center;padding:18px;color:var(--dim);font-size:.76rem;line-height:1.9">
+      <div style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--cyan);letter-spacing:.2em;margin-bottom:7px">BATTINI FAMILY AI SYSTEM</div>
+      J.A.R.V.I.S online — serving the Battini family exclusively.<br>
+      Use 👍👎 on my responses to train me to your preferences.<br>
+      Type naturally or use voice. I support Telugu, English and Hindi.
+    </div>
+  </div>
+
+  <div class="speaking-row">
+    <div class="speaking-indicator" id="speakingIndicator">
+      <div class="voice-bars">
+        <div class="voice-bar" id="vb1" style="height:8px"></div>
+        <div class="voice-bar" id="vb2" style="height:14px"></div>
+        <div class="voice-bar" id="vb3" style="height:10px"></div>
+        <div class="voice-bar" id="vb4" style="height:16px"></div>
+        <div class="voice-bar" id="vb5" style="height:8px"></div>
+      </div>
+      JARVIS SPEAKING
+    </div>
+    <div class="private-indicator" id="privateIndicator">🔒 PRIVATE MODE</div>
+  </div>
+
+  <div class="img-preview" id="imgPreview">
+    <img id="imgThumb" src="" alt=""/>
+    <button class="remove-img" onclick="clearImage()">✕</button>
+  </div>
+
+</main>
+
+<!-- Shortcut Tray (above input bar) -->
+<div class="shortcut-tray" id="shortcutTray">
+  <div class="st-item" onclick="closeTray();sq('What is the weather now?')"><div class="st-icon">🌤</div><div class="st-label">Weather</div></div>
+  <div class="st-item" onclick="closeTray();sq('What are the major news happening in the world right now?')"><div class="st-icon">🌍</div><div class="st-label">News</div></div>
+  <div class="st-item" onclick="closeTray();sq('Give me today cricket score')"><div class="st-icon">🏏</div><div class="st-label">Cricket</div></div>
+  <div class="st-item" onclick="closeTray();sq('What is the current price of Bitcoin Ethereum Dogecoin?')"><div class="st-icon">₿</div><div class="st-label">Crypto</div></div>
+  <div class="st-item" onclick="closeTray();sq('Convert 100 USD to INR')"><div class="st-icon">💱</div><div class="st-label">Currency</div></div>
+  <div class="st-item" onclick="closeTray();sq('What is Rahu Kalam today?')"><div class="st-icon">🕉</div><div class="st-label">Rahu Kalam</div></div>
+  <div class="st-item" onclick="closeTray();sq('Show my todo list')"><div class="st-icon">📋</div><div class="st-label">My List</div></div>
+  <div class="st-item" onclick="closeTray();openMusicMenu()"><div class="st-icon">🎵</div><div class="st-label">Music</div></div>
+  <div class="st-item" onclick="closeTray();document.getElementById('imgFile').click()"><div class="st-icon">📷</div><div class="st-label">Image</div></div>
+  <div class="st-item" onclick="closeTray();sq('What upcoming birthdays are there?')"><div class="st-icon">🎂</div><div class="st-label">Birthdays</div></div>
+  <div class="st-item" onclick="closeTray();togglePrivate()"><div class="st-icon">🔒</div><div class="st-label">Private</div></div>
+  <div class="st-item" onclick="closeTray();openVE()"><div class="st-icon">🎙</div><div class="st-label">Voice</div></div>
+</div>
+
+<!-- Fixed Input Bar -->
+<div class="input-bar">
+  <div class="input-area">
+    <button class="btn fab" id="trayBtn" onclick="toggleTray()" title="Quick shortcuts">＋</button>
+    <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+    <input type="text" id="textInput" placeholder="Talk to JARVIS — Telugu, English, Hindi..." autocomplete="off"/>
+    <button class="btn" id="voiceLangBtn" onclick="cycleLang()" title="Switch voice language">🌐 EN</button>
+    <button class="btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+    <button class="btn" id="sendBtn" onclick="sendMessage()">SEND</button>
+  </div>
+</div>
+
+<!-- Todo Panel -->
+<div class="side-panel" id="todoPanel">
+  <div class="panel-head"><div class="panel-title">📋 MY LIST</div><button class="close-btn" onclick="closePanel('todoPanel')">✕</button></div>
+  <div class="panel-body" id="todoBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row">
+    <input class="panel-input" id="todoInput" placeholder="Add item..." onkeydown="if(event.key==='Enter')addTodo()"/>
+    <button class="panel-add-btn" onclick="addTodo()">ADD</button>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<div class="side-panel" id="notePanel">
+  <div class="panel-head"><div class="panel-title">📝 NOTES</div><button class="close-btn" onclick="closePanel('notePanel')">✕</button></div>
+  <div class="panel-body" id="noteBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row">
+    <input class="panel-input" id="noteInput" placeholder="Quick note... (say 'note: ...' to JARVIS)" onkeydown="if(event.key==='Enter')addNote()"/>
+    <button class="panel-add-btn" onclick="addNote()">SAVE</button>
+  </div>
+</div>
+
+<!-- Reminder Panel -->
+<div class="side-panel" id="reminderPanel">
+  <div class="panel-head"><div class="panel-title">⏰ REMINDERS</div><button class="close-btn" onclick="closePanel('reminderPanel')">✕</button></div>
+  <div class="panel-body" id="reminderBody"><div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">Loading...</div></div>
+  <div class="panel-input-row" style="font-size:.65rem;color:var(--dim);padding:10px 14px">Tell JARVIS: "Remind me at 6pm to..."</div>
+</div>
 
 <script>
-/* ══ STATE ══════════════════════════════════════════════════════════════════ */
-let ws = null;
-let deviceId    = localStorage.getItem('j_did') || (() => { const id = 'dev_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); localStorage.setItem('j_did',id); return id; })();
-let deviceOwner = '';
-let userRole    = '';
-let isAdmin     = false;
+// ── Device Identity ──────────────────────────────────────
+let deviceId = localStorage.getItem('j_did') || ('dev_'+Math.random().toString(36).substr(2,9)+'_'+Date.now());
+localStorage.setItem('j_did', deviceId);
+let deviceOwner = localStorage.getItem('j_owner') || '';
+let deviceName  = localStorage.getItem('j_dname') || '';
 let isPrivate   = false;
-let autoSpeak   = true;
-let SR          = null;
-let streamEl    = null;
-let streamText  = '';
-let lastUser    = '';
-let lastJarvis  = '';
+let isAdmin     = false;
+const ADMIN_NAMES = ['lucky','lakshmi narayana','lakshminarayana'];
+const FEMALES   = ['sangeetha','thapaswini'];
 
-/* ══ AUTH ══════════════════════════════════════════════════════════════════ */
-function switchTab(t){
-  ['login','reg'].forEach(id=>{
-    document.getElementById('tab'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);
-    document.getElementById('panel'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);
-  });
-  document.getElementById('tabLogin').classList.toggle('on',t==='login');
-  document.getElementById('tabReg').classList.toggle('on',t==='reg');
-  document.getElementById('panelLogin').classList.toggle('on',t==='login');
-  document.getElementById('panelReg').classList.toggle('on',t==='reg');
+function detectDeviceName(){
+  const ua=navigator.userAgent;
+  if(/Samsung/i.test(ua)) return 'Samsung Phone';
+  if(/iPhone/i.test(ua))  return 'iPhone';
+  if(/Android/i.test(ua)) return 'Android Phone';
+  if(/Windows/i.test(ua)) return 'Windows PC';
+  if(/Mac/i.test(ua))     return 'Mac';
+  return 'Browser';
 }
 
-function showAuthMsg(id, msg, isErr){
-  const el = document.getElementById(id);
+// ══════════════════════════════════════════════════════════
+//  AUTH SYSTEM
+// ══════════════════════════════════════════════════════════
+
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').classList.toggle('on', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('on', tab==='register');
+  document.getElementById('panelLogin').classList.toggle('on', tab==='login');
+  document.getElementById('panelRegister').classList.toggle('on', tab==='register');
+}
+
+function showAuthMsg(elId, msg, isError){
+  const el = document.getElementById(elId);
   if(!el) return;
   el.textContent = msg;
   el.style.display = msg ? 'block' : 'none';
 }
 
 async function doLogin(){
-  const user = document.getElementById('loginUser').value.trim().toLowerCase();
-  const pass = document.getElementById('loginPass').value.trim();
-  if(!user||!pass){ showAuthMsg('loginErr','Enter username and password.',true); return; }
+  const user = (document.getElementById('loginUser').value||'').trim().toLowerCase();
+  const pass = (document.getElementById('loginPass').value||'').trim();
+  if(!user || !pass){ showAuthMsg('loginError','Please enter both username and password.',true); return; }
+
   const btn = document.getElementById('loginBtn');
-  btn.disabled = true; btn.textContent = 'Checking...';
-  showAuthMsg('loginErr','',true);
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  showAuthMsg('loginError','',true);
+
   try{
-    const r = await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username:user,password:pass,device_id:deviceId})});
-    const d = await r.json();
+    const res = await fetch('/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:user, password:pass, device_id:deviceId })
+    });
+    const d = await res.json();
     if(d.success){
-      localStorage.setItem('j_token',d.token);
-      localStorage.setItem('j_owner',d.family_member||d.display_name);
-      localStorage.setItem('j_role', d.role);
-      startApp(d.family_member||d.display_name, d.role);
+      // Store auth data
+      localStorage.setItem('j_token',    d.token);
+      localStorage.setItem('j_owner',    d.family_member || d.display_name);
+      localStorage.setItem('j_username', d.username);
+      localStorage.setItem('j_role',     d.role);
+      localStorage.setItem('j_dname',    detectDeviceName());
+      deviceOwner = d.family_member || d.display_name;
+      deviceName  = detectDeviceName();
+      document.getElementById('authScreen').style.display = 'none';
+      updateIdentity();
+      setTimeout(()=>{
+        const greet = getGreeting(d.role, d.display_name);
+        addMessage('jarvis', greet);
+        speak(greet);
+      }, 400);
     } else {
-      showAuthMsg('loginErr', d.error||'Login failed.', true);
-      btn.disabled=false; btn.textContent='⚡ ENTER JARVIS';
+      showAuthMsg('loginError', d.error || 'Login failed.', true);
+      btn.disabled = false; btn.textContent = '⚡ ENTER JARVIS';
     }
   } catch(e){
-    showAuthMsg('loginErr','Connection error.', true);
-    btn.disabled=false; btn.textContent='⚡ ENTER JARVIS';
+    showAuthMsg('loginError','Connection error. Please try again.',true);
+    btn.disabled = false; btn.textContent = '⚡ ENTER JARVIS';
   }
 }
 
 async function doRegister(){
-  const name  = document.getElementById('regName').value.trim();
-  const user  = document.getElementById('regUser').value.trim().toLowerCase();
-  const pass  = document.getElementById('regPass').value.trim();
-  const rel   = document.getElementById('regRel').value;
-  const knows = document.getElementById('regKnows').value.trim();
-  if(!name||!user||!pass){ showAuthMsg('regErr','Fill all fields.',true); return; }
+  const display  = (document.getElementById('regDisplay').value||'').trim();
+  const user     = (document.getElementById('regUser').value||'').trim().toLowerCase();
+  const pass     = (document.getElementById('regPass').value||'').trim();
+  const relation = document.getElementById('regRelation').value;
+  const knows    = (document.getElementById('regKnows').value||'').trim();
+  if(!display||!user||!pass){ showAuthMsg('regError','Please fill all fields.',true); return; }
+
   const btn = document.getElementById('regBtn');
-  btn.disabled=true; btn.textContent='Sending...';
+  btn.disabled = true; btn.textContent = 'Sending request...';
+  showAuthMsg('regError','',true);
+
   try{
-    const r = await fetch('/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username:user,password:pass,display_name:name,relation:rel,knows_member:knows})});
-    const d = await r.json();
-    if(d.success){ showAuthMsg('regOk','✅ '+d.message,false); btn.textContent='Sent!'; }
-    else { showAuthMsg('regErr',d.error||'Failed.',true); btn.disabled=false; btn.textContent='→ REQUEST ACCESS'; }
+    const res = await fetch('/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:user, password:pass, display_name:display, relation, knows_member:knows })
+    });
+    const d = await res.json();
+    if(d.success){
+      showAuthMsg('regSuccess', '✅ ' + d.message, false);
+      btn.textContent = 'Request Sent!';
+    } else {
+      showAuthMsg('regError', d.error||'Registration failed.',true);
+      btn.disabled = false; btn.textContent = '→ REQUEST ACCESS';
+    }
   } catch(e){
-    showAuthMsg('regErr','Connection error.',true); btn.disabled=false; btn.textContent='→ REQUEST ACCESS';
+    showAuthMsg('regError','Connection error.',true);
+    btn.disabled = false; btn.textContent = '→ REQUEST ACCESS';
   }
 }
 
-async function checkSession(){
+function getGreeting(role, name){
+  const greetings = {
+    admin:   `Welcome back, ${name} Sir! JARVIS is fully online. All systems ready.`,
+    father:  `Welcome, ${name} Garu! JARVIS is at your service, Sir.`,
+    mother:  `Welcome, ${name} Amma! JARVIS is ready for you, Ma'am.`,
+    sister:  `Welcome, ${name}! JARVIS is online for you, Ma'am.`,
+    brother: `Hey ${name}! JARVIS is online, bro. What's up?`,
+    guest:   `Hello ${name}! Welcome to JARVIS. How can I help you today?`,
+  };
+  return greetings[role] || `Welcome, ${name}! JARVIS is ready.`;
+}
+
+async function checkExistingSession(){
   const token = localStorage.getItem('j_token');
-  const owner = localStorage.getItem('j_owner');
-  const role  = localStorage.getItem('j_role');
-  // If we have cached credentials — start immediately, verify in background
-  if(token && owner && role){
-    startApp(owner, role);
-    // Verify in background — sign out silently if invalid
+  const cachedOwner = localStorage.getItem('j_owner');
+  const cachedRole  = localStorage.getItem('j_role');
+  // ── Instant start from cache — no waiting for server ──
+  if(token && cachedOwner){
+    deviceOwner = cachedOwner;
+    deviceName  = localStorage.getItem('j_dname') || detectDeviceName();
+    document.getElementById('authScreen').style.display = 'none';
+    updateIdentity();
+    // Verify in background silently
     try{
-      const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({token})});
-      const d = await r.json();
+      const res = await fetch('/auth/verify',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token, device_id:deviceId })
+      });
+      const d = await res.json();
       if(!d.valid){
-        // Token expired — clear and reload to show login
-        ['j_token','j_owner','j_role'].forEach(k=>localStorage.removeItem(k));
+        ['j_token','j_owner','j_role','j_dname'].forEach(k=>localStorage.removeItem(k));
         location.reload();
       }
-    } catch(e){} // Network error — keep session, try again next time
+    } catch(e){} // Network error — keep session alive
     return;
   }
-  // No cached session — show login
-  if(token){
-    // Have token but no cached details — verify fully
-    try{
-      const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({token})});
-      const d = await r.json();
-      if(d.valid && d.user){
-        localStorage.setItem('j_owner', d.user.family_member||d.user.display_name);
-        localStorage.setItem('j_role',  d.user.role);
-        startApp(d.user.family_member||d.user.display_name, d.user.role);
-      } else {
-        localStorage.removeItem('j_token');
+  if(!token){ showAuth(); return; }
+  // Have token but no cache — full verify
+  try{
+    const res = await fetch('/auth/verify',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, device_id:deviceId })
+    });
+    const d = await res.json();
+    if(d.valid && d.user){
+      deviceOwner = d.user.family_member || d.user.display_name;
+      deviceName  = localStorage.getItem('j_dname') || detectDeviceName();
+      localStorage.setItem('j_owner', deviceOwner);
+      localStorage.setItem('j_role',  d.user.role || '');
+      document.getElementById('authScreen').style.display = 'none';
+      updateIdentity();
+    } else {
+      localStorage.removeItem('j_token');
+      showAuth();
+    }
+  } catch(e){ showAuth(); }
+}
+
+function showAuth(){
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+// Enter key support
+document.addEventListener('DOMContentLoaded', ()=>{
+  const lp = document.getElementById('loginPass');
+  const lu = document.getElementById('loginUser');
+  if(lu) lu.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+  if(lp) lp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+function setupDevice(){ /* legacy no-op */ }
+function checkIdentity(){ /* legacy no-op */ }
+
+function updateIdentity(){
+  if(!deviceOwner) return;
+  isAdmin = ['lucky','lakshmi narayana','lakshminarayana'].includes(deviceOwner.toLowerCase()) 
+         || localStorage.getItem('j_role') === 'admin';
+  const ob = document.getElementById('ownerBadge');
+  const db = document.getElementById('deviceBadge');
+  const ab = document.getElementById('adminBadge');
+  const dai = document.getElementById('drawerAdminItem');
+  if(ob)  ob.textContent  = deviceOwner;
+  if(db)  db.textContent  = deviceName;
+  if(ab)  ab.style.display = isAdmin ? 'inline-block' : 'none';
+  if(dai) dai.style.display = isAdmin ? 'flex' : 'none';
+}
+
+// Check existing session on load
+checkExistingSession();
+
+
+
+// ── WebSocket ────────────────────────────────────────────
+let ws=null, msgCount=0;
+let lastUserMsg='', lastJarvisResponse='';
+let streamingEl = null, streamingText = '';
+let autoSpeak = true; // JARVIS speaks every response by default
+
+function sendPing(){
+  if(ws && ws.readyState === WebSocket.OPEN){
+    ws.send(JSON.stringify({
+      type:'ping',
+      device_id: deviceId,
+      device_name: deviceName,
+      device_owner: deviceOwner
+    }));
+  }
+}
+// Ping every 2 minutes to stay "online"
+setInterval(sendPing, 2 * 60 * 1000);
+// Also ping immediately on load after connection
+setTimeout(sendPing, 3000);
+
+function connectWS(){
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  ws=new WebSocket(`${proto}//${location.host}/ws`);
+  ws.onopen=()=>{
+    // Immediately announce presence
+    setTimeout(sendPing, 500);
+    document.getElementById('statusDot').className='dot-status';
+    document.getElementById('statusText').textContent='ONLINE';
+  };
+  ws.onclose=()=>{
+    document.getElementById('statusDot').className='dot-status off';
+    document.getElementById('statusText').textContent='RECONNECTING';
+    setTimeout(connectWS,3000);
+  };
+  ws.onmessage=(e)=>{
+    const d=JSON.parse(e.data);
+    if(d.type==='thinking'){
+      showThinking();
+    } else if(d.type==='chunk'){
+      if(!streamingEl){ removeThinking(); streamingEl=createStreamingBubble(); }
+      streamingText += d.text;
+      updateStreamingBubble(streamingEl, streamingText);
+    } else if(d.type==='stream_end'){
+      if(streamingEl){
+        finaliseStreamingBubble(streamingEl, streamingText);
+        if(autoSpeak) speak(streamingText);
+        lastJarvisResponse=streamingText;
+        streamingEl=null; streamingText='';
+        document.getElementById('reactor').classList.remove('talking');
+        msgCount++; document.getElementById('msgCount').textContent=msgCount;
       }
-    } catch(e){}
+    } else if(d.type==='response'){
+      removeThinking();
+      lastJarvisResponse=d.text;
+      addMessage('jarvis',d.text,true);
+      if(autoSpeak) speak(d.text);
+      document.getElementById('reactor').classList.remove('talking');
+      msgCount++; document.getElementById('msgCount').textContent=msgCount;
+    } else if(d.type==='reminder'){
+      showToast('⏰ REMINDER',d.text);
+      speak(`Reminder: ${d.text}`);
+    } else if(d.type==='feedback_ack'){
+      // acknowledged
+    }
+  };
+}
+connectWS();
+setInterval(()=>{
+  document.getElementById('clockEl').textContent=new Date().toTimeString().split(' ')[0];
+  // Poll for reminders every 30s
+},1000);
+setInterval(()=>{ if(ws&&ws.readyState===1&&deviceOwner) ws.send(JSON.stringify({type:'ping',device_id:deviceId})); },30000);
+
+// ── Messages ─────────────────────────────────────────────
+function createStreamingBubble(){
+  removeThinking();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap jarvis-wrap streaming-wrap';
+  wrap.innerHTML = '<div class="msg jarvis"><div class="msg-row"><div class="msg-label">JARVIS</div><div class="msg-text streaming-text"></div></div></div>';
+  document.getElementById('chatWindow').appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function updateStreamingBubble(el, text){
+  if(!el) return;
+  const textEl = el.querySelector('.streaming-text');
+  if(textEl){
+    textEl.innerHTML = formatMsg(text) + '<span class="stream-cursor">▋</span>';
+    scrollBottom();
   }
 }
 
-function signOut(){
+function finaliseStreamingBubble(el, text){
+  if(!el) return;
+  el.classList.remove('streaming-wrap');
+  const textEl = el.querySelector('.streaming-text');
+  if(textEl) textEl.innerHTML = formatMsg(text);
+  // Add feedback buttons
+  const msgEl = el.querySelector('.msg');
+  if(msgEl){
+    const fb = document.createElement('div');
+    fb.className = 'feedback-row';
+    fb.innerHTML = '<button class="fb-btn" onclick="sendFeedback(this,'positive')">👍 Good</button><button class="fb-btn" onclick="sendFeedback(this,'negative')">👎 Bad</button>';
+    msgEl.appendChild(fb);
+  }
+  scrollBottom();
+}
+
+function addMessage(role,text,showFeedback=false){
+  const win=document.getElementById('chatWindow');
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  const label=role==='user'?(deviceOwner||'YOU'):'JARVIS';
+  const msgId='msg_'+Date.now();
+  div.innerHTML=`<div class="msg-row"><div class="msg-label">${label}</div><div class="msg-text" id="${msgId}">${escHtml(text)}</div></div>`;
+  if(role==='jarvis'&&showFeedback){
+    const fb=document.createElement('div');
+    fb.className='msg-feedback';
+    fb.innerHTML=`<button class="fb-btn" id="pos_${msgId}" onclick="giveFeedback('${msgId}','positive')">👍 Good</button><button class="fb-btn" id="neg_${msgId}" onclick="giveFeedback('${msgId}','negative')">👎 Bad</button>`;
+    div.appendChild(fb);
+  }
+  win.appendChild(div); win.scrollTop=win.scrollHeight;
+}
+function showThinking(){
+  const win=document.getElementById('chatWindow');
+  const d=document.createElement('div');
+  d.className='msg jarvis'; d.id='thinking';
+  d.innerHTML='<div class="msg-row"><div class="msg-label">JARVIS</div><div class="msg-text thinking-dots"><span>●</span><span>●</span><span>●</span></div></div>';
+  win.appendChild(d); win.scrollTop=win.scrollHeight;
+  document.getElementById('reactor').classList.add('talking');
+}
+function removeThinking(){const el=document.getElementById('thinking');if(el)el.remove();}
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+
+// ── RL Feedback ──────────────────────────────────────────
+function giveFeedback(msgId, type){
+  document.getElementById(`pos_${msgId}`).classList.toggle('active-pos', type==='positive');
+  document.getElementById(`neg_${msgId}`).classList.toggle('active-neg', type==='negative');
+  if(ws&&ws.readyState===1){
+    ws.send(JSON.stringify({
+      type:'feedback',
+      device_id:deviceId,
+      device_owner:deviceOwner,
+      user_msg:lastUserMsg,
+      jarvis_response:lastJarvisResponse,
+      feedback:type,
+      topic:'general'
+    }));
+  }
+}
+
+// ── Send Message ─────────────────────────────────────────
+let pendingImage=null;
+
+function sendMessage(){
+  const input=document.getElementById('textInput');
+  const text=input.value.trim();
+  if((!text&&!pendingImage)||!ws||ws.readyState!==1) return;
+  if(text) addMessage('user',text);
+  lastUserMsg=text;
+  const payload={
+    text:text||'Describe this image',
+    device_id:deviceId, device_name:deviceName,
+    device_owner:deviceOwner, user_agent:navigator.userAgent,
+    private:isPrivate
+  };
+  if(pendingImage) payload.image=pendingImage;
+  ws.send(JSON.stringify(payload));
+  input.value=''; clearImage();
+  document.getElementById('sendBtn').disabled=true;
+  setTimeout(()=>document.getElementById('sendBtn').disabled=false,2500);
+}
+function sq(text){document.getElementById('textInput').value=text;sendMessage();}
+document.getElementById('textInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+
+// ── Image Upload ─────────────────────────────────────────
+function handleImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const b64=reader.result.split(',')[1];
+    pendingImage=b64;
+    document.getElementById('imgThumb').src=reader.result;
+    document.getElementById('imgPreview').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(){
+  pendingImage=null;
+  document.getElementById('imgPreview').style.display='none';
+  document.getElementById('imgFile').value='';
+}
+
+// ── Voice Input ──────────────────────────────────────────
+let recog=null, listening=false;
+function toggleVoice(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    addMessage('jarvis','Voice recognition requires Google Chrome, Sir.'); return;
+  }
+  listening?stopListen():startListen();
+}
+function startListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR(); recog.continuous=false; recog.interimResults=true;
+  const savedLang=localStorage.getItem('j_speak_lang')||'en-IN'; recog.lang=savedLang;
+  recog.onstart=()=>{
+    listening=true;
+    document.getElementById('voiceBtn').classList.add('listening');
+    document.getElementById('voiceBtn').textContent='🔴';
+    document.getElementById('textInput').placeholder='Listening...';
+    document.getElementById('voiceStatus').textContent='LISTENING';
+  };
+  recog.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('textInput').value=t;
+    if(e.results[e.results.length-1].isFinal){stopListen();sendMessage();}
+  };
+  recog.onerror=recog.onend=()=>stopListen();
+  recog.start();
+}
+function stopListen(){
+  listening=false;
+  document.getElementById('voiceBtn').classList.remove('listening');
+  document.getElementById('voiceBtn').textContent='🎤';
+  document.getElementById('textInput').placeholder='Type or speak to JARVIS... (Telugu, English, Hindi)';
+  document.getElementById('voiceStatus').textContent='READY';
+  try{recog&&recog.stop();}catch(e){}
+}
+
+// ── Voice Engine ─────────────────────────────────────────
+let voices=[],selectedVoiceIdx=null;
+let vPitch=parseFloat(localStorage.getItem('j_pitch')||'0.75');
+let vRate =parseFloat(localStorage.getItem('j_rate') ||'0.88');
+let vVol  =parseFloat(localStorage.getItem('j_vol')  ||'1.0');
+const PRIORITY=['Google UK English Male','Microsoft George - English (United Kingdom)','Microsoft George','Microsoft David - English (United States)','Daniel','Google US English'];
+
+function loadVoices(){
+  voices=window.speechSynthesis.getVoices();
+  if(!voices.length) return;
+  const saved=localStorage.getItem('j_voice');
+  let def=-1;
+  for(const n of PRIORITY){const i=voices.findIndex(v=>v.name===n);if(i!==-1){def=i;break;}}
+  if(def===-1) def=voices.findIndex(v=>v.lang.startsWith('en'));
+  if(def===-1) def=0;
+  selectedVoiceIdx=saved?(voices.findIndex(v=>v.name===saved)!==-1?voices.findIndex(v=>v.name===saved):def):def;
+  updateVELabel(); renderVoiceList();
+}
+function updateVELabel(){
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]){
+    const n=voices[selectedVoiceIdx].name;
+    document.getElementById('veLabel').textContent=n.length>20?n.substring(0,20)+'…':n;
+  }
+}
+function renderVoiceList(){
+  const list=document.getElementById('voiceList');
+  if(!voices.length){list.innerHTML='<div style="color:var(--dim);font-size:.73rem">No voices. Use Google Chrome.</div>';return;}
+  const sorted=voices.map((v,i)=>({v,i})).sort((a,b)=>{
+    const ae=a.v.lang.startsWith('en')?0:1,be=b.v.lang.startsWith('en')?0:1;
+    return ae!==be?ae-be:a.v.name.localeCompare(b.v.name);
+  });
+  list.innerHTML=sorted.map(({v,i})=>{
+    const sel=i===selectedVoiceIdx;
+    const badge=v.name===PRIORITY[0]||v.name===PRIORITY[1]?'<span class="badge best">BEST</span>':PRIORITY.includes(v.name)?'<span class="badge good">GOOD</span>':'';
+    return `<div class="vi ${sel?'sel':''}" onclick="selectVoice(${i})" data-idx="${i}">
+      <div class="vi-radio"></div>
+      <div class="vi-info"><div class="vi-name">${v.name}</div><div class="vi-meta">${v.lang} · ${v.localService?'Offline':'Online'}</div></div>
+      ${badge}
+      <button class="vi-test" onclick="event.stopPropagation();testVoice(${i})">TEST</button>
+    </div>`;
+  }).join('');
+}
+function selectVoice(idx){
+  selectedVoiceIdx=idx;
+  document.querySelectorAll('.vi').forEach(el=>{
+    const sel=parseInt(el.dataset.idx)===idx;
+    el.classList.toggle('sel',sel);
+    const r=el.querySelector('.vi-radio');
+    r.style.background=sel?'var(--cyan)':''; r.style.boxShadow=sel?'0 0 6px var(--cyan)':'';
+  });
+}
+function testVoice(idx){
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance('Online and ready, Sir. All systems operational.');
+  u.voice=voices[idx]; u.pitch=vPitch; u.rate=vRate; u.volume=vVol;
+  window.speechSynthesis.speak(u);
+}
+function updateSlider(el,valId){
+  const val=parseFloat(el.value).toFixed(2);
+  document.getElementById(valId).textContent=val;
+  el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+}
+function applyVoice(){
+  vPitch=parseFloat(document.getElementById('pitchSlider').value);
+  vRate =parseFloat(document.getElementById('rateSlider').value);
+  vVol  =parseFloat(document.getElementById('volSlider').value);
+  localStorage.setItem('j_pitch',vPitch); localStorage.setItem('j_rate',vRate); localStorage.setItem('j_vol',vVol);
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]) localStorage.setItem('j_voice',voices[selectedVoiceIdx].name);
+  updateVELabel(); closeModalDirect('veOverlay');
+  setTimeout(()=>speak('Voice engine configured, Sir. Battini family AI system ready.'),200);
+}
+function openVE(){
+  loadVoices();
+  document.getElementById('pitchSlider').value=vPitch; document.getElementById('rateSlider').value=vRate; document.getElementById('volSlider').value=vVol;
+  ['pitchVal','rateVal','volVal'].forEach((id,i)=>{
+    const v=[vPitch,vRate,vVol][i];
+    document.getElementById(id).textContent=v.toFixed(2);
+  });
+  ['pitchSlider','rateSlider','volSlider'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100).toFixed(1)+'%');
+  });
+  document.getElementById('veOverlay').classList.add('open');
+}
+window.speechSynthesis.onvoiceschanged=loadVoices;
+setTimeout(loadVoices,600);
+
+// ── Speech Output ─────────────────────────────────────────
+let vAnimInterval=null;
+function speak(text){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const clean=text.replace(/[*_`#•\-]/g,'').replace(/\n+/g,'. ').trim();
+  const u=new SpeechSynthesisUtterance(clean);
+  u.pitch=vPitch; u.rate=vRate; u.volume=vVol;
+  if(selectedVoiceIdx!==null&&voices[selectedVoiceIdx]) u.voice=voices[selectedVoiceIdx];
+  u.onstart=()=>{
+    document.getElementById('reactor').classList.add('talking');
+    document.getElementById('speakingIndicator').classList.add('active');
+    document.getElementById('voiceStatus').textContent='SPEAKING';
+    startVBars();
+  };
+  u.onend=u.onerror=()=>{
+    document.getElementById('reactor').classList.remove('talking');
+    document.getElementById('speakingIndicator').classList.remove('active');
+    document.getElementById('voiceStatus').textContent='READY';
+    stopVBars();
+  };
+  window.speechSynthesis.speak(u);
+}
+function startVBars(){vAnimInterval=setInterval(()=>{['vb1','vb2','vb3','vb4','vb5'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.height=(5+Math.random()*14)+'px';})},110);}
+function stopVBars(){clearInterval(vAnimInterval);[8,14,10,16,8].forEach((h,i)=>{const el=document.getElementById('vb'+(i+1));if(el)el.style.height=h+'px';});}
+
+// ── Private Mode ─────────────────────────────────────────
+function togglePrivate(){
+  isPrivate=!isPrivate;
+  document.getElementById('privateBtn').style.borderColor=isPrivate?'var(--orange)':'';
+  document.getElementById('privateBtn').style.color=isPrivate?'var(--orange)':'';
+  document.getElementById('privateIndicator').classList.toggle('active',isPrivate);
+  addMessage('jarvis',isPrivate?'Private mode ON. This conversation will not be saved to memory.':'Private mode OFF. Conversations will be saved normally.');
+}
+
+// ── Theme Toggle ─────────────────────────────────────────
+function toggleTheme(){
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('j_theme',document.body.classList.contains('light-theme')?'light':'dark');
+}
+if(localStorage.getItem('j_theme')==='light') document.body.classList.add('light-theme');
+
+// ── Reminder Toast ────────────────────────────────────────
+function showToast(title,text){
+  const c=document.getElementById('toastContainer');
+  const d=document.createElement('div'); d.className='toast'; d.style.position='relative';
+  d.innerHTML=`<button class="toast-close" onclick="this.parentElement.remove()">✕</button><div class="toast-title">${title}</div><div class="toast-text">${text}</div>`;
+  c.appendChild(d);
+  setTimeout(()=>{if(d.parentElement)d.remove();},8000);
+}
+
+// ── Panels ────────────────────────────────────────────────
+function openPanel(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='todoPanel') loadTodos();
+  if(id==='notePanel') loadNotes();
+  if(id==='reminderPanel') loadReminders();
+}
+function closePanel(id){document.getElementById(id).classList.remove('open');}
+
+async function loadTodos(){
+  const res=await fetch(`/todos/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('todoBody');
+  if(!d.todos||!d.todos.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No items yet. Ask JARVIS or type below.</div>';return;}
+  body.innerHTML=d.todos.map(t=>`<div class="todo-item ${t.done?'done-item':''}" id="todo_${t.id}">
+    <div class="todo-check ${t.done?'checked':''}" onclick="checkTodo(${t.id})">${t.done?'✓':''}</div>
+    <div class="todo-text">${escHtml(t.text)}</div>
+  </div>`).join('');
+}
+async function addTodo(){
+  const input=document.getElementById('todoInput');
+  const text=input.value.trim(); if(!text) return;
+  await fetch('/ws');// Just use JARVIS command
+  sq(`todo: ${text}`);
+  input.value='';
+  setTimeout(loadTodos,1500);
+}
+async function checkTodo(id){
+  await fetch(`/todo/toggle/${id}`,{method:'POST'});
+  loadTodos();
+}
+
+async function loadNotes(){
+  const res=await fetch(`/notes/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('noteBody');
+  if(!d.notes||!d.notes.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No notes yet. Say "note: ..." to JARVIS.</div>';return;}
+  body.innerHTML=d.notes.map(n=>`<div class="note-item"><div class="note-title">${escHtml(n.title)}</div><div class="note-body">${escHtml(n.content)}</div><div class="note-date">${n.date?n.date.slice(0,10):''}</div></div>`).join('');
+}
+async function addNote(){
+  const input=document.getElementById('noteInput');
+  const text=input.value.trim(); if(!text) return;
+  sq(`note: ${text}`);
+  input.value='';
+  setTimeout(loadNotes,1500);
+}
+
+async function loadReminders(){
+  const res=await fetch(`/reminders/${deviceId}`);
+  const d=await res.json();
+  const body=document.getElementById('reminderBody');
+  const active=d.reminders?d.reminders.filter(r=>!r.done):[];
+  if(!active.length){body.innerHTML='<div style="color:var(--dim);font-size:.75rem;text-align:center;padding:20px">No reminders. Say "Remind me at 6pm to..."</div>';return;}
+  body.innerHTML=active.map(r=>`<div class="reminder-item"><div class="reminder-text">${escHtml(r.text)}</div><div class="reminder-time">${r.time?r.time.slice(11,16):''}</div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  ADMIN PANEL — Full Screen with User Tree
+// ══════════════════════════════════════════════════════════
+
+// Family definition for tree rendering
+const FAMILY_TREE = [
+  {name:'Lucky',        full:'Battini Lakshmi Narayana Goud', role:'Admin · Owner · Developer', emoji:'👑', gender:'male',   color:'#ffd700'},
+  {name:'Krishna',      full:'Battini Krishna Goud',           role:'Father',                    emoji:'👨', gender:'male',   color:'#00d4ff'},
+  {name:'Sangeetha',    full:'Battini Sangeetha Goud',         role:'Mother',                    emoji:'👩', gender:'female', color:'#ff88cc'},
+  {name:'Thapaswini',   full:'Battini Thapaswini Goud',        role:'Sister',                    emoji:'👧', gender:'female', color:'#cc88ff'},
+  {name:'Dhruva Kumar', full:'Battini Dhruva Kumar Goud',      role:'Brother',                   emoji:'👦', gender:'male',   color:'#00ff88'},
+  {name:'Prajwal',      full:'Battini Prajwal Goud',           role:'Brother',                   emoji:'👦', gender:'male',   color:'#00ff88'},
+];
+
+let adminData = null;
+let expandedNodes = new Set();
+let activeAdminTab = 'users';
+
+// Clock for admin panel
+setInterval(()=>{
+  const el = document.getElementById('adminClock');
+  if(el) el.textContent = new Date().toLocaleTimeString();
+}, 1000);
+// Auto-refresh user tree every 60s when admin is open
+setInterval(()=>{
+  const screen = document.getElementById('adminScreen');
+  if(screen && screen.classList.contains('open') && activeAdminTab === 'users'){
+    loadUserTree();
+  }
+}, 60 * 1000);
+
+async function openAdmin(){
+  if(!isAdmin) return;
+  document.getElementById('adminScreen').classList.add('open');
+  await loadAdminData();
+  loadPendingUsers();
+}
+
+function logoutJarvis(){
   if(!confirm('Sign out of JARVIS?')) return;
-  ['j_token','j_owner','j_role'].forEach(k=>localStorage.removeItem(k));
+  localStorage.removeItem('j_token');
+  localStorage.removeItem('j_owner');
+  localStorage.removeItem('j_username');
+  localStorage.removeItem('j_role');
   location.reload();
 }
 
-/* ══ APP STARTUP ═══════════════════════════════════════════════════════════ */
-function startApp(owner, role){
-  deviceOwner = owner;
-  userRole    = role;
-  isAdmin     = role === 'admin';
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('app').style.display        = 'flex';
-  document.getElementById('headerSub').textContent    = owner + (isAdmin ? ' · ADMIN' : '');
-  document.getElementById('drawerUser').textContent   = owner + ' · ' + role;
-  if(isAdmin) document.getElementById('adminDrawerBtn').style.display = 'flex';
-  connectWS();
-  // Greet
-  const greets = {
-    admin:  `Systems online, ${owner} Sir. All units ready. What do we need today?`,
-    father: `Welcome, ${owner} Garu. JARVIS is at your service, Sir.`,
-    mother: `Welcome, ${owner} Amma. How can I help you today, Ma'am?`,
-    sister: `Hey ${owner}! JARVIS is ready for you.`,
-    brother:`What's up, ${owner} bro! JARVIS is online. What's good?`,
-    guest:  `Hello ${owner}! Welcome to JARVIS. How can I help?`,
-  };
-  setTimeout(()=> addJarvis(greets[role]||`Welcome, ${owner}! JARVIS is ready.`), 400);
+function closeAdmin(){
+  document.getElementById('adminScreen').classList.remove('open');
 }
 
-/* ══ WEBSOCKET ═════════════════════════════════════════════════════════════ */
-function connectWS(){
-  const proto = location.protocol==='https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}/ws`);
-  ws.onopen = ()=>{
-    ws.send(JSON.stringify({type:'identify', device_id:deviceId,
-      device_name:detectDevice(), owner:deviceOwner}));
-    setTimeout(sendPing, 2000);
-    setInterval(sendPing, 120000);
-  };
-  ws.onmessage = e => {
-    const d = JSON.parse(e.data);
-    if(d.type==='pong') return;
-    if(d.type==='chunk'){
-      if(!streamEl){ streamEl = startStream(); }
-      streamText += d.text;
-      updateStream(streamEl, streamText);
-    } else if(d.type==='stream_end'){
-      if(streamEl){
-        finalStream(streamEl, streamText);
-        lastJarvis = streamText;
-        // Speak full response
-        if(autoSpeak) speak(streamText);
-        streamEl = null; streamText = '';
-        document.getElementById('reactor').classList.remove('talking');
-      }
-    } else if(d.type==='reminder'){
-      toast('⏰ '+d.text, 6000);
-      speak('Reminder: '+d.text);
-    } else if(d.type==='feedback_ack'){
-      toast('Feedback saved ✓');
+function switchTab(tab){
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab_'+tab).classList.add('on');
+  document.getElementById('panel_'+tab).classList.add('on');
+  activeAdminTab = tab;
+  if(tab==='users')   loadUserTree();
+  if(tab==='stats')   loadStats();
+  if(tab==='memory')  loadMemoryTiers();
+  if(tab==='comms')   loadAnnouncements();
+}
+
+async function loadAdminData(){
+  try{
+    const res = await fetch('/memory');
+    adminData  = await res.json();
+    loadUserTree();
+    loadStats();
+  } catch(e){ console.error('Admin load failed', e); }
+}
+
+// ── Build the family tree ──────────────────────────────────
+async function loadUserTree(){
+  const el = document.getElementById('familyTreeNodes');
+  el.innerHTML = '<div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:20px">Building tree...</div>';
+
+  const devices   = adminData?.devices || [];
+  const messages  = adminData?.stats   || {};
+
+  // Map devices to family members (case-insensitive)
+  const deviceMap = {};
+  devices.forEach(d => {
+    if(!d.owner) return;
+    const key = d.owner.toLowerCase().split('(')[0].trim();
+    if(!deviceMap[key]) deviceMap[key] = [];
+    deviceMap[key].push(d);
+  });
+
+  // Separate known vs unknown
+  const knownKeys = FAMILY_TREE.map(f => f.name.toLowerCase());
+  const unknownDevices = devices.filter(d => {
+    if(!d.owner) return true;
+    const key = d.owner.toLowerCase().split('(')[0].trim();
+    return !knownKeys.some(k => k === key || k.includes(key) || key.includes(k));
+  });
+
+  let totalOnline = 0;
+  const now = Date.now();
+
+  // Build HTML for each family member
+  const html = FAMILY_TREE.map((member, mi) => {
+    const key      = member.name.toLowerCase();
+    const mDevices = deviceMap[key] || 
+                     Object.entries(deviceMap).filter(([k])=>k.includes(key)||key.includes(k)).flatMap(([,v])=>v);
+    const isOnline = mDevices.some(d => {
+      if(!d.last_seen) return false;
+      const last = new Date(d.last_seen).getTime();
+      return (now - last) < 5 * 60 * 1000; // online if seen within 5 min
+    });
+    if(isOnline) totalOnline++;
+
+    const lastSeen = mDevices.length && mDevices[0].last_seen 
+      ? timeSince(mDevices[0].last_seen) : 'Never';
+    const msgCount = mDevices.reduce((acc, d) => acc + (d.message_count||0), 0);
+    const isAdmin  = member.role.includes('Admin');
+    const nodeId   = 'node_' + member.name.replace(/ /g,'_');
+
+    const deviceRows = mDevices.map(d => `
+      <div class="td-item">
+        <div class="td-icon">${getDeviceIcon(d.device_name||'')}</div>
+        <div class="td-info">
+          <div class="td-name">${escHtml(d.device_name||'Unknown Device')}</div>
+          <div class="td-id">${(d.device_id||'').slice(0,18)}...</div>
+        </div>
+        <div class="td-last">${d.last_seen ? timeSince(d.last_seen) : 'never'}</div>
+      </div>`).join('');
+
+    const isExpanded = expandedNodes.has(nodeId);
+
+    return `
+    <div class="tree-family-node" style="margin-bottom:8px">
+      <div class="tree-node">
+        <div class="tree-connector">
+          ${mi < FAMILY_TREE.length-1 ? '<div class="tree-vline" style="min-height:100%"></div>' : ''}
+          <div class="tree-hline"></div>
+          <div class="tree-dot" style="border-color:${member.color};background:${member.color}22"></div>
+        </div>
+        <div class="tree-card ${isOnline?'online':''}" onclick="toggleNode('${nodeId}')">
+          <div class="tc-avatar ${isOnline?'online-av':''}" style="border-color:${member.color}44">
+            ${member.emoji}
+          </div>
+          <div class="tc-info">
+            <div class="tc-name" style="color:${member.color}">${member.name}</div>
+            <div class="tc-role">${member.role}</div>
+            <div class="tc-device">${mDevices.length ? mDevices[0].device_name||'Unknown device' : 'No device registered'}</div>
+          </div>
+          <div class="tc-right">
+            ${isAdmin ? '<span class="tc-badge admin">ADMIN</span>' : ''}
+            <span class="tc-badge ${isOnline?'online':'offline'}">${isOnline?'● ONLINE':'○ OFFLINE'}</span>
+            <div class="tc-msgs">${msgCount} msgs</div>
+            <div class="tc-msgs" style="color:rgba(255,215,0,.3)">${lastSeen}</div>
+          </div>
+        </div>
+      </div>
+      <div class="tree-devices" id="${nodeId}" style="display:${isExpanded?'flex':'none'};margin-top:4px">
+        ${mDevices.length ? deviceRows : '<div style="padding:8px 12px;color:rgba(255,215,0,.25);font-size:.68rem">No devices registered yet</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+  document.getElementById('treeTotalUsers').textContent = FAMILY_TREE.length + ' family members';
+  document.getElementById('treeOnlineCount').textContent = totalOnline + ' currently online';
+  document.getElementById('treeLastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+  // Render guests
+  renderGuestTree(unknownDevices);
+}
+
+function toggleNode(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'flex';
+  if(isOpen) expandedNodes.delete(id);
+  else expandedNodes.add(id);
+}
+
+function renderGuestTree(unknownDevices){
+  const el = document.getElementById('guestTreeNodes');
+  const cnt = document.getElementById('guestCount');
+  cnt.textContent = unknownDevices.length + ' guests';
+
+  if(!unknownDevices.length){
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,100,0,.3);font-size:.72rem">No unknown users detected.</div>';
+    return;
+  }
+
+  el.innerHTML = unknownDevices.map(d => `
+    <div class="tree-card unknown-user" style="margin-bottom:6px">
+      <div class="tc-avatar" style="border-color:rgba(255,100,0,.3);background:rgba(255,100,0,.06)">👤</div>
+      <div class="tc-info">
+        <div class="tc-name" style="color:#ff8844">${escHtml(d.owner||'Unknown')}</div>
+        <div class="tc-role" style="color:rgba(255,100,0,.5)">Unregistered User</div>
+        <div class="tc-device">${escHtml(d.device_name||'Unknown device')}</div>
+      </div>
+      <div class="tc-right">
+        <span class="tc-badge unknown">GUEST</span>
+        <div class="tc-msgs" style="color:rgba(255,100,0,.4)">${d.last_seen ? timeSince(d.last_seen) : 'never'}</div>
+      </div>
+    </div>`).join('');
+}
+
+function loadStats(){
+  if(!adminData) return;
+  document.getElementById('statMsgs').textContent    = adminData.stats?.hot || 0;
+  document.getElementById('statArchive').textContent = adminData.stats?.archived || 0;
+  document.getElementById('statDevices').textContent = adminData.devices?.length || 0;
+  document.getElementById('statFacts').textContent   = Object.keys(adminData.facts||{}).length;
+
+  const factsEl = document.getElementById('factsGrid');
+  const facts = adminData.facts || {};
+  const entries = Object.entries(facts).filter(([k]) => !k.startsWith('family_'));
+  if(!entries.length){
+    factsEl.innerHTML = '<div style="color:rgba(255,215,0,.3);text-align:center;padding:16px;font-size:.72rem">No personal facts learned yet.</div>';
+    return;
+  }
+  factsEl.innerHTML = entries.slice(0,30).map(([k,v]) => `
+    <div style="display:flex;gap:10px;padding:8px 12px;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.08);border-radius:7px;align-items:center">
+      <div style="font-size:.62rem;color:rgba(255,215,0,.4);min-width:120px;font-family:monospace">${escHtml(k)}</div>
+      <div style="font-size:.75rem;color:rgba(255,215,0,.8);flex:1">${escHtml(String(v))}</div>
+    </div>`).join('');
+}
+
+function loadMemoryTiers(){
+  const el = document.getElementById('memoryTiers');
+  const tiers = [
+    {icon:'🔥', label:'Hot Memory',    desc:'Last 15 conversations — instant access',      val: adminData?.stats?.hot||'—'},
+    {icon:'🌡️', label:'Warm Archive',  desc:'30-90 day summaries — loaded when needed',    val: adminData?.stats?.archived||'—'},
+    {icon:'🧊', label:'Cold Archive',  desc:'90+ day long-term compressed summaries',       val: '—'},
+  ];
+  el.innerHTML = tiers.map(t => `
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,215,0,.03);border:1px solid rgba(255,215,0,.1);border-radius:11px">
+      <div style="font-size:1.4rem">${t.icon}</div>
+      <div style="flex:1">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--yellow);margin-bottom:3px">${t.label}</div>
+        <div style="font-size:.64rem;color:rgba(255,215,0,.4)">${t.desc}</div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:1.3rem;color:var(--yellow)">${t.val}</div>
+    </div>`).join('');
+}
+
+function loadAnnouncements(){
+  const el = document.getElementById('activeAnnouncements');
+  el.innerHTML = '<div style="color:rgba(255,215,0,.3);font-size:.72rem;text-align:center;padding:16px">No active announcements.</div>';
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function timeSince(ts){
+  if(!ts) return 'never';
+  const diff = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(diff/60000);
+  if(m < 1)   return 'just now';
+  if(m < 60)  return m + 'm ago';
+  if(m < 1440) return Math.floor(m/60) + 'h ago';
+  return Math.floor(m/1440) + 'd ago';
+}
+function getDeviceIcon(name){
+  const n = name.toLowerCase();
+  if(n.includes('samsung')||n.includes('android')) return '📱';
+  if(n.includes('iphone')||n.includes('apple'))   return '📱';
+  if(n.includes('windows')||n.includes('pc'))     return '💻';
+  if(n.includes('mac'))                           return '💻';
+  if(n.includes('ipad')||n.includes('tablet'))    return '📟';
+  return '📡';
+}
+
+async function adminAction(action){
+  if(action==='wipe_chats'){
+    if(!confirm('Wipe all chat history? Facts and family data will be preserved.')) return;
+    await fetch('/memory/chats',{method:'DELETE'});
+    addMessage('jarvis','Chat history wiped. Family facts preserved, Sir.');
+  } else if(action==='compress'){
+    await fetch('/compress',{method:'POST'});
+    addMessage('jarvis','Memory compression complete, Sir.');
+  } else if(action==='wipe_all'){
+    if(!confirm('FULL RESET? All chats, todos, notes, reminders will be removed.')) return;
+    await fetch('/memory/all',{method:'DELETE'});
+    addMessage('jarvis','Full reset complete. Battini family core data preserved, Sir.');
+  } else if(action==='reset_device'){
+    if(!confirm('Reset this device identity?')) return;
+    localStorage.removeItem('j_owner'); localStorage.removeItem('j_dname');
+    location.reload();
+  }
+  closeAdmin();
+}
+
+async function sendAnnouncement(){
+  const txt = document.getElementById('announceTxt').value.trim();
+  if(!txt) return;
+  sq('announce: ' + txt);
+  document.getElementById('announceTxt').value = '';
+  closeAdmin();
+}
+
+// ── Modal Helpers ─────────────────────────────────────────
+function closeModal(id,e){if(e.target===document.getElementById(id))closeModalDirect(id);}
+function closeModalDirect(id){document.getElementById(id).classList.remove('open');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+
+// ── Memory / Clear ────────────────────────────────────────
+async function clearMemory(){
+  if(!confirm('Clear all JARVIS data?')) return;
+  await fetch('/memory/all',{method:'DELETE'});
+  localStorage.removeItem('j_owner'); localStorage.removeItem('j_dname');
+  addMessage('jarvis','Memory cleared. Reloading...');
+  setTimeout(()=>location.reload(),2000);
+}
+
+// ══════════════════════════════════════════════════════════
+//  MUSIC SYSTEM — Voice + Search + YouTube
+// ══════════════════════════════════════════════════════════
+const mPlaylists = {voice:[], search:[]};
+const mIdx       = {voice:0,  search:0};
+let mVoiceRecog=null, mVoiceOn=false;
+let ytVoiceRecog=null, ytVoiceOn=false;
+
+// ── Menu ──────────────────────────────────────────────────
+function openMusicMenu(){ document.getElementById('musicMenuOverlay').classList.add('open'); }
+function closeMusicMenu(){ document.getElementById('musicMenuOverlay').classList.remove('open'); }
+function openMusicScreen(n){
+  closeMusicMenu();
+  document.getElementById('screen_'+n).classList.add('open');
+}
+function closeMusicScreen(n){
+  document.getElementById('screen_'+n).classList.remove('open');
+  stopAllAudio(); stopMVoice(); stopYtVoice();
+}
+function stopAllAudio(){
+  ['voiceAudio','searchAudio'].forEach(id=>{
+    const a=document.getElementById(id); if(a){a.pause();a.currentTime=0;}
+  });
+  document.getElementById('reactor').classList.remove('talking');
+}
+
+// ── Voice Mic (Voice Screen) ──────────────────────────────
+function toggleMicVoice(){ mVoiceOn ? stopMVoice() : startMVoice(); }
+function startMVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ addMessage('jarvis','Voice search needs Google Chrome, Sir.'); return; }
+  mVoiceRecog=new SR();
+  mVoiceRecog.lang=localStorage.getItem('j_speak_lang')||'en-IN';
+  mVoiceRecog.interimResults=true; mVoiceOn=true;
+  document.getElementById('voiceMic').classList.add('on');
+  document.getElementById('voiceMic').textContent='🔴';
+  document.getElementById('voiceLbl').textContent='LISTENING... SAY THE SONG NAME';
+  document.getElementById('voiceVsbar').classList.add('on');
+  mVoiceRecog.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('voiceQ').textContent=t;
+    if(e.results[e.results.length-1].isFinal){
+      stopMVoice();
+      document.getElementById('voiceGo').style.display='block';
+      voiceGo();
     }
   };
-  ws.onclose = ()=> setTimeout(connectWS, 3000);
-  ws.onerror = ()=> ws.close();
+  mVoiceRecog.onerror=mVoiceRecog.onend=()=>stopMVoice();
+  mVoiceRecog.start();
+}
+function stopMVoice(){
+  mVoiceOn=false;
+  document.getElementById('voiceMic').classList.remove('on');
+  document.getElementById('voiceMic').textContent='🎤';
+  document.getElementById('voiceLbl').textContent='TAP MIC AND SAY THE SONG NAME';
+  document.getElementById('voiceVsbar').classList.remove('on');
+  try{mVoiceRecog&&mVoiceRecog.stop();}catch(e){}
+}
+function voiceGo(){
+  const q=document.getElementById('voiceQ').textContent.trim();
+  if(!q||q==='—') return;
+  document.getElementById('voiceGo').style.display='none';
+  autoPlaySong(q,'voice');
+}
+function chipPlay(q){
+  document.getElementById('voiceQ').textContent=q;
+  autoPlaySong(q,'voice');
 }
 
-function sendPing(){
-  if(ws && ws.readyState===1) ws.send(JSON.stringify({type:'ping', device_id:deviceId}));
+// ── YouTube Voice Mic ─────────────────────────────────────
+function toggleYtMic(){ ytVoiceOn ? stopYtVoice() : startYtVoice(); }
+function startYtVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ return; }
+  ytVoiceRecog=new SR();
+  ytVoiceRecog.lang=localStorage.getItem('j_speak_lang')||'en-IN';
+  ytVoiceRecog.interimResults=true; ytVoiceOn=true;
+  document.getElementById('ytMic').classList.add('on');
+  document.getElementById('ytMic').textContent='🔴';
+  document.getElementById('ytLbl').textContent='LISTENING...';
+  document.getElementById('ytVsbar').classList.add('on');
+  ytVoiceRecog.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('ytQ').textContent=t;
+    document.getElementById('ytInput').value=t;
+    if(e.results[e.results.length-1].isFinal){
+      stopYtVoice();
+      document.getElementById('ytGo').style.display='block';
+      ytVoiceGo();
+    }
+  };
+  ytVoiceRecog.onerror=ytVoiceRecog.onend=()=>stopYtVoice();
+  ytVoiceRecog.start();
+}
+function stopYtVoice(){
+  ytVoiceOn=false;
+  document.getElementById('ytMic').classList.remove('on');
+  document.getElementById('ytMic').textContent='🎤';
+  document.getElementById('ytLbl').textContent='SAY OR TYPE THE SONG NAME';
+  document.getElementById('ytVsbar').classList.remove('on');
+  try{ytVoiceRecog&&ytVoiceRecog.stop();}catch(e){}
+}
+function ytVoiceGo(){
+  const q=document.getElementById('ytQ').textContent.trim();
+  if(!q||q==='—') return;
+  document.getElementById('ytGo').style.display='none';
+  openYTQ(q);
 }
 
-/* ══ MESSAGING ═════════════════════════════════════════════════════════════ */
-function sendMessage(){
-  const inp  = document.getElementById('textInput');
-  const text = inp.value.trim();
-  if(!text || !ws || ws.readyState!==1) return;
-  inp.value = ''; inp.style.height = '42px';
-  lastUser = text;
-  addUser(text);
-  document.getElementById('reactor').classList.add('talking');
-  ws.send(JSON.stringify({type:'message', text, device_id:deviceId, private:isPrivate}));
+// ── YouTube Open ──────────────────────────────────────────
+function openYTQ(q){
+  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' full song'),'_blank');
+  speak('Opening YouTube for '+q+', Sir.');
+  addMessage('jarvis','Opening YouTube for: '+q+' 🎵');
+}
+function openYT(){
+  const q=document.getElementById('ytInput').value.trim();
+  if(!q) return;
+  openYTQ(q); document.getElementById('ytInput').value='';
 }
 
-function sendText(text){
-  if(!ws||ws.readyState!==1) return;
-  lastUser = text;
-  addUser(text);
-  document.getElementById('reactor').classList.add('talking');
-  ws.send(JSON.stringify({type:'message', text, device_id:deviceId, private:isPrivate}));
-}
-
-/* ══ CHAT RENDERING ════════════════════════════════════════════════════════ */
-function addUser(text){
-  const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap user-wrap';
-  wrap.innerHTML = `<div class="msg user"><div class="msg-label">YOU</div><div>${esc(text)}</div></div>`;
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-}
-
-function addJarvis(text){
-  const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap jarvis-wrap';
-  wrap.innerHTML = `<div class="msg jarvis"><div class="msg-label">JARVIS</div><div>${fmt(text)}</div>${fbHtml()}</div>`;
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-  return wrap;
-}
-
-function startStream(){
-  const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap jarvis-wrap';
-  wrap.innerHTML = '<div class="msg jarvis"><div class="msg-label">JARVIS</div><div class="stream-body"></div></div>';
-  document.getElementById('chat').appendChild(wrap);
-  scrollBottom();
-  return wrap;
-}
-
-function updateStream(el, text){
-  const b = el.querySelector('.stream-body');
-  if(b){ b.innerHTML = fmt(text) + '<span class="stream-cursor">▋</span>'; scrollBottom(); }
-}
-
-function finalStream(el, text){
-  const msgEl = el.querySelector('.msg');
-  if(msgEl){
-    msgEl.innerHTML = `<div class="msg-label">JARVIS</div><div>${fmt(text)}</div>${fbHtml()}`;
+// ── Core: Search + Auto Play ──────────────────────────────
+async function autoPlaySong(query, screen){
+  const rDiv=document.getElementById(screen+'Results');
+  const npBox=document.getElementById(screen+'NP');
+  rDiv.innerHTML='<div style="color:var(--dim);font-size:.75rem;padding:14px;text-align:center">Searching for '+escHtml(query)+'...</div>';
+  speak('Finding '+query);
+  try{
+    const res=await fetch('https://itunes.apple.com/search?term='+encodeURIComponent(query)+'&media=music&limit=12&country=IN');
+    const data=await res.json();
+    mPlaylists[screen]=data.results||[];
+    const tracks=mPlaylists[screen];
+    if(!tracks.length){
+      rDiv.innerHTML='<div style="color:var(--dim);font-size:.75rem;padding:14px;text-align:center">Not found here — opening YouTube instead...</div>';
+      speak('Could not find '+query+' locally. Opening YouTube, Sir.');
+      setTimeout(()=>openYTQ(query),900);
+      return;
+    }
+    // Auto-play first track with preview
+    const pi=tracks.findIndex(t=>t.previewUrl);
+    if(pi!==-1){
+      playTrackOn(screen, pi);
+    } else {
+      // No previews — open YouTube for best match
+      const best=tracks[0];
+      speak('No preview available. Opening '+best.trackName+' on YouTube, Sir.');
+      openYTQ(best.trackName+' '+best.artistName);
+    }
+    // Render all results
+    rDiv.innerHTML='<div style="font-size:.62rem;color:var(--dim);margin-bottom:8px;letter-spacing:.08em">RESULTS — tap Full for complete song on YouTube</div>'+
+      tracks.map((s,i)=>
+        '<div class="si">'+
+        '<img class="si-art" src="'+(s.artworkUrl60||'')+'" alt="" onerror="this.style.display=\'none\'"/>'+
+        '<div class="si-inf">'+
+        '<div class="si-name">'+escHtml(s.trackName||'Unknown')+'</div>'+
+        '<div class="si-meta">'+escHtml(s.artistName||'')+' · '+escHtml(s.collectionName||'')+'</div>'+
+        '</div>'+
+        '<div class="si-btns">'+
+        (s.previewUrl?'<button class="sib p" onclick="playTrackOn(\''+screen+'\','+i+')">▶</button>':'')+
+        '<button class="sib y" onclick="openYTQ(\''+escAttr(s.trackName)+' '+escAttr(s.artistName)+'\')">Full</button>'+
+        '</div></div>'
+      ).join('');
+  }catch(e){
+    rDiv.innerHTML='<div style="color:var(--dim);font-size:.75rem;padding:14px;text-align:center">Search failed. Opening YouTube...</div>';
+    setTimeout(()=>openYTQ(query),900);
   }
-  scrollBottom();
 }
 
-function fbHtml(){
-  return `<div class="feedback-row"><button class="fb-btn" onclick="sendFb(this,'positive')">👍 Good</button><button class="fb-btn" onclick="sendFb(this,'negative')">👎 Bad</button></div>`;
-}
-
-function sendFb(btn, type){
-  btn.parentElement.remove();
-  if(ws && ws.readyState===1)
-    ws.send(JSON.stringify({type:'feedback', feedback:type, device_id:deviceId}));
-  toast(type==='positive'?'👍 Thanks!':'👎 Got it, improving...');
-}
-
-function fmt(text){
-  // Code blocks
-  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
-  // Inline code
-  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Bold
-  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Line breaks
-  return text.replace(/\n/g, '<br>');
-}
-
-function esc(t){ const d=document.createElement('div');d.textContent=t;return d.innerHTML; }
-function scrollBottom(){ const c=document.getElementById('chat');c.scrollTop=c.scrollHeight; }
-
-/* ══ DRAWER ════════════════════════════════════════════════════════════════ */
-function openDrawer(){ document.getElementById('drawer').classList.add('on'); document.getElementById('drawerOverlay').classList.add('on'); }
-function closeDrawer(){ document.getElementById('drawer').classList.remove('on'); document.getElementById('drawerOverlay').classList.remove('on'); }
-
-/* ══ PRIVATE MODE ══════════════════════════════════════════════════════════ */
-function togglePrivate(){
-  isPrivate = !isPrivate;
-  document.getElementById('privLabel').textContent = isPrivate ? '🔒 Private ON' : '🔒 Private Mode';
-  toast(isPrivate ? '🔒 Private mode ON' : '🔓 Private mode OFF');
-}
-
-/* ══ IMAGE ═════════════════════════════════════════════════════════════════ */
-function pickImage(){ document.getElementById('imgInput').click(); }
-function handleImage(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    const b64 = ev.target.result.split(',')[1];
-    addUser('📷 [Image sent]');
-    document.getElementById('reactor').classList.add('talking');
-    ws.send(JSON.stringify({type:'message', text:document.getElementById('textInput').value||'Describe this', image:b64, device_id:deviceId}));
-    document.getElementById('textInput').value='';
-    e.target.value='';
+function playTrackOn(screen, idx){
+  const s=mPlaylists[screen][idx]; if(!s||!s.previewUrl) return;
+  mIdx[screen]=idx;
+  const audio=document.getElementById(screen+'Audio');
+  const npBox=document.getElementById(screen+'NP');
+  audio.src=s.previewUrl; audio.play();
+  document.getElementById(screen+'Song').textContent=s.trackName||'Unknown';
+  document.getElementById(screen+'Artist').textContent=s.artistName||'';
+  document.getElementById(screen+'Art').src=s.artworkUrl100||s.artworkUrl60||'';
+  document.getElementById(screen+'Badge').textContent='PLAYING';
+  npBox.classList.add('on');
+  document.getElementById('reactor').classList.add('talking');
+  audio.onended=()=>{
+    document.getElementById('reactor').classList.remove('talking');
+    document.getElementById(screen+'Badge').textContent='DONE';
   };
-  r.readAsDataURL(file);
+  speak(s.trackName+' by '+s.artistName+'. Playing 30 second preview. Tap Full for complete song on YouTube, Sir.');
 }
 
-/* ══ VOICE ═════════════════════════════════════════════════════════════════ */
-function startVoice(){
-  const SRC = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SRC){ toast('Voice needs Chrome'); return; }
-  const rec = new SRC();
-  rec.lang = 'en-IN'; rec.interimResults = false;
-  rec.onresult = e => {
-    const t = e.results[0][0].transcript;
-    document.getElementById('textInput').value = t;
+function npCtrl(screen, action){
+  const audio=document.getElementById(screen+'Audio');
+  const pl=mPlaylists[screen];
+  if(action==='play')  audio.play();
+  if(action==='pause') audio.pause();
+  if(action==='next'){
+    for(let i=mIdx[screen]+1;i<pl.length;i++){ if(pl[i].previewUrl){playTrackOn(screen,i);break;} }
+  }
+  if(action==='prev'){
+    for(let i=mIdx[screen]-1;i>=0;i--){ if(pl[i].previewUrl){playTrackOn(screen,i);break;} }
+  }
+}
+
+// ── Search screen ─────────────────────────────────────────
+function doSearch(){
+  const q=document.getElementById('srchInput').value.trim();
+  if(!q) return;
+  autoPlaySong(q,'search');
+}
+function srchChip(q){
+  document.getElementById('srchInput').value=q;
+  autoPlaySong(q,'search');
+}
+
+function escAttr(s){ return (s||'').replace(/\'/g,"\\'").replace(/\"/g,'&quot;'); }
+
+// ── Voice Language Cycle ──────────────────────────────────
+const VOICE_LANGS=['en-IN','te-IN','hi-IN'];
+const VLBL={'en-IN':'🌐 EN','te-IN':'🌐 TE','hi-IN':'🌐 HI'};
+function cycleLang(){
+  const cur=localStorage.getItem('j_speak_lang')||'en-IN';
+  const next=VOICE_LANGS[(VOICE_LANGS.indexOf(cur)+1)%VOICE_LANGS.length];
+  localStorage.setItem('j_speak_lang',next);
+  document.getElementById('voiceLangBtn').textContent=VLBL[next];
+  const msgs={'en-IN':'Voice input switched to English.','te-IN':'Voice input switched to Telugu! Now speak in Telugu.','hi-IN':'Voice input switched to Hindi! Ab Hindi mein bolein.'};
+  addMessage('jarvis',msgs[next]); speak(msgs[next]);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const saved=localStorage.getItem('j_speak_lang')||'en-IN';
+  const btn=document.getElementById('voiceLangBtn');
+  if(btn) btn.textContent=VLBL[saved]||'🌐 EN';
+});
+
+// ── Intercept "play X" from main chat ────────────────────
+(function(){
+  function musicHook(){
+    const inp=document.getElementById('textInput');
+    const text=inp.value.trim();
+    if(text){
+      const m=text.match(/^(play|chalao|padu|bajao)\s+(.+)/i);
+      if(m){
+        const q=m[2].trim();
+        inp.value='';
+        addMessage('user',text);
+        addMessage('jarvis','Finding and playing: '+q+' 🎵');
+        openMusicScreen('voice');
+        document.getElementById('voiceQ').textContent=q;
+        autoPlaySong(q,'voice');
+        return;
+      }
+    }
     sendMessage();
-  };
-  rec.onerror = () => toast('Voice error');
-  rec.start();
-  document.getElementById('voiceBtn').classList.add('on');
-  rec.onend = () => document.getElementById('voiceBtn').classList.remove('on');
+  }
+  document.getElementById('sendBtn').onclick=musicHook;
+  document.getElementById('textInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();musicHook();}
+  });
+})();
+
+
+// ══════════════════════════════════════════════════════════
+//  DRAWER + SHORTCUT TRAY
+// ══════════════════════════════════════════════════════════
+function openDrawer(){
+  document.getElementById('mainDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  // Populate user info safely
+  const owner = localStorage.getItem('j_owner') || '—';
+  const dname = localStorage.getItem('j_dname') || '—';
+  const dnEl = document.getElementById('drawerName');
+  const ddEl = document.getElementById('drawerDevice');
+  const daEl = document.getElementById('drawerAdminItem');
+  if(dnEl) dnEl.textContent = owner;
+  if(ddEl) ddEl.textContent = dname;
+  const isAdmin = ['lucky','lakshmi narayana','lakshminarayana'].includes(owner.toLowerCase());
+  if(daEl) daEl.style.display = isAdmin ? 'flex' : 'none';
+}
+function closeDrawer(){
+  document.getElementById('mainDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
 }
 
-function toggleSpeak(){
-  autoSpeak = !autoSpeak;
-  const ind = document.getElementById('speakIndicator');
-  if(ind) ind.innerHTML = autoSpeak ? '🔊 VOICE ON' : '🔇 MUTED';
-  if(ind) ind.style.color = autoSpeak ? 'var(--green)' : 'var(--dim)';
-  toast(autoSpeak ? '🔊 Voice ON' : '🔇 Voice muted');
-  if(!autoSpeak) window.speechSynthesis.cancel();
-}
-
-function speak(text){
-  if(!autoSpeak) return;
-  window.speechSynthesis.cancel();
-  const clean = text.replace(/<[^>]+>/g,'').replace(/[*_`#]/g,'').trim().slice(0,400);
-  if(!clean) return;
-  const u = new SpeechSynthesisUtterance(clean);
-  u.rate = 1.05;  // slightly faster = more natural
-  u.pitch = 1;
-  u.lang = 'en-IN';
-  // Pick best available voice
-  const voices = window.speechSynthesis.getVoices();
-  const preferred = voices.find(v=>v.lang==='en-IN') ||
-                    voices.find(v=>v.lang.startsWith('en') && v.localService) ||
-                    voices.find(v=>v.lang.startsWith('en')) || null;
-  if(preferred) u.voice = preferred;
-  window.speechSynthesis.speak(u);
-}
-
-/* ══ TRAY ══════════════════════════════════════════════════════════════════ */
-let trayOn = false;
+let trayOpen = false;
 function toggleTray(){
-  trayOn = !trayOn;
-  document.getElementById('trayBtn').classList.toggle('on', trayOn);
-  if(trayOn) openDrawer(); else closeDrawer();
+  trayOpen = !trayOpen;
+  const tray = document.getElementById('shortcutTray');
+  const btn  = document.getElementById('trayBtn');
+  tray.classList.toggle('open', trayOpen);
+  btn.style.transform = trayOpen ? 'rotate(45deg)' : '';
+  btn.style.borderColor = trayOpen ? 'var(--cyan)' : '';
 }
-
-/* ══ ADMIN ═════════════════════════════════════════════════════════════════ */
-function openAdmin(){
-  if(!isAdmin) return;
-  document.getElementById('adminScreen').classList.add('on');
-  loadUsers(); loadPending();
+function closeTray(){
+  trayOpen = false;
+  document.getElementById('shortcutTray').classList.remove('open');
+  document.getElementById('trayBtn').style.transform = '';
+  document.getElementById('trayBtn').style.borderColor = '';
 }
-function closeAdmin(){ document.getElementById('adminScreen').classList.remove('on'); }
+// Close tray when clicking outside
+document.addEventListener('click', e=>{
+  const tray = document.getElementById('shortcutTray');
+  const btn  = document.getElementById('trayBtn');
+  if(trayOpen && !tray.contains(e.target) && !btn.contains(e.target)){
+    closeTray();
+  }
+});
 
-function aTab(id){
-  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('on'));
-  document.getElementById('atab_'+id).classList.add('on');
-  document.getElementById('apanel_'+id).classList.add('on');
-}
+// Sync private mode indicator in drawer
+const _origTogglePrivate = window.togglePrivate;
+window.togglePrivate = function(){
+  if(_origTogglePrivate) _origTogglePrivate();
+  const lbl = document.getElementById('drawerPrivateLabel');
+  // Check after toggle
+  setTimeout(()=>{
+    const pi = document.getElementById('privateIndicator');
+    if(pi && lbl) lbl.textContent = pi.classList.contains('active') ? 'Private Mode ON' : 'Private Mode';
+  }, 50);
+};
 
-async function loadUsers(){
+// Update admin button visibility after owner setup
+const _origSetup = window.completeSetup;
+window.completeSetup = function(){
+  if(typeof _origSetup === 'function') _origSetup();
+};
+
+
+async function loadPendingUsers(){
   try{
-    const r = await fetch('/admin/users');
-    const d = await r.json();
-    const now = Date.now();
-    const ROLES = {admin:'⚡',father:'👨',mother:'👩',sister:'👧',brother:'👦',guest:'👤'};
-    document.getElementById('usersList').innerHTML = (d.users||[]).map(u=>{
-      const ls = u.last_login ? new Date(u.last_login) : null;
-      const online = ls && (now - ls.getTime()) < 300000;
-      return `<div class="user-row">
-        <div class="user-emoji">${ROLES[u.role]||'👤'}</div>
-        <div class="user-info">
-          <div class="user-name"><span class="online-dot ${online?'on':'off'}"></span>${u.display_name}</div>
-          <div class="user-meta">@${u.username} · ${u.role} · Logins: ${u.login_count||0}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e){}
-}
-
-async function loadPending(){
-  try{
-    const r = await fetch('/admin/pending');
-    const d = await r.json();
-    const list = d.pending||[];
+    const res = await fetch('/admin/pending');
+    const d = await res.json();
+    const list = d.pending || [];
     const badge = document.getElementById('pendingBadge');
-    badge.textContent=list.length; badge.style.display=list.length?'inline':'none';
-    document.getElementById('pendingList').innerHTML = list.length ? list.map(u=>`
-      <div class="pending-card">
-        <div class="pending-info">
-          <div class="pending-name">${u.display_name} (@${u.username})</div>
-          <div class="pending-meta">${u.relation} · ${(u.created_at||'').slice(0,10)}</div>
+    if(badge){ badge.textContent = list.length; badge.style.display = list.length ? 'inline' : 'none'; }
+    const el = document.getElementById('pendingList');
+    if(!el) return;
+    if(!list.length){
+      el.innerHTML = '<div style="color:rgba(255,100,0,.3);text-align:center;padding:20px;font-size:.72rem">No pending requests. ✅</div>';
+      return;
+    }
+    el.innerHTML = list.map(u=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,100,0,.05);border:1px solid rgba(255,100,0,.15);border-radius:11px;margin-bottom:8px">
+        <div style="font-size:1.2rem">👤</div>
+        <div style="flex:1">
+          <div style="font-size:.78rem;color:#ff8844;font-family:'Orbitron',monospace">${escHtml(u.display_name)}</div>
+          <div style="font-size:.62rem;color:rgba(255,100,0,.5);margin-top:2px">@${escHtml(u.username)} · ${escHtml(u.relation||'')}</div>
+          <div style="font-size:.6rem;color:var(--dim);margin-top:2px">Registered: ${u.created_at?u.created_at.slice(0,10):''}</div>
         </div>
-        <button class="a-btn green" onclick="approveUser('${u.username}')">✅ Approve</button>
-      </div>`).join('') :
-      '<div style="color:var(--dim);text-align:center;padding:20px;font-size:.72rem">No pending requests ✅</div>';
-  } catch(e){}
+        <button onclick="approveUser('${escHtml(u.username)}')" style="padding:7px 14px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);border-radius:8px;color:#00ff88;font-size:.65rem;cursor:pointer;font-family:'Share Tech Mono',monospace;white-space:nowrap">✅ Approve</button>
+      </div>`).join('');
+  } catch(e){ console.error(e); }
 }
 
 async function approveUser(username){
-  if(!confirm(`Approve ${username}?`)) return;
-  await fetch('/admin/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
-  toast('✅ Approved: '+username);
-  loadPending();
-}
-
-async function sendBroadcast(){
-  const title = document.getElementById('bcTitle').value.trim();
-  const msg   = document.getElementById('bcMsg').value.trim();
-  if(!title||!msg){ toast('Fill title and message'); return; }
-  await fetch('/admin/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content:msg})});
-  toast('📢 Broadcast sent!');
-  document.getElementById('bcTitle').value='';
-  document.getElementById('bcMsg').value='';
-}
-
-async function wipeChat(){
-  if(!confirm('Wipe ALL chat history? Facts are preserved.')) return;
-  await fetch('/admin/wipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
-  toast('🗑️ Chat wiped');
-  document.getElementById('chat').innerHTML='';
-}
-
-/* ══ UTILS ═════════════════════════════════════════════════════════════════ */
-function toast(msg, dur=2500){
-  const el = document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), dur);
-}
-
-function detectDevice(){
-  const ua = navigator.userAgent;
-  if(/iPhone/.test(ua)) return 'iPhone';
-  if(/Android/.test(ua)) return 'Android';
-  if(/iPad/.test(ua)) return 'iPad';
-  return 'Desktop';
-}
-
-/* ══ INPUT HANDLING ════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', ()=>{
-  // Pre-load voices (required for some browsers)
-  window.speechSynthesis.getVoices();
-  if(window.speechSynthesis.onvoiceschanged !== undefined){
-    window.speechSynthesis.onvoiceschanged = ()=> window.speechSynthesis.getVoices();
-  }
-
-  const inp = document.getElementById('textInput');
-
-  // Auto-resize textarea
-  inp.addEventListener('input', ()=>{
-    inp.style.height='42px';
-    inp.style.height=Math.min(inp.scrollHeight,120)+'px';
+  if(!confirm('Approve ' + username + '? They will get access to JARVIS.')) return;
+  const res = await fetch('/admin/approve',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username})
   });
+  const d = await res.json();
+  if(d.success){ addMessage('jarvis', username + ' has been approved, Sir. They can now log in.'); loadPendingUsers(); }
+}
 
-  // Enter to send (Shift+Enter for newline)
-  inp.addEventListener('keydown', e=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
-  });
-
-  // Login enter key
-  document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-  document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
-
-  // Check existing session
-  checkSession();
-});
 </script>
+
+<!-- Music Menu -->
+<div class="music-menu-overlay" id="musicMenuOverlay" onclick="if(event.target===this)closeMusicMenu()">
+  <div class="music-menu-card">
+    <div class="music-menu-title">🎵 JARVIS MUSIC</div>
+    <div class="music-menu-sub">Choose how you want to listen</div>
+    <div class="music-options">
+      <div class="music-option" onclick="openMusicScreen('voice')">
+        <div class="mo-icon">🎤</div>
+        <div class="mo-info"><div class="mo-name">VOICE SEARCH</div><div class="mo-desc">Say the song name — JARVIS finds and plays it instantly</div></div>
+        <div class="mo-arrow">›</div>
+      </div>
+      <div class="music-option" onclick="openMusicScreen('search')">
+        <div class="mo-icon">🔍</div>
+        <div class="mo-info"><div class="mo-name">SEARCH AND PLAY</div><div class="mo-desc">Type a song, artist or movie — browse and pick what to play</div></div>
+        <div class="mo-arrow">›</div>
+      </div>
+      <div class="music-option" onclick="openMusicScreen('youtube')">
+        <div class="mo-icon">📺</div>
+        <div class="mo-info"><div class="mo-name">OPEN IN YOUTUBE</div><div class="mo-desc">Any song — JARVIS opens YouTube with the full song automatically</div></div>
+        <div class="mo-arrow">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Voice Search Screen -->
+<div class="music-screen" id="screen_voice">
+  <div class="ms-head">
+    <button class="ms-back" onclick="closeMusicScreen('voice')">← Back</button>
+    <div class="ms-title">🎤 VOICE SEARCH</div>
+  </div>
+  <div class="ms-body">
+    <div class="vsbar" id="voiceVsbar">
+      <div class="vsb-mic" id="voiceMic" onclick="toggleMicVoice()">🎤</div>
+      <div class="vsb-mid">
+        <div class="vsb-lbl" id="voiceLbl">TAP MIC AND SAY THE SONG NAME</div>
+        <div class="vsb-q" id="voiceQ">—</div>
+      </div>
+      <button class="vsb-go" id="voiceGo" onclick="voiceGo()">SEARCH</button>
+    </div>
+    <div style="font-size:.68rem;color:var(--dim);line-height:1.9;padding:0 2px">
+      Say: <span style="color:var(--cyan)">"Nadaniya"</span> · <span style="color:var(--cyan)">"Chutamalle"</span> · <span style="color:var(--cyan)">"Pushpa Pushpa"</span> · <span style="color:var(--cyan)">"AR Rahman"</span>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="chipPlay('Allu Arjun hits')">🎬 Allu Arjun</div>
+      <div class="chip" onclick="chipPlay('Pushpa songs')">🌿 Pushpa</div>
+      <div class="chip" onclick="chipPlay('Chutamalle song')">🎵 Chutamalle</div>
+      <div class="chip" onclick="chipPlay('Nadaniya song')">🎶 Nadaniya</div>
+      <div class="chip" onclick="chipPlay('AR Rahman hits')">🎤 AR Rahman</div>
+      <div class="chip" onclick="chipPlay('SPB songs Telugu')">🎙 SPB</div>
+      <div class="chip" onclick="chipPlay('Sid Sriram latest')">🎵 Sid Sriram</div>
+      <div class="chip" onclick="chipPlay('Telugu melody songs')">🎼 Melody</div>
+      <div class="chip" onclick="chipPlay('Hindu devotional songs')">🕉 Devotional</div>
+      <div class="chip" onclick="chipPlay('Bollywood hits 2024')">🎸 Bollywood</div>
+    </div>
+    <div class="np-box" id="voiceNP">
+      <div class="np-top">
+        <img class="np-art" id="voiceArt" src="" alt=""/>
+        <div class="np-inf">
+          <div class="np-song" id="voiceSong">—</div>
+          <div class="np-artist" id="voiceArtist">—</div>
+        </div>
+        <div class="np-badge" id="voiceBadge">PLAYING</div>
+      </div>
+      <audio class="jarvis-audio" id="voiceAudio" controls></audio>
+      <div class="np-ctrl">
+        <button class="npc" onclick="npCtrl('voice','prev')">⏮</button>
+        <button class="npc" onclick="npCtrl('voice','play')">▶</button>
+        <button class="npc" onclick="npCtrl('voice','pause')">⏸</button>
+        <button class="npc" onclick="npCtrl('voice','next')">⏭</button>
+      </div>
+      <div class="np-note">30 sec iTunes preview · tap Full on any result for complete song on YouTube</div>
+    </div>
+    <div class="song-list" id="voiceResults"></div>
+  </div>
+</div>
+
+<!-- Search Screen -->
+<div class="music-screen" id="screen_search">
+  <div class="ms-head">
+    <button class="ms-back" onclick="closeMusicScreen('search')">← Back</button>
+    <div class="ms-title">🔍 SEARCH AND PLAY</div>
+  </div>
+  <div class="ms-body">
+    <div class="ms-row">
+      <input class="ms-input" id="srchInput" placeholder="Song, artist, movie..." onkeydown="if(event.key==='Enter')doSearch()"/>
+      <button class="ms-btn" onclick="doSearch()">SEARCH</button>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="srchChip('Allu Arjun Telugu hits')">🎬 Allu Arjun</div>
+      <div class="chip" onclick="srchChip('Pushpa 2 songs')">🌿 Pushpa 2</div>
+      <div class="chip" onclick="srchChip('AR Rahman best')">🎵 AR Rahman</div>
+      <div class="chip" onclick="srchChip('SPB Telugu songs')">🎤 SPB</div>
+      <div class="chip" onclick="srchChip('Sid Sriram songs')">🎙 Sid Sriram</div>
+      <div class="chip" onclick="srchChip('Telugu melody 2024')">🎶 Telugu</div>
+      <div class="chip" onclick="srchChip('Bollywood 2024')">🎸 Bollywood</div>
+      <div class="chip" onclick="srchChip('devotional Hindu songs')">🕉 Devotional</div>
+    </div>
+    <div class="np-box" id="searchNP">
+      <div class="np-top">
+        <img class="np-art" id="searchArt" src="" alt=""/>
+        <div class="np-inf">
+          <div class="np-song" id="searchSong">—</div>
+          <div class="np-artist" id="searchArtist">—</div>
+        </div>
+        <div class="np-badge">PLAYING</div>
+      </div>
+      <audio class="jarvis-audio" id="searchAudio" controls></audio>
+      <div class="np-ctrl">
+        <button class="npc" onclick="npCtrl('search','prev')">⏮</button>
+        <button class="npc" onclick="npCtrl('search','play')">▶</button>
+        <button class="npc" onclick="npCtrl('search','pause')">⏸</button>
+        <button class="npc" onclick="npCtrl('search','next')">⏭</button>
+      </div>
+      <div class="np-note">30 sec iTunes preview · tap Full on any result for complete song on YouTube</div>
+    </div>
+    <div class="song-list" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- YouTube Screen -->
+<div class="music-screen" id="screen_youtube">
+  <div class="ms-head">
+    <button class="ms-back" onclick="closeMusicScreen('youtube')">← Back</button>
+    <div class="ms-title">📺 OPEN IN YOUTUBE</div>
+  </div>
+  <div class="ms-body">
+    <div class="vsbar" id="ytVsbar">
+      <div class="vsb-mic" id="ytMic" onclick="toggleYtMic()">🎤</div>
+      <div class="vsb-mid">
+        <div class="vsb-lbl" id="ytLbl">SAY OR TYPE THE SONG NAME</div>
+        <div class="vsb-q" id="ytQ">—</div>
+      </div>
+      <button class="vsb-go" id="ytGo" onclick="ytVoiceGo()">OPEN YT</button>
+    </div>
+    <div class="ms-row">
+      <input class="ms-input" id="ytInput" placeholder="Or type song name..." onkeydown="if(event.key==='Enter')openYT()"/>
+      <button class="ms-btn yt" onclick="openYT()">▶ OPEN</button>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="openYTQ('Pushpa 2 full songs jukebox')">🌿 Pushpa 2</div>
+      <div class="chip" onclick="openYTQ('Nadaniya full song')">🎵 Nadaniya</div>
+      <div class="chip" onclick="openYTQ('Chutamalle full song')">🎶 Chutamalle</div>
+      <div class="chip" onclick="openYTQ('latest Telugu hits 2024 jukebox')">🎬 Telugu 2024</div>
+      <div class="chip" onclick="openYTQ('SPB superhit songs jukebox')">🎤 SPB Hits</div>
+      <div class="chip" onclick="openYTQ('AR Rahman hits jukebox')">🎸 AR Rahman</div>
+      <div class="chip" onclick="openYTQ('Telugu devotional songs')">🕉 Devotional</div>
+      <div class="chip" onclick="openYTQ('Bollywood romantic 2024')">💕 Romantic</div>
+      <div class="chip" onclick="openYTQ('lofi Telugu study music')">📚 Study Lofi</div>
+      <div class="chip" onclick="openYTQ('Allu Arjun songs jukebox')">⭐ Allu Arjun</div>
+    </div>
+    <div style="background:rgba(0,30,60,.4);border:1px solid var(--border);border-radius:11px;padding:14px;font-size:.69rem;color:var(--dim);line-height:1.9">
+      💡 <span style="color:var(--cyan)">Pro Tip:</span> Just tell JARVIS in chat:<br>
+      <span style="color:var(--cyan2)">"play Nadaniya"</span> · <span style="color:var(--cyan2)">"play Chutamalle"</span> · <span style="color:var(--cyan2)">"play Pushpa songs"</span><br>
+      JARVIS searches, plays preview, and shows Full button — automatically!
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
