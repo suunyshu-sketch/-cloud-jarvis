@@ -105,7 +105,7 @@ def build_system(person: str, family_data: dict | None, device_id: str, is_admin
     system = SYSTEM_BASE
 
     # Facts
-    facts = get_facts(25)
+    facts = get_facts(15)  # fewer facts = smaller prompt = faster
     if facts:
         system += "\n\nKNOWN FACTS: " + ", ".join(f"{k}: {v}" for k, v in list(facts.items())[:20])
 
@@ -249,7 +249,7 @@ async def jarvis_respond(user_text: str, device_id: str, person: str,
     system = build_system(person, family_data, device_id, is_admin, tool_context)
 
     # Build messages
-    history = get_history(device_id, limit=12, is_admin=is_admin)
+    history = get_history(device_id, limit=8, is_admin=is_admin)  # 8 msgs = faster
     messages = [{"role": "system", "content": system}] + history + [{"role": "user", "content": user_text}]
 
     # Stream response
