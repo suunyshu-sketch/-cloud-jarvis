@@ -1539,7 +1539,47 @@ def _batch_context(device_id, person, is_admin):
         print(f"_batch_context error: {e}")
     return result
 
-async def jarvis_respond(user_text, device_id="unknown", image_b64=None):
+async def _stream_response(messages, ws=None):
+    """Stream response token by token via WebSocket — feels instant like a human typing"""
+    try:
+        stream = client.chat.completions.create(
+            model="llama-3.1-8b-instant",   # fastest Groq model — ~400 tokens/sec
+            messages=messages,
+            max_tokens=350,
+            temperature=0.88,
+            stream=True
+        )
+        full_reply = ""
+        buffer = ""
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            if not delta:
+                continue
+            full_reply += delta
+            buffer += delta
+            # Send buffer every ~3 chars or on sentence end — smooth but not too many packets
+            if ws and (len(buffer) >= 3 or delta in ".!?,\n"):
+                try:
+                    await ws.send_text(json.dumps({"type": "chunk", "text": buffer}))
+                    buffer = ""
+                    await asyncio.sleep(0)  # yield to event loop
+                except Exception:
+                    pass
+        # Send any remaining buffer
+        if ws and buffer:
+            await ws.send_text(json.dumps({"type": "chunk", "text": buffer}))
+        # Signal stream complete
+        if ws:
+            await ws.send_text(json.dumps({"type": "stream_end"}))
+        return full_reply.strip()
+    except Exception as e:
+        err = f"Response error: {e}"
+        if ws:
+            await ws.send_text(json.dumps({"type": "chunk", "text": err}))
+            await ws.send_text(json.dumps({"type": "stream_end"}))
+        return err
+
+async def jarvis_respond(user_text, device_id="unknown", image_b64=None, ws=None):
     lower = user_text.lower()
     device_info = get_device(device_id)
     raw_person = device_info["owner"] if device_info and device_info.get("owner") else "Unknown"
@@ -1730,13 +1770,9 @@ Only use this if it genuinely fits the conversation. Don't force it."""
     history = ctx["history"]
     messages = [{"role":"system","content":system}] + history[-10:] + [{"role":"user","content":user_text}]
 
-    resp = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        max_tokens=500,
-        temperature=0.88  # slightly higher = more natural, less robotic
-    )
-    reply = resp.choices[0].message.content.strip()
+    # ── Stream response — text sent chunk by chunk to frontend ──
+    # Returns full reply for background tasks; ws passed in for streaming
+    reply = await _stream_response(messages, ws)
 
     # ── PATH A: Background tasks after every response ──
     # Auto-extract facts
@@ -1909,10 +1945,8 @@ async def ws_endpoint(ws: WebSocket):
 
             if text:
                 save_message("user", text, device_id, private)
-            await ws.send_text(json.dumps({"type":"thinking"}))
-
             try:
-                reply = await jarvis_respond(text or "Describe the image", device_id, image_b64)
+                reply = await jarvis_respond(text or "Describe the image", device_id, image_b64, ws)
             except Exception as e:
                 reply = f"Systems error: {e}"
 
