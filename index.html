@@ -277,6 +277,8 @@ main{flex:1;display:flex;flex-direction:column;max-width:900px;width:100%;margin
 #sendBtn:hover:not(:disabled){background:linear-gradient(90deg,rgba(0,80,200,.65),rgba(0,212,255,.45));box-shadow:0 0 18px rgba(0,212,255,.2)}
 #voiceBtn.listening{background:rgba(0,212,255,.15);border-color:var(--cyan);animation:vpulse 1s ease-in-out infinite}
 @keyframes vpulse{0%,100%{box-shadow:0 0 7px rgba(0,212,255,.2)}50%{box-shadow:0 0 22px rgba(0,212,255,.5)}}
+.stream-cursor{display:inline-block;color:var(--cyan);animation:cursorBlink .5s step-end infinite;margin-left:1px}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* ── Mobile: tighter layout ── */
 @media(max-width:420px){
@@ -1131,6 +1133,7 @@ checkExistingSession();
 // ── WebSocket ────────────────────────────────────────────
 let ws=null, msgCount=0;
 let lastUserMsg='', lastJarvisResponse='';
+let streamingEl = null, streamingText = '';
 
 function sendPing(){
   if(ws && ws.readyState === WebSocket.OPEN){
@@ -1163,12 +1166,26 @@ function connectWS(){
   };
   ws.onmessage=(e)=>{
     const d=JSON.parse(e.data);
-    if(d.type==='thinking') showThinking();
-    else if(d.type==='response'){
+    if(d.type==='thinking'){
+      showThinking();
+    } else if(d.type==='chunk'){
+      if(!streamingEl){ removeThinking(); streamingEl=createStreamingBubble(); }
+      streamingText += d.text;
+      updateStreamingBubble(streamingEl, streamingText);
+    } else if(d.type==='stream_end'){
+      if(streamingEl){
+        finaliseStreamingBubble(streamingEl, streamingText);
+        if(autoSpeak) speak(streamingText);
+        lastJarvisResponse=streamingText;
+        streamingEl=null; streamingText='';
+        document.getElementById('reactor').classList.remove('talking');
+        msgCount++; document.getElementById('msgCount').textContent=msgCount;
+      }
+    } else if(d.type==='response'){
       removeThinking();
       lastJarvisResponse=d.text;
       addMessage('jarvis',d.text,true);
-      speak(d.text);
+      if(autoSpeak) speak(d.text);
       document.getElementById('reactor').classList.remove('talking');
       msgCount++; document.getElementById('msgCount').textContent=msgCount;
     } else if(d.type==='reminder'){
@@ -1187,6 +1204,41 @@ setInterval(()=>{
 setInterval(()=>{ if(ws&&ws.readyState===1&&deviceOwner) ws.send(JSON.stringify({type:'ping',device_id:deviceId})); },30000);
 
 // ── Messages ─────────────────────────────────────────────
+function createStreamingBubble(){
+  removeThinking();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap jarvis-wrap streaming-wrap';
+  wrap.innerHTML = '<div class="msg jarvis"><div class="msg-row"><div class="msg-label">JARVIS</div><div class="msg-text streaming-text"></div></div></div>';
+  document.getElementById('chatWindow').appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function updateStreamingBubble(el, text){
+  if(!el) return;
+  const textEl = el.querySelector('.streaming-text');
+  if(textEl){
+    textEl.innerHTML = formatMsg(text) + '<span class="stream-cursor">▋</span>';
+    scrollBottom();
+  }
+}
+
+function finaliseStreamingBubble(el, text){
+  if(!el) return;
+  el.classList.remove('streaming-wrap');
+  const textEl = el.querySelector('.streaming-text');
+  if(textEl) textEl.innerHTML = formatMsg(text);
+  // Add feedback buttons
+  const msgEl = el.querySelector('.msg');
+  if(msgEl){
+    const fb = document.createElement('div');
+    fb.className = 'feedback-row';
+    fb.innerHTML = '<button class="fb-btn" onclick="sendFeedback(this,'positive')">👍 Good</button><button class="fb-btn" onclick="sendFeedback(this,'negative')">👎 Bad</button>';
+    msgEl.appendChild(fb);
+  }
+  scrollBottom();
+}
+
 function addMessage(role,text,showFeedback=false){
   const win=document.getElementById('chatWindow');
   const div=document.createElement('div');
