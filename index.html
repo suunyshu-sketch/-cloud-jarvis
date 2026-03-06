@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>J.A.R.V.I.S</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ══ RESET & VARS ══════════════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#000d1a; --panel:#030f20; --border:rgba(0,212,255,.12);
+  --cyan:#00d4ff; --cyan2:#7ee8ff; --blue:#0050ff; --dim:rgba(0,212,255,.4);
+  --red:#ff4466; --green:#00ff88; --text:#cce8ff;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace}
+
+/* ══ AUTH SCREEN ═══════════════════════════════════════════════════════════ */
+#authScreen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.auth-box{width:92%;max-width:370px;background:rgba(0,12,30,.98);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(0,212,255,.1)}
+.auth-header{padding:26px 24px 18px;text-align:center;border-bottom:1px solid var(--border)}
+.auth-logo{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;letter-spacing:.3em;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-sub{font-size:.6rem;color:var(--dim);letter-spacing:.15em;margin-top:4px}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border)}
+.auth-tab{flex:1;padding:11px;text-align:center;font-size:.65rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;letter-spacing:.1em}
+.auth-tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.auth-body{padding:20px}
+.auth-panel{display:none}.auth-panel.on{display:block}
+.auth-field{margin-bottom:13px}
+.auth-label{font-size:.58rem;color:var(--dim);letter-spacing:.12em;display:block;margin-bottom:5px}
+.auth-input{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:11px 13px;outline:none;transition:.2s}
+.auth-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+.auth-btn{width:100%;padding:12px;background:linear-gradient(90deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:10px;color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.12em;cursor:pointer;transition:.2s;margin-top:2px}
+.auth-btn:hover{background:linear-gradient(90deg,rgba(0,80,200,.7),rgba(0,212,255,.5))}
+.auth-btn:disabled{opacity:.4;cursor:not-allowed}
+.auth-error{background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:8px;padding:9px 12px;font-size:.7rem;color:#ff6680;margin-bottom:11px;display:none}
+.auth-ok{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.18);border-radius:8px;padding:9px 12px;font-size:.7rem;color:#00ff88;margin-bottom:11px;display:none}
+.auth-hint{font-size:.6rem;color:rgba(0,212,255,.3);text-align:center;margin-top:11px;line-height:1.7}
+.auth-divider{height:1px;background:var(--border);margin:14px 0}
+
+/* ══ MAIN APP ══════════════════════════════════════════════════════════════ */
+#app{display:none;flex-direction:column;height:100vh;height:100dvh}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+#header{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+#menuBtn{width:36px;height:36px;background:rgba(0,212,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--cyan);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.hc{display:flex;flex-direction:column;gap:2px;min-width:0}
+.h-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.2em;color:var(--cyan)}
+.h-sub{font-size:.58rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#reactor{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,212,255,.3);background:rgba(0,212,255,.05);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.3s}
+#reactor.talking{border-color:var(--cyan);background:rgba(0,212,255,.15);box-shadow:0 0 16px rgba(0,212,255,.3)}
+
+/* ── Chat ───────────────────────────────────────────────────────────────── */
+#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+#chat::-webkit-scrollbar{width:3px}
+#chat::-webkit-scrollbar-thumb{background:rgba(0,212,255,.2);border-radius:3px}
+
+.msg-wrap{display:flex;flex-direction:column;max-width:85%}
+.user-wrap{align-self:flex-end;align-items:flex-end}
+.jarvis-wrap{align-self:flex-start}
+.msg{padding:10px 14px;border-radius:14px;font-size:.82rem;line-height:1.6}
+.msg.user{background:linear-gradient(135deg,rgba(0,80,200,.35),rgba(0,212,255,.15));border:1px solid rgba(0,212,255,.2);border-bottom-right-radius:4px}
+.msg.jarvis{background:rgba(3,15,32,.95);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg-label{font-size:.55rem;letter-spacing:.12em;margin-bottom:4px;opacity:.6}
+.user-wrap .msg-label{color:var(--cyan2)}
+.jarvis-wrap .msg-label{color:var(--cyan)}
+.feedback-row{display:flex;gap:8px;margin-top:8px}
+.fb-btn{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:6px;color:var(--dim);font-size:.6rem;padding:4px 10px;cursor:pointer;transition:.2s}
+.fb-btn:hover{background:rgba(0,212,255,.12);color:var(--cyan)}
+.thinking-dots span{animation:blink 1.2s ease-in-out infinite;color:var(--cyan)}
+.thinking-dots span:nth-child(2){animation-delay:.2s}
+.thinking-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
+.stream-cursor{display:inline-block;color:var(--cyan);animation:cur .5s step-end infinite;margin-left:1px}
+@keyframes cur{0%,100%{opacity:1}50%{opacity:0}}
+pre{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:10px;overflow-x:auto;font-size:.75rem;margin:6px 0}
+code{font-family:'Share Tech Mono',monospace}
+
+/* ── Input bar ──────────────────────────────────────────────────────────── */
+#inputBar{display:grid;grid-template-columns:38px 1fr 38px 38px 56px;gap:6px;padding:10px 12px;background:var(--panel);border-top:1px solid var(--border);flex-shrink:0}
+@media(max-width:380px){#inputBar{grid-template-columns:34px 1fr 34px 34px 50px;gap:5px;padding:8px 10px}}
+.ib-btn{background:rgba(0,212,255,.06);border:1px solid var(--border);border-radius:9px;color:var(--cyan);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;width:100%;height:42px}
+.ib-btn:hover{background:rgba(0,212,255,.12)}
+.ib-btn.on{background:rgba(0,212,255,.18);border-color:var(--cyan)}
+#textInput{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:9px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.82rem;padding:11px 13px;outline:none;resize:none;height:42px;line-height:1.3;overflow:hidden;transition:.2s}
+#textInput:focus{border-color:rgba(0,212,255,.35)}
+#sendBtn{background:linear-gradient(135deg,rgba(0,80,200,.5),rgba(0,212,255,.3));border:1px solid var(--cyan);border-radius:9px;color:var(--cyan);font-size:.7rem;font-family:'Orbitron',sans-serif;cursor:pointer;height:42px;letter-spacing:.05em;transition:.2s}
+#sendBtn:hover{background:linear-gradient(135deg,rgba(0,80,200,.7),rgba(0,212,255,.5))}
+#sendBtn:disabled{opacity:.4}
+
+/* ── Drawer ─────────────────────────────────────────────────────────────── */
+#drawerOverlay{position:fixed;inset:0;z-index:200;display:none}
+#drawerOverlay.on{display:block}
+#drawer{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--panel);border-right:1px solid var(--border);z-index:201;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;display:flex;flex-direction:column}
+#drawer.on{transform:translateX(0)}
+.drawer-header{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
+.drawer-logo{font-family:'Orbitron',sans-serif;font-size:.85rem;letter-spacing:.2em;color:var(--cyan)}
+.drawer-user{font-size:.65rem;color:var(--dim);margin-top:4px}
+.drawer-section{padding:10px 12px 4px;font-size:.55rem;letter-spacing:.15em;color:rgba(0,212,255,.3)}
+.di{display:flex;align-items:center;gap:11px;padding:11px 14px;cursor:pointer;border-radius:10px;margin:2px 8px;transition:.2s}
+.di:hover{background:rgba(0,212,255,.06)}
+.di-icon{font-size:1rem;width:22px;text-align:center}
+.di-label{font-size:.72rem;color:var(--cyan2)}
+.di-desc{font-size:.6rem;color:var(--dim);margin-top:1px}
+.drawer-footer{margin-top:auto;padding:12px}
+.drawer-out{width:100%;padding:10px;background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:9px;color:rgba(255,68,102,.7);font-size:.65rem;cursor:pointer;font-family:'Share Tech Mono',monospace}
+.drawer-out:hover{background:rgba(255,68,102,.12)}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,12,30,.98);border:1px solid var(--cyan);border-radius:12px;padding:11px 18px;font-size:.72rem;color:var(--cyan);opacity:0;transition:.3s;z-index:400;text-align:center;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ ADMIN ═════════════════════════════════════════════════════════════════ */
+#adminScreen{position:fixed;inset:0;z-index:300;background:var(--bg);display:none;flex-direction:column}
+#adminScreen.on{display:flex}
+.admin-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.admin-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.2em;color:var(--cyan)}
+.admin-close{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);border-radius:8px;color:var(--red);font-size:.7rem;padding:7px 14px;cursor:pointer}
+.admin-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.atab{padding:10px 16px;font-size:.62rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.08em}
+.atab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.admin-body{flex:1;overflow-y:auto;padding:14px}
+.admin-panel{display:none}.admin-panel.on{display:block}
+.a-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.a-card-title{font-size:.6rem;letter-spacing:.15em;color:var(--dim);margin-bottom:10px}
+.user-row{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,212,255,.03);border:1px solid var(--border);border-radius:10px;margin-bottom:7px}
+.user-emoji{font-size:1.3rem}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:.75rem;color:var(--cyan2)}
+.user-meta{font-size:.58rem;color:var(--dim);margin-top:2px}
+.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.online-dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.online-dot.off{background:rgba(255,255,255,.2)}
+.a-input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;color:var(--cyan2);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:9px 12px;outline:none;margin-bottom:8px}
+.a-input:focus{border-color:var(--cyan)}
+.a-btn{padding:9px 18px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:8px;color:var(--cyan);font-size:.65rem;cursor:pointer;transition:.2s}
+.a-btn:hover{background:rgba(0,212,255,.2)}
+.a-btn.red{background:rgba(255,68,102,.08);border-color:rgba(255,68,102,.2);color:var(--red)}
+.a-btn.green{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.2);color:var(--green)}
+.pending-card{display:flex;align-items:center;gap:10px;padding:11px 13px;background:rgba(255,150,0,.04);border:1px solid rgba(255,150,0,.12);border-radius:10px;margin-bottom:8px}
+.pending-info{flex:1}
+.pending-name{font-size:.75rem;color:#ffaa44}
+.pending-meta{font-size:.6rem;color:rgba(255,150,0,.5);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ═══════════════════════════════════════════════════════════════════ -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-header">
+      <div class="auth-logo">J.A.R.V.I.S</div>
+      <div class="auth-sub">BATTINI FAMILY · PRIVATE AI</div>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tabLogin"    onclick="switchTab('login')">SIGN IN</div>
+      <div class="auth-tab"    id="tabReg"      onclick="switchTab('reg')">NEW USER</div>
+    </div>
+    <div class="auth-body">
+
+      <!-- Login -->
+      <div class="auth-panel on" id="panelLogin">
+        <div class="auth-error" id="loginErr"></div>
+        <div class="auth-field"><label class="auth-label">USERNAME</label>
+          <input class="auth-input" id="loginUser" placeholder="e.g. lucky, krishna" autocapitalize="none" autocomplete="username"/>
+        </div>
+        <div class="auth-field"><label class="auth-label">PASSWORD</label>
+          <input class="auth-input" id="loginPass" type="password" autocomplete="current-password"/>
+        </div>
+        <button class="auth-btn" id="loginBtn" onclick="doLogin()">⚡ ENTER JARVIS</button>
+        <div class="auth-hint">Family members — use your assigned credentials.<br>First time? Ask Lucky for your username & password.</div>
+      </div>
+
+      <!-- Register -->
+      <div class="auth-panel" id="panelReg">
+        <div class="auth-error" id="regErr"></div>
+        <div class="auth-ok"    id="regOk"></div>
+        <div class="auth-field"><label class="auth-label">YOUR NAME</label>
+          <input class="auth-input" id="regName" placeholder="Full name" autocapitalize="words"/>
+        </div>
+        <div class="auth-field"><label class="auth-label">USERNAME</label>
+          <input class="auth-input" id="regUser" placeholder="Choose a username" autocapitalize="none"/>
+        </div>
+        <div class="auth-field"><label class="auth-label">PASSWORD</label>
+          <input class="auth-input" id="regPass" type="password" placeholder="Min 6 characters"/>
+        </div>
+        <div class="auth-divider"></div>
+        <div class="auth-field"><label class="auth-label">HOW DO YOU KNOW THE BATTINIS?</label>
+          <select class="auth-input" id="regRel">
+            <option value="relative">👨‍👩‍👧 Relative</option>
+            <option value="friend">🤝 Friend</option>
+            <option value="guest">🏠 Guest</option>
+            <option value="other">❓ Other</option>
+          </select>
+        </div>
+        <div class="auth-field"><label class="auth-label">WHICH FAMILY MEMBER DO YOU KNOW?</label>
+          <input class="auth-input" id="regKnows" placeholder="e.g. Lucky, Krishna Garu"/>
+        </div>
+        <button class="auth-btn" id="regBtn" onclick="doRegister()">→ REQUEST ACCESS</button>
+        <div class="auth-hint">Needs Lucky's approval before you can log in.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ════════════════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- Header -->
+  <div id="header">
+    <button id="menuBtn" onclick="openDrawer()">☰</button>
+    <div class="hc">
+      <div class="h-title">J.A.R.V.I.S</div>
+      <div class="h-sub" id="headerSub">Initializing...</div>
+    </div>
+    <div id="reactor">⚡</div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat"></div>
+
+  <!-- Input bar -->
+  <div id="inputBar">
+    <button class="ib-btn" id="trayBtn"  onclick="toggleTray()"   title="Menu">⊞</button>
+    <textarea id="textInput" placeholder="Message JARVIS..." rows="1"></textarea>
+    <button class="ib-btn" id="imgBtn"   onclick="pickImage()"    title="Image">📷</button>
+    <button class="ib-btn" id="voiceBtn" onclick="startVoice()"   title="Voice">🎤</button>
+    <button id="sendBtn"                 onclick="sendMessage()">SEND</button>
+  </div>
+  <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImage(event)"/>
+
+</div>
+
+<!-- ══ DRAWER ══════════════════════════════════════════════════════════════════ -->
+<div id="drawerOverlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">J.A.R.V.I.S</div>
+    <div class="drawer-user" id="drawerUser">Not signed in</div>
+  </div>
+  <div class="drawer-section">FEATURES</div>
+  <div class="di" onclick="closeDrawer();sendText('show my todos')">
+    <div class="di-icon">✅</div><div><div class="di-label">Todos</div><div class="di-desc">Your task list</div></div>
+  </div>
+  <div class="di" onclick="closeDrawer();sendText('show my reminders')">
+    <div class="di-icon">⏰</div><div><div class="di-label">Reminders</div><div class="di-desc">Upcoming reminders</div></div>
+  </div>
+  <div class="di" onclick="closeDrawer();sendText('whats the weather')">
+    <div class="di-icon">🌤️</div><div><div class="di-label">Weather</div><div class="di-desc">Hyderabad weather</div></div>
+  </div>
+  <div class="di" onclick="closeDrawer();sendText('latest news')">
+    <div class="di-icon">📰</div><div><div class="di-label">News</div><div class="di-desc">Latest headlines</div></div>
+  </div>
+  <div class="di" onclick="closeDrawer();togglePrivate()">
+    <div class="di-icon">🔒</div><div><div class="di-label" id="privLabel">Private Mode</div><div class="di-desc">Messages won't be saved</div></div>
+  </div>
+  <div class="drawer-section">SETTINGS</div>
+  <div class="di" id="adminDrawerBtn" style="display:none" onclick="closeDrawer();openAdmin()">
+    <div class="di-icon">👑</div><div><div class="di-label">Admin Panel</div><div class="di-desc">Users, memory, controls</div></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="drawer-out" onclick="signOut()">🚪 Sign Out</button>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ═════════════════════════════════════════════════════════════ -->
+<div id="adminScreen">
+  <div class="admin-topbar">
+    <div class="admin-title">⚡ ADMIN PANEL</div>
+    <button class="admin-close" onclick="closeAdmin()">✕ CLOSE</button>
+  </div>
+  <div class="admin-tabs">
+    <div class="atab on" onclick="aTab('users')"    id="atab_users">👥 USERS</div>
+    <div class="atab"    onclick="aTab('pending')"  id="atab_pending">🔔 PENDING <span id="pendingBadge" style="display:none;background:var(--red);color:#fff;border-radius:6px;font-size:.5rem;padding:1px 5px;margin-left:3px">0</span></div>
+    <div class="atab"    onclick="aTab('broadcast')" id="atab_broadcast">📢 BROADCAST</div>
+    <div class="atab"    onclick="aTab('controls')" id="atab_controls">🗃️ CONTROLS</div>
+  </div>
+  <div class="admin-body">
+
+    <!-- Users -->
+    <div class="admin-panel on" id="apanel_users">
+      <div id="usersList">Loading...</div>
+    </div>
+
+    <!-- Pending -->
+    <div class="admin-panel" id="apanel_pending">
+      <div id="pendingList">Loading...</div>
+    </div>
+
+    <!-- Broadcast -->
+    <div class="admin-panel" id="apanel_broadcast">
+      <div class="a-card">
+        <div class="a-card-title">SEND ANNOUNCEMENT TO FAMILY</div>
+        <input class="a-input" id="bcTitle" placeholder="Title"/>
+        <textarea class="a-input" id="bcMsg" placeholder="Message..." rows="4" style="height:auto;resize:vertical"></textarea>
+        <button class="a-btn" onclick="sendBroadcast()">📢 Send to All</button>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="admin-panel" id="apanel_controls">
+      <div class="a-card">
+        <div class="a-card-title">MEMORY CONTROLS</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="a-btn red" onclick="wipeChat()">🗑️ Wipe All Chat</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ══ STATE ══════════════════════════════════════════════════════════════════ */
+let ws = null;
+let deviceId    = localStorage.getItem('j_did') || (() => { const id = 'dev_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); localStorage.setItem('j_did',id); return id; })();
+let deviceOwner = '';
+let userRole    = '';
+let isAdmin     = false;
+let isPrivate   = false;
+let autoSpeak   = false;
+let SR          = null;
+let streamEl    = null;
+let streamText  = '';
+let lastUser    = '';
+let lastJarvis  = '';
+
+/* ══ AUTH ══════════════════════════════════════════════════════════════════ */
+function switchTab(t){
+  ['login','reg'].forEach(id=>{
+    document.getElementById('tab'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);
+    document.getElementById('panel'+id.charAt(0).toUpperCase()+id.slice(1))?.classList.toggle('on',id===t);
+  });
+  document.getElementById('tabLogin').classList.toggle('on',t==='login');
+  document.getElementById('tabReg').classList.toggle('on',t==='reg');
+  document.getElementById('panelLogin').classList.toggle('on',t==='login');
+  document.getElementById('panelReg').classList.toggle('on',t==='reg');
+}
+
+function showAuthMsg(id, msg, isErr){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function doLogin(){
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value.trim();
+  if(!user||!pass){ showAuthMsg('loginErr','Enter username and password.',true); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Checking...';
+  showAuthMsg('loginErr','',true);
+  try{
+    const r = await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:user,password:pass,device_id:deviceId})});
+    const d = await r.json();
+    if(d.success){
+      localStorage.setItem('j_token',d.token);
+      localStorage.setItem('j_owner',d.family_member||d.display_name);
+      localStorage.setItem('j_role', d.role);
+      startApp(d.family_member||d.display_name, d.role);
+    } else {
+      showAuthMsg('loginErr', d.error||'Login failed.', true);
+      btn.disabled=false; btn.textContent='⚡ ENTER JARVIS';
+    }
+  } catch(e){
+    showAuthMsg('loginErr','Connection error.', true);
+    btn.disabled=false; btn.textContent='⚡ ENTER JARVIS';
+  }
+}
+
+async function doRegister(){
+  const name  = document.getElementById('regName').value.trim();
+  const user  = document.getElementById('regUser').value.trim().toLowerCase();
+  const pass  = document.getElementById('regPass').value.trim();
+  const rel   = document.getElementById('regRel').value;
+  const knows = document.getElementById('regKnows').value.trim();
+  if(!name||!user||!pass){ showAuthMsg('regErr','Fill all fields.',true); return; }
+  const btn = document.getElementById('regBtn');
+  btn.disabled=true; btn.textContent='Sending...';
+  try{
+    const r = await fetch('/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:user,password:pass,display_name:name,relation:rel,knows_member:knows})});
+    const d = await r.json();
+    if(d.success){ showAuthMsg('regOk','✅ '+d.message,false); btn.textContent='Sent!'; }
+    else { showAuthMsg('regErr',d.error||'Failed.',true); btn.disabled=false; btn.textContent='→ REQUEST ACCESS'; }
+  } catch(e){
+    showAuthMsg('regErr','Connection error.',true); btn.disabled=false; btn.textContent='→ REQUEST ACCESS';
+  }
+}
+
+async function checkSession(){
+  const token = localStorage.getItem('j_token');
+  if(!token){ return; }
+  try{
+    const r = await fetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token})});
+    const d = await r.json();
+    if(d.valid && d.user){
+      startApp(d.user.family_member||d.user.display_name, d.user.role);
+    } else {
+      localStorage.removeItem('j_token');
+    }
+  } catch(e){}
+}
+
+function signOut(){
+  if(!confirm('Sign out of JARVIS?')) return;
+  ['j_token','j_owner','j_role'].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+/* ══ APP STARTUP ═══════════════════════════════════════════════════════════ */
+function startApp(owner, role){
+  deviceOwner = owner;
+  userRole    = role;
+  isAdmin     = role === 'admin';
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').style.display        = 'flex';
+  document.getElementById('headerSub').textContent    = owner + (isAdmin ? ' · ADMIN' : '');
+  document.getElementById('drawerUser').textContent   = owner + ' · ' + role;
+  if(isAdmin) document.getElementById('adminDrawerBtn').style.display = 'flex';
+  connectWS();
+  // Greet
+  const greets = {
+    admin:  `Systems online, ${owner} Sir. All units ready. What do we need today?`,
+    father: `Welcome, ${owner} Garu. JARVIS is at your service, Sir.`,
+    mother: `Welcome, ${owner} Amma. How can I help you today, Ma'am?`,
+    sister: `Hey ${owner}! JARVIS is ready for you.`,
+    brother:`What's up, ${owner} bro! JARVIS is online. What's good?`,
+    guest:  `Hello ${owner}! Welcome to JARVIS. How can I help?`,
+  };
+  setTimeout(()=> addJarvis(greets[role]||`Welcome, ${owner}! JARVIS is ready.`), 400);
+}
+
+/* ══ WEBSOCKET ═════════════════════════════════════════════════════════════ */
+function connectWS(){
+  const proto = location.protocol==='https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+  ws.onopen = ()=>{
+    ws.send(JSON.stringify({type:'identify', device_id:deviceId,
+      device_name:detectDevice(), owner:deviceOwner}));
+    setTimeout(sendPing, 2000);
+    setInterval(sendPing, 120000);
+  };
+  ws.onmessage = e => {
+    const d = JSON.parse(e.data);
+    if(d.type==='pong') return;
+    if(d.type==='chunk'){
+      if(!streamEl){ streamEl = startStream(); }
+      streamText += d.text;
+      updateStream(streamEl, streamText);
+    } else if(d.type==='stream_end'){
+      if(streamEl){
+        finalStream(streamEl, streamText);
+        lastJarvis = streamText;
+        if(autoSpeak) speak(streamText);
+        streamEl = null; streamText = '';
+        document.getElementById('reactor').classList.remove('talking');
+      }
+    } else if(d.type==='reminder'){
+      toast('⏰ '+d.text, 6000);
+      speak('Reminder: '+d.text);
+    } else if(d.type==='feedback_ack'){
+      toast('Feedback saved ✓');
+    }
+  };
+  ws.onclose = ()=> setTimeout(connectWS, 3000);
+  ws.onerror = ()=> ws.close();
+}
+
+function sendPing(){
+  if(ws && ws.readyState===1) ws.send(JSON.stringify({type:'ping', device_id:deviceId}));
+}
+
+/* ══ MESSAGING ═════════════════════════════════════════════════════════════ */
+function sendMessage(){
+  const inp  = document.getElementById('textInput');
+  const text = inp.value.trim();
+  if(!text || !ws || ws.readyState!==1) return;
+  inp.value = ''; inp.style.height = '42px';
+  lastUser = text;
+  addUser(text);
+  document.getElementById('reactor').classList.add('talking');
+  ws.send(JSON.stringify({type:'message', text, device_id:deviceId, private:isPrivate}));
+}
+
+function sendText(text){
+  if(!ws||ws.readyState!==1) return;
+  lastUser = text;
+  addUser(text);
+  document.getElementById('reactor').classList.add('talking');
+  ws.send(JSON.stringify({type:'message', text, device_id:deviceId, private:isPrivate}));
+}
+
+/* ══ CHAT RENDERING ════════════════════════════════════════════════════════ */
+function addUser(text){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap user-wrap';
+  wrap.innerHTML = `<div class="msg user"><div class="msg-label">YOU</div><div>${esc(text)}</div></div>`;
+  document.getElementById('chat').appendChild(wrap);
+  scrollBottom();
+}
+
+function addJarvis(text){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap jarvis-wrap';
+  wrap.innerHTML = `<div class="msg jarvis"><div class="msg-label">JARVIS</div><div>${fmt(text)}</div>${fbHtml()}</div>`;
+  document.getElementById('chat').appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function startStream(){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap jarvis-wrap';
+  wrap.innerHTML = '<div class="msg jarvis"><div class="msg-label">JARVIS</div><div class="stream-body"></div></div>';
+  document.getElementById('chat').appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function updateStream(el, text){
+  const b = el.querySelector('.stream-body');
+  if(b){ b.innerHTML = fmt(text) + '<span class="stream-cursor">▋</span>'; scrollBottom(); }
+}
+
+function finalStream(el, text){
+  const msgEl = el.querySelector('.msg');
+  if(msgEl){
+    msgEl.innerHTML = `<div class="msg-label">JARVIS</div><div>${fmt(text)}</div>${fbHtml()}`;
+  }
+  scrollBottom();
+}
+
+function fbHtml(){
+  return `<div class="feedback-row"><button class="fb-btn" onclick="sendFb(this,'positive')">👍 Good</button><button class="fb-btn" onclick="sendFb(this,'negative')">👎 Bad</button></div>`;
+}
+
+function sendFb(btn, type){
+  btn.parentElement.remove();
+  if(ws && ws.readyState===1)
+    ws.send(JSON.stringify({type:'feedback', feedback:type, device_id:deviceId}));
+  toast(type==='positive'?'👍 Thanks!':'👎 Got it, improving...');
+}
+
+function fmt(text){
+  // Code blocks
+  text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+  // Inline code
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Line breaks
+  return text.replace(/\n/g, '<br>');
+}
+
+function esc(t){ const d=document.createElement('div');d.textContent=t;return d.innerHTML; }
+function scrollBottom(){ const c=document.getElementById('chat');c.scrollTop=c.scrollHeight; }
+
+/* ══ DRAWER ════════════════════════════════════════════════════════════════ */
+function openDrawer(){ document.getElementById('drawer').classList.add('on'); document.getElementById('drawerOverlay').classList.add('on'); }
+function closeDrawer(){ document.getElementById('drawer').classList.remove('on'); document.getElementById('drawerOverlay').classList.remove('on'); }
+
+/* ══ PRIVATE MODE ══════════════════════════════════════════════════════════ */
+function togglePrivate(){
+  isPrivate = !isPrivate;
+  document.getElementById('privLabel').textContent = isPrivate ? '🔒 Private ON' : '🔒 Private Mode';
+  toast(isPrivate ? '🔒 Private mode ON' : '🔓 Private mode OFF');
+}
+
+/* ══ IMAGE ═════════════════════════════════════════════════════════════════ */
+function pickImage(){ document.getElementById('imgInput').click(); }
+function handleImage(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const b64 = ev.target.result.split(',')[1];
+    addUser('📷 [Image sent]');
+    document.getElementById('reactor').classList.add('talking');
+    ws.send(JSON.stringify({type:'message', text:document.getElementById('textInput').value||'Describe this', image:b64, device_id:deviceId}));
+    document.getElementById('textInput').value='';
+    e.target.value='';
+  };
+  r.readAsDataURL(file);
+}
+
+/* ══ VOICE ═════════════════════════════════════════════════════════════════ */
+function startVoice(){
+  const SRC = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SRC){ toast('Voice needs Chrome'); return; }
+  const rec = new SRC();
+  rec.lang = 'en-IN'; rec.interimResults = false;
+  rec.onresult = e => {
+    const t = e.results[0][0].transcript;
+    document.getElementById('textInput').value = t;
+    sendMessage();
+  };
+  rec.onerror = () => toast('Voice error');
+  rec.start();
+  document.getElementById('voiceBtn').classList.add('on');
+  rec.onend = () => document.getElementById('voiceBtn').classList.remove('on');
+}
+
+function speak(text){
+  if(!autoSpeak) return;
+  const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'').slice(0,300));
+  u.rate=1; u.pitch=1; u.lang='en-IN';
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+/* ══ TRAY ══════════════════════════════════════════════════════════════════ */
+let trayOn = false;
+function toggleTray(){
+  trayOn = !trayOn;
+  document.getElementById('trayBtn').classList.toggle('on', trayOn);
+  if(trayOn) openDrawer(); else closeDrawer();
+}
+
+/* ══ ADMIN ═════════════════════════════════════════════════════════════════ */
+function openAdmin(){
+  if(!isAdmin) return;
+  document.getElementById('adminScreen').classList.add('on');
+  loadUsers(); loadPending();
+}
+function closeAdmin(){ document.getElementById('adminScreen').classList.remove('on'); }
+
+function aTab(id){
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('atab_'+id).classList.add('on');
+  document.getElementById('apanel_'+id).classList.add('on');
+}
+
+async function loadUsers(){
+  try{
+    const r = await fetch('/admin/users');
+    const d = await r.json();
+    const now = Date.now();
+    const ROLES = {admin:'⚡',father:'👨',mother:'👩',sister:'👧',brother:'👦',guest:'👤'};
+    document.getElementById('usersList').innerHTML = (d.users||[]).map(u=>{
+      const ls = u.last_login ? new Date(u.last_login) : null;
+      const online = ls && (now - ls.getTime()) < 300000;
+      return `<div class="user-row">
+        <div class="user-emoji">${ROLES[u.role]||'👤'}</div>
+        <div class="user-info">
+          <div class="user-name"><span class="online-dot ${online?'on':'off'}"></span>${u.display_name}</div>
+          <div class="user-meta">@${u.username} · ${u.role} · Logins: ${u.login_count||0}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){}
+}
+
+async function loadPending(){
+  try{
+    const r = await fetch('/admin/pending');
+    const d = await r.json();
+    const list = d.pending||[];
+    const badge = document.getElementById('pendingBadge');
+    badge.textContent=list.length; badge.style.display=list.length?'inline':'none';
+    document.getElementById('pendingList').innerHTML = list.length ? list.map(u=>`
+      <div class="pending-card">
+        <div class="pending-info">
+          <div class="pending-name">${u.display_name} (@${u.username})</div>
+          <div class="pending-meta">${u.relation} · ${(u.created_at||'').slice(0,10)}</div>
+        </div>
+        <button class="a-btn green" onclick="approveUser('${u.username}')">✅ Approve</button>
+      </div>`).join('') :
+      '<div style="color:var(--dim);text-align:center;padding:20px;font-size:.72rem">No pending requests ✅</div>';
+  } catch(e){}
+}
+
+async function approveUser(username){
+  if(!confirm(`Approve ${username}?`)) return;
+  await fetch('/admin/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
+  toast('✅ Approved: '+username);
+  loadPending();
+}
+
+async function sendBroadcast(){
+  const title = document.getElementById('bcTitle').value.trim();
+  const msg   = document.getElementById('bcMsg').value.trim();
+  if(!title||!msg){ toast('Fill title and message'); return; }
+  await fetch('/admin/broadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content:msg})});
+  toast('📢 Broadcast sent!');
+  document.getElementById('bcTitle').value='';
+  document.getElementById('bcMsg').value='';
+}
+
+async function wipeChat(){
+  if(!confirm('Wipe ALL chat history? Facts are preserved.')) return;
+  await fetch('/admin/wipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+  toast('🗑️ Chat wiped');
+  document.getElementById('chat').innerHTML='';
+}
+
+/* ══ UTILS ═════════════════════════════════════════════════════════════════ */
+function toast(msg, dur=2500){
+  const el = document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+function detectDevice(){
+  const ua = navigator.userAgent;
+  if(/iPhone/.test(ua)) return 'iPhone';
+  if(/Android/.test(ua)) return 'Android';
+  if(/iPad/.test(ua)) return 'iPad';
+  return 'Desktop';
+}
+
+/* ══ INPUT HANDLING ════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const inp = document.getElementById('textInput');
+
+  // Auto-resize textarea
+  inp.addEventListener('input', ()=>{
+    inp.style.height='42px';
+    inp.style.height=Math.min(inp.scrollHeight,120)+'px';
+  });
+
+  // Enter to send (Shift+Enter for newline)
+  inp.addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  });
+
+  // Login enter key
+  document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+
+  // Check existing session
+  checkSession();
+});
+</script>
+</body>
+</html>
