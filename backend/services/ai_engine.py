@@ -84,7 +84,7 @@ async def jarvis_respond(
         check_in,
         old_insight,
         recent_insights,
-        pos_patterns, neg_patterns,
+        rl_patterns,
         announcements,
         all_devices,
         msg_count,
@@ -96,14 +96,12 @@ async def jarvis_respond(
         personality.should_check_in(person),
         personality.get_old_insight_to_surface(person),
         personality.get_recent_insights(person, limit=5),
-        *([coro for coro in [memory_service.get_rl_patterns(person)]] * 1),  # unpacked below
+        memory_service.get_rl_patterns(person),
         memory_service.get_announcements(),
         memory_service.get_all_devices(),
         memory_service.get_message_count(device_id),
     )
-    # get_rl_patterns returns a tuple — unpack it
-    pos_patterns, neg_patterns = (pos_patterns if isinstance(pos_patterns, tuple)
-                                   else ([], []))
+    pos_patterns, neg_patterns = rl_patterns if isinstance(rl_patterns, tuple) else ([], [])
 
     # Detect emotion
     emotion, intensity = personality.detect_emotion(user_text)
