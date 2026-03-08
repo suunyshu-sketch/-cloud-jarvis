@@ -76,31 +76,50 @@ async def jarvis_respond(
         return cmd_reply
 
     # ── Context gathering (run concurrently) ──
+    # Run only essential calls first (fast path)
     (
         history,
         facts,
-        profile,
-        emo_patterns,
-        check_in,
-        old_insight,
-        recent_insights,
-        rl_patterns,
-        announcements,
-        all_devices,
         msg_count,
     ) = await asyncio.gather(
-        memory_service.get_history(device_id, limit=12),
+        memory_service.get_history(device_id, limit=10),
         memory_service.get_all_facts(),
-        personality.get_personality_profile(person),
-        personality.get_emotional_patterns(person),
-        personality.should_check_in(person),
-        personality.get_old_insight_to_surface(person),
-        personality.get_recent_insights(person, limit=5),
-        memory_service.get_rl_patterns(person),
-        memory_service.get_announcements(),
-        memory_service.get_all_devices(),
         memory_service.get_message_count(device_id),
     )
+
+    # Run personality/emotion calls in background — don't block the response
+    profile        = None
+    emo_patterns   = None
+    check_in       = None
+    old_insight    = None
+    recent_insights = []
+    pos_patterns   = []
+    neg_patterns   = []
+    announcements  = []
+    all_devices    = []
+    rl_patterns    = ([], [])
+
+    # Only load deep context every 5 messages (not every single message)
+    if msg_count % 5 == 0 or msg_count < 5:
+        (
+            profile,
+            emo_patterns,
+            check_in,
+            old_insight,
+            recent_insights,
+            rl_patterns,
+            announcements,
+            all_devices,
+        ) = await asyncio.gather(
+            personality.get_personality_profile(person),
+            personality.get_emotional_patterns(person),
+            personality.should_check_in(person),
+            personality.get_old_insight_to_surface(person),
+            personality.get_recent_insights(person, limit=5),
+            memory_service.get_rl_patterns(person),
+            memory_service.get_announcements(),
+            memory_service.get_all_devices(),
+        )
     pos_patterns, neg_patterns = rl_patterns if isinstance(rl_patterns, tuple) else ([], [])
 
     # Detect emotion

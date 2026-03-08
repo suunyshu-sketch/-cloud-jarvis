@@ -21,7 +21,7 @@ MAX_LOGIN_ATTEMPTS: int = int(os.getenv("MAX_LOGIN_ATTEMPTS", "10"))
 RATE_LIMIT_WINDOW:  int = int(os.getenv("RATE_LIMIT_WINDOW", "60"))   # seconds
 
 # Model names
-MODEL_CHAT:   str = os.getenv("MODEL_CHAT",   "llama-3.3-70b-versatile")
+MODEL_CHAT:   str = os.getenv("MODEL_CHAT",   "llama-3.1-8b-instant")
 MODEL_FAST:   str = os.getenv("MODEL_FAST",   "llama-3.1-8b-instant")
 MODEL_VISION: str = os.getenv("MODEL_VISION", "meta-llama/llama-4-scout-17b-16e-instruct")
 

@@ -10,7 +10,16 @@ JARVIS.auth = (() => {
   async function init() {
     const token = JARVIS.storage.get('j_token');
     if (token) {
+      // Show loading spinner instead of auth screen while verifying
+      const authScreen = document.getElementById('auth-screen');
+      const app = document.getElementById('app');
+      if (authScreen) authScreen.style.display = 'none';
+      if (app) {
+        app.classList.remove('hidden');
+        app.style.opacity = '0';
+      }
       await verifyExistingToken(token);
+      if (app) app.style.opacity = '1';
     } else {
       showAuthScreen();
     }
