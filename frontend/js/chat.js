@@ -73,6 +73,8 @@ JARVIS.chat = (() => {
     }
     streamingText += text;
     streamingEl.innerHTML = JARVIS.formatMsg(streamingText);
+    streamingEl.style.color = '#e8f4f8';
+    streamingEl.style.background = '#111827';
     scrollToBottom();
   }
 
