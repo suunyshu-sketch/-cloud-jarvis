@@ -77,6 +77,7 @@ async def init_pool() -> None:
         min_size=2,
         max_size=10,
         command_timeout=30,
+        statement_cache_size=0,
         server_settings={"application_name": "jarvis"},
     )
     print(f"✅  DB pool ready — {params['host']}:{params['port']} db={params['database']}")
