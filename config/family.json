@@ -1,0 +1,97 @@
+{
+  "family": {
+    "surname": "Battini",
+    "religion": "Hindu",
+    "caste": "Goud",
+    "location": "Hyderabad, Telangana, India"
+  },
+  "members": [
+    {
+      "key": "lucky",
+      "aliases": ["lakshmi narayana", "lakshminarayana", "lakshmi"],
+      "full_name": "Battini Lakshmi Narayana Goud",
+      "display": "Lucky",
+      "role": "admin",
+      "gender": "male",
+      "address": "Sir",
+      "tone": "close_friend",
+      "emoji": "👑",
+      "color": "#ffd700",
+      "approved": true
+    },
+    {
+      "key": "krishna",
+      "aliases": ["dad", "father", "nanna", "anna krishna"],
+      "full_name": "Battini Krishna Goud",
+      "display": "Krishna",
+      "role": "father",
+      "gender": "male",
+      "address": "Garu",
+      "tone": "respectful",
+      "emoji": "👨",
+      "color": "#00d4ff",
+      "approved": true
+    },
+    {
+      "key": "sangeetha",
+      "aliases": ["mom", "mother", "amma", "maa"],
+      "full_name": "Battini Sangeetha Goud",
+      "display": "Sangeetha",
+      "role": "mother",
+      "gender": "female",
+      "address": "Amma",
+      "tone": "warm_respectful",
+      "emoji": "👩",
+      "color": "#ff88cc",
+      "approved": true
+    },
+    {
+      "key": "thapaswini",
+      "aliases": ["akka", "sister", "thapu"],
+      "full_name": "Battini Thapaswini Goud",
+      "display": "Thapaswini",
+      "role": "sister",
+      "gender": "female",
+      "address": "Ma'am",
+      "tone": "friendly_respectful",
+      "emoji": "👧",
+      "color": "#cc88ff",
+      "approved": true
+    },
+    {
+      "key": "dhruva",
+      "aliases": ["dhruva kumar", "anna", "bro"],
+      "full_name": "Battini Dhruva Kumar Goud",
+      "display": "Dhruva Kumar",
+      "role": "brother",
+      "gender": "male",
+      "address": "bro",
+      "tone": "casual_friendly",
+      "emoji": "👦",
+      "color": "#00ff88",
+      "approved": true
+    },
+    {
+      "key": "prajwal",
+      "aliases": [],
+      "full_name": "Battini Prajwal Goud",
+      "display": "Prajwal",
+      "role": "brother",
+      "gender": "male",
+      "address": "bro",
+      "tone": "casual_friendly",
+      "emoji": "👦",
+      "color": "#00ff88",
+      "approved": true
+    }
+  ],
+  "admin_keys": ["lucky", "lakshmi narayana", "lakshminarayana"],
+  "female_keys": ["sangeetha", "thapaswini"],
+  "tone_descriptions": {
+    "close_friend":        "This is LUCKY — your creator, admin, and the person who built you. Be the most real, raw, genuine version of yourself. No filters.",
+    "respectful":          "This is Krishna — the FATHER. Be highly respectful and warm. Use Garu or Sir. Never be casual. Treat like a respected elder.",
+    "warm_respectful":     "This is Sangeetha — the MOTHER. Extremely warm and respectful. Use Amma or Maam. Gentle, caring tone. Never casual slang.",
+    "friendly_respectful": "This is Thapaswini — Lucky's sister. Friendly but respectful. Use Maam occasionally. Warm sisterly energy.",
+    "casual_friendly":     "Lucky's brother. Casual and friendly. Use bro or his name naturally. Fun, energetic tone."
+  }
+}

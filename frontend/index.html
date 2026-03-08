@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e17">
+  <meta name="description" content="JARVIS — Battini Family AI Assistant">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>J.A.R.V.I.S</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/auth.css">
+  <link rel="stylesheet" href="/static/css/chat.css">
+  <link rel="stylesheet" href="/static/css/modals.css">
+  <link rel="stylesheet" href="/static/css/music.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     AUTH SCREEN
+     ═══════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg">
+    <div class="auth-grid"></div>
+    <div class="auth-glow"></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-logo">JARVIS</div>
+    <div class="auth-tagline">Battini Family · Private AI</div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Sign In</button>
+      <button class="auth-tab" data-tab="register">Request Access</button>
+    </div>
+
+    <!-- Error / Success -->
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-success" id="auth-success"></div>
+
+    <!-- Login Form -->
+    <div class="auth-form" id="login-form">
+      <div class="auth-form-group">
+        <label class="auth-label">Username</label>
+        <div class="auth-input-wrap">
+          <input class="auth-input" id="login-username" type="text" placeholder="lucky, krishna, sangeetha…" autocomplete="username" autocapitalize="none">
+        </div>
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-label">Password</label>
+        <div class="auth-input-wrap">
+          <input class="auth-input" id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password">
+          <span class="auth-input-icon" data-toggle-pw="login-password" title="Show/hide password">👁</span>
+        </div>
+      </div>
+      <button class="auth-btn" id="login-btn">
+        <span class="auth-btn-text">Sign In →</span>
+        <span class="auth-btn-spinner"></span>
+      </button>
+    </div>
+
+    <!-- Register Form -->
+    <div class="auth-form hidden" id="register-form">
+      <div class="auth-form-group">
+        <label class="auth-label">Username</label>
+        <input class="auth-input" id="reg-username" type="text" placeholder="choose a username" autocapitalize="none">
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-label">Your Name</label>
+        <input class="auth-input" id="reg-display" type="text" placeholder="What should JARVIS call you?">
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-label">Who do you know in the Battini family?</label>
+        <input class="auth-input" id="reg-knows" type="text" placeholder="e.g. Lucky, Krishna...">
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-label">Password</label>
+        <div class="auth-input-wrap">
+          <input class="auth-input" id="reg-password" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+          <span class="auth-input-icon" data-toggle-pw="reg-password">👁</span>
+        </div>
+        <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+      </div>
+      <button class="auth-btn" id="register-btn" style="background:var(--bg-raised);color:var(--cyan);border:1px solid var(--border-bright)">
+        <span class="auth-btn-text">Send Request →</span>
+        <span class="auth-btn-spinner"></span>
+      </button>
+      <div class="auth-divider">Lucky will review and approve your access.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN APP
+     ═══════════════════════════════════════════════════════ -->
+<div id="app" class="hidden" style="display:flex;flex-direction:column;height:100vh;height:100dvh">
+
+  <!-- HEADER -->
+  <header id="header">
+    <a class="header-logo" href="/">J<span>.</span>A<span>.</span>R<span>.</span>V<span>.</span>I<span>.</span>S</a>
+
+    <div class="header-device-badge">
+      <span id="conn-dot" class="connecting"></span>
+      <span id="conn-text">Connecting…</span>
+    </div>
+
+    <div class="header-spacer"></div>
+
+    <!-- Header action buttons -->
+    <div class="header-actions">
+      <button class="btn-icon desktop-only" id="btn-show-todos" title="My List">📋</button>
+      <button class="btn-icon desktop-only" id="btn-show-notes" title="Notes">📝</button>
+      <button class="btn-icon desktop-only" id="btn-show-music" title="Music">🎵</button>
+      <button class="btn-icon" id="voice-settings-btn" title="Voice Settings">🎙</button>
+      <button class="btn-icon" id="autospeak-btn" title="Auto-speak">🔇</button>
+      <button class="btn-icon hidden" id="admin-btn" title="Admin Dashboard">⚙️</button>
+    </div>
+
+    <!-- User pill -->
+    <div class="header-user-pill" id="user-pill">
+      <span class="header-user-emoji" id="user-emoji">👤</span>
+      <span id="user-display-name">User</span>
+      <button class="btn-icon" id="logout-btn" title="Logout" style="padding:2px 4px;font-size:0.75rem;color:var(--text-muted)">⏏</button>
+    </div>
+  </header>
+
+  <!-- PRIVATE MODE BANNER -->
+  <div id="private-banner">
+    🔒 Private mode active — messages not saved to memory
+    <button class="btn-icon" style="margin-left:auto" onclick="JARVIS.panels && document.getElementById('private-toggle-row')?.click()">✕</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- CHAT COLUMN -->
+    <div id="chat-column">
+
+      <!-- Welcome screen -->
+      <div id="welcome-screen">
+        <div class="welcome-logo">JARVIS</div>
+        <p class="welcome-sub" id="welcome-sub">Just A Rather Very Intelligent System — your personal Battini family AI.</p>
+        <div class="welcome-chips">
+          <div class="welcome-chip">What's the weather in Hyderabad?</div>
+          <div class="welcome-chip">Remind me at 7pm to call Amma</div>
+          <div class="welcome-chip">Play some Telugu songs</div>
+          <div class="welcome-chip">Latest cricket news</div>
+          <div class="welcome-chip">Bitcoin price today?</div>
+          <div class="welcome-chip">todo: buy vegetables</div>
+        </div>
+      </div>
+
+      <!-- Message list -->
+      <div id="chat-messages"></div>
+
+      <!-- Interim speech display -->
+      <div id="interim-display"></div>
+
+      <!-- Image preview bar -->
+      <div id="image-preview-bar">
+        <img id="image-preview-thumb" src="" alt="Preview">
+        <div>
+          <div class="text-sm">Image attached</div>
+          <div class="text-xs text-muted">Will be analyzed by JARVIS</div>
+        </div>
+        <button class="btn-icon" id="remove-image-btn" title="Remove image" style="margin-left:auto">✕</button>
+      </div>
+
+    </div><!-- /chat-column -->
+
+    <!-- RIGHT PANEL -->
+    <aside id="right-panel">
+      <!-- Panel tabs -->
+      <div class="panel-tabs">
+        <button class="panel-tab-btn" data-panel="todos"><span class="tab-icon">📋</span>List</button>
+        <button class="panel-tab-btn" data-panel="notes"><span class="tab-icon">📝</span>Notes</button>
+        <button class="panel-tab-btn" data-panel="reminders"><span class="tab-icon">⏰</span>Reminders</button>
+        <button class="panel-tab-btn" data-panel="music"><span class="tab-icon">🎵</span>Music</button>
+        <button class="panel-tab-btn" data-panel="settings"><span class="tab-icon">⚙</span>Settings</button>
+      </div>
+
+      <!-- TODOS SECTION -->
+      <div class="panel-section" data-panel="todos" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+        <div class="panel-body" style="padding-bottom:4px">
+          <div class="add-form">
+            <input class="add-input" id="todo-add-input" type="text" placeholder="Add a task…">
+            <button class="btn btn-primary" id="todo-add-btn" style="padding:8px 14px;flex-shrink:0">+</button>
+          </div>
+        </div>
+        <div id="todo-list" class="panel-body" style="padding-top:0"></div>
+      </div>
+
+      <!-- NOTES SECTION -->
+      <div class="panel-section hidden" data-panel="notes" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+        <div class="panel-body" style="padding-bottom:4px">
+          <input class="add-input" id="note-title-input" type="text" placeholder="Title (optional)" style="margin-bottom:6px">
+          <div class="add-form">
+            <input class="add-input" id="note-content-input" type="text" placeholder="Note content…">
+            <button class="btn btn-primary" id="note-add-btn" style="padding:8px 14px;flex-shrink:0">+</button>
+          </div>
+        </div>
+        <div id="notes-list" class="panel-body" style="padding-top:0"></div>
+      </div>
+
+      <!-- REMINDERS SECTION -->
+      <div class="panel-section hidden" data-panel="reminders">
+        <div class="panel-body">
+          <div class="text-xs text-muted" style="padding:4px 0 8px">Say "remind me at 6pm to call doctor" in chat to set reminders.</div>
+          <div id="reminders-list"></div>
+        </div>
+      </div>
+
+      <!-- MUSIC SECTION -->
+      <div class="panel-section hidden" data-panel="music">
+        <div class="panel-body">
+          <div class="music-search-bar add-form">
+            <input class="add-input" id="music-search-input" type="text" placeholder="Search for a song…">
+            <button class="btn btn-primary" id="music-search-btn" style="padding:8px 14px;flex-shrink:0">🔍</button>
+          </div>
+          <div class="music-genre-chips">
+            <div class="genre-chip" data-genre="bollywood">Bollywood</div>
+            <div class="genre-chip" data-genre="telugu">Telugu</div>
+            <div class="genre-chip" data-genre="lofi">Lo-fi</div>
+            <div class="genre-chip" data-genre="devotional">Devotional</div>
+            <div class="genre-chip" data-genre="romantic">Romantic</div>
+          </div>
+          <div id="track-list" class="track-list"></div>
+          <a id="yt-search-btn" class="yt-btn hidden" href="#" target="_blank" rel="noopener">▶ Open full song on YouTube</a>
+        </div>
+      </div>
+
+      <!-- SETTINGS SECTION -->
+      <div class="panel-section hidden" data-panel="settings">
+        <div class="panel-body">
+          <div class="toggle-row" id="private-toggle-row">
+            <div>
+              <div class="toggle-label">🔒 Private Mode</div>
+              <div class="toggle-sub">Messages not saved to memory</div>
+            </div>
+            <div class="toggle-switch" id="private-toggle"></div>
+          </div>
+          <div class="toggle-row" id="autospeak-toggle-row" onclick="JARVIS.voice?.toggleAutoSpeak()">
+            <div>
+              <div class="toggle-label">🔊 Auto-speak Replies</div>
+              <div class="toggle-sub">JARVIS reads responses aloud</div>
+            </div>
+            <div class="toggle-switch" id="autospeak-toggle"></div>
+          </div>
+          <div class="toggle-row" onclick="JARVIS.voice?.openSettings()">
+            <div>
+              <div class="toggle-label">🎙 Voice Settings</div>
+              <div class="toggle-sub">Adjust pitch, rate, volume</div>
+            </div>
+            <span style="color:var(--text-muted)">›</span>
+          </div>
+
+          <!-- Birthdays section in settings -->
+          <div style="margin-top:12px">
+            <div class="panel-title" style="font-size:0.82rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Upcoming Birthdays</div>
+            <div id="birthdays-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </aside><!-- /right-panel -->
+
+  </main><!-- /main -->
+
+  <!-- MINI PLAYER (above input bar) -->
+  <div id="mini-player">
+    <img id="mini-player-art" src="" alt="Album art">
+    <div id="mini-player-info">
+      <div id="mini-player-title">Nothing playing</div>
+      <div id="mini-player-artist" class="text-muted text-xs"></div>
+      <div class="mini-player-progress">
+        <div class="mini-player-progress-fill"></div>
+      </div>
+    </div>
+    <div class="mini-player-controls">
+      <button class="btn-icon" id="mini-prev-btn" title="Previous">⏮</button>
+      <button class="btn-icon" id="mini-play-btn" title="Play/Pause" style="color:var(--cyan)">▶</button>
+      <button class="btn-icon" id="mini-next-btn" title="Next">⏭</button>
+    </div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div id="input-bar">
+    <!-- Waveform (shows during mic recording) -->
+    <div id="mic-waveform">
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+
+    <button class="btn-icon" id="img-btn" title="Attach image">📷</button>
+    <input type="file" id="file-input" accept="image/*" style="display:none">
+
+    <textarea id="msg-input" placeholder="Message JARVIS…" rows="1" autocomplete="off" spellcheck="false"></textarea>
+
+    <button class="btn-icon" id="mic-btn" title="Voice input">🎤</button>
+    <button class="btn btn-primary" id="send-btn" style="padding:10px 18px;flex-shrink:0">Send</button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════════════════
+     VOICE SETTINGS MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="voice-modal">
+  <div class="modal-box">
+    <div class="modal-title">
+      🎙 Voice Settings
+      <button class="btn-icon" id="voice-modal-close">✕</button>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Pitch</span>
+      <input type="range" class="slider-input" id="pitch-slider" min="0.5" max="2" step="0.1" value="1.0">
+      <span class="slider-value" id="pitch-val">1.0</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Speed</span>
+      <input type="range" class="slider-input" id="rate-slider" min="0.5" max="1.8" step="0.05" value="0.95">
+      <span class="slider-value" id="rate-val">0.95</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Volume</span>
+      <input type="range" class="slider-input" id="vol-slider" min="0.1" max="1" step="0.1" value="1.0">
+      <span class="slider-value" id="vol-val">1.0</span>
+    </div>
+    <button class="btn btn-primary" id="voice-test-btn" style="width:100%;margin-top:8px">Test Voice Settings</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ADMIN PANEL OVERLAY (full screen for Lucky)
+     ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="admin-panel-overlay">
+  <div class="modal-box" id="admin-panel" style="max-width:560px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;padding:0">
+    <div class="modal-title" style="padding:20px 20px 0;flex-shrink:0">
+      ⚙️ Admin Dashboard
+      <button class="btn-icon" id="admin-close-btn">✕</button>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="admin-tabs" style="flex-shrink:0">
+      <button class="admin-tab active" data-tab="users">👥 Users</button>
+      <button class="admin-tab" data-tab="stats">📊 Stats</button>
+      <button class="admin-tab" data-tab="facts">🧠 Facts</button>
+      <button class="admin-tab" data-tab="devices">📱 Devices</button>
+      <button class="admin-tab" data-tab="broadcast">📢 Broadcast</button>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="admin-tab-body active" data-tab="users" style="flex:1;overflow-y:auto">
+      <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Pending Approval</div>
+      <div id="pending-users-list" class="users-grid" style="margin-bottom:16px"></div>
+      <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">All Users</div>
+      <div id="all-users-list" class="users-grid"></div>
+      <div style="margin-top:16px">
+        <button class="btn btn-ghost" id="change-pw-btn" style="width:100%">🔑 Change Password</button>
+      </div>
+    </div>
+
+    <!-- Stats Tab -->
+    <div class="admin-tab-body" data-tab="stats">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="danger-zone" style="margin-top:8px">
+        <div class="danger-zone-title">⚠️ Danger Zone</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-ghost" id="compress-btn">🗜 Compress Old Messages</button>
+          <button class="btn btn-danger" id="wipe-chats-btn">🗑 Wipe Chat History</button>
+          <button class="btn btn-danger" id="wipe-all-btn">🔴 Full Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Facts Tab -->
+    <div class="admin-tab-body" data-tab="facts" style="flex:1;overflow-y:auto">
+      <div class="facts-search-bar">
+        <input class="input" id="facts-search" placeholder="Search facts…">
+      </div>
+      <div id="facts-grid" class="facts-grid"></div>
+    </div>
+
+    <!-- Devices Tab -->
+    <div class="admin-tab-body" data-tab="devices">
+      <div id="devices-list" class="users-grid"></div>
+    </div>
+
+    <!-- Broadcast Tab -->
+    <div class="admin-tab-body" data-tab="broadcast">
+      <div class="broadcast-form">
+        <input class="input" id="broadcast-title" placeholder="Title (optional)">
+        <textarea class="broadcast-input" id="broadcast-content" placeholder="Write your message to the family…"></textarea>
+        <button class="btn btn-primary" id="broadcast-send-btn">📢 Send Announcement</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS (order matters)
+     ═══════════════════════════════════════════════════════ -->
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/websocket.js"></script>
+<script src="/static/js/chat.js"></script>
+<script src="/static/js/voice.js"></script>
+<script src="/static/js/music.js"></script>
+<script src="/static/js/panels.js"></script>
+<script src="/static/js/admin.js"></script>
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>

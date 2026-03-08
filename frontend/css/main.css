@@ -1,0 +1,212 @@
+/* ═══════════════════════════════════════════════════════════
+   J.A.R.V.I.S  — Global CSS Variables & Base Styles
+   Font: Exo 2 (display) + Nunito (body) — futuristic but warm
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Core palette */
+  --bg-base:        #0a0e17;
+  --bg-surface:     #111827;
+  --bg-raised:      #1a2236;
+  --bg-hover:       #1e2d45;
+  --border:         rgba(0, 212, 255, 0.12);
+  --border-bright:  rgba(0, 212, 255, 0.35);
+
+  /* Accent colours */
+  --cyan:           #00d4ff;
+  --cyan-dim:       rgba(0, 212, 255, 0.15);
+  --cyan-glow:      0 0 20px rgba(0, 212, 255, 0.4);
+  --gold:           #ffd700;
+  --gold-dim:       rgba(255, 215, 0, 0.15);
+  --green:          #00ff88;
+  --red:            #ff4466;
+  --purple:         #cc88ff;
+  --pink:           #ff88cc;
+
+  /* Text */
+  --text-primary:   #e8f4f8;
+  --text-secondary: #8ab4c8;
+  --text-muted:     #4a6680;
+
+  /* Sizing */
+  --header-h:       60px;
+  --input-bar-h:    72px;
+  --mini-player-h:  56px;
+  --drawer-w:       320px;
+  --radius:         12px;
+  --radius-sm:      8px;
+
+  /* Transitions */
+  --ease:           cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:         0.15s;
+  --t-mid:          0.3s;
+  --t-slow:         0.5s;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* Selection */
+::selection { background: var(--cyan-dim); }
+
+/* Focus ring */
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: var(--radius-sm); }
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible) { outline: none; }
+
+/* Utility classes */
+.hidden    { display: none !important; }
+.sr-only   { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.flex      { display: flex; }
+.flex-col  { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2     { gap: 8px; }
+.gap-3     { gap: 12px; }
+.truncate  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text-cyan  { color: var(--cyan); }
+.text-gold  { color: var(--gold); }
+.text-muted { color: var(--text-muted); }
+.text-sm   { font-size: 0.8rem; }
+.text-xs   { font-size: 0.72rem; }
+
+/* Glow effects */
+.glow-cyan { box-shadow: var(--cyan-glow); }
+.text-glow-cyan { text-shadow: 0 0 12px var(--cyan); }
+
+/* Animated gradient background for auth/loading states */
+@keyframes bg-pulse {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.35s var(--ease) both; }
+
+/* Spin */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner { animation: spin 0.8s linear infinite; }
+
+/* Pulse for live indicators */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Button base */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600; font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--cyan);
+  color: var(--bg-base);
+}
+.btn-primary:hover { background: #33ddff; box-shadow: var(--cyan-glow); }
+.btn-primary:disabled { background: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-bright); }
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid rgba(255, 68, 102, 0.3);
+}
+.btn-danger:hover { background: rgba(255, 68, 102, 0.1); }
+
+.btn-icon {
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Input base */
+.input {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color var(--t-fast);
+}
+.input:focus { border-color: var(--cyan); outline: none; }
+.input::placeholder { color: var(--text-muted); }
+
+/* Card */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+/* Badge */
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge-cyan   { background: var(--cyan-dim); color: var(--cyan); }
+.badge-gold   { background: var(--gold-dim); color: var(--gold); }
+.badge-green  { background: rgba(0,255,136,0.15); color: var(--green); }
+.badge-red    { background: rgba(255,68,102,0.15); color: var(--red); }
+.badge-purple { background: rgba(204,136,255,0.15); color: var(--purple); }

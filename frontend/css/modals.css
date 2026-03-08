@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════════════════════
+   J.A.R.V.I.S — Panels, Drawers, Modals
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Right Panel Header ─────────────────────────────────── */
+.panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700; font-size: 0.9rem;
+  letter-spacing: 0.05em; color: var(--text-primary);
+  flex: 1;
+}
+.panel-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+/* Panel nav tabs */
+.panel-tabs {
+  display: flex; background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-tab-btn {
+  flex: 1; padding: 11px 8px;
+  background: transparent; border: none;
+  color: var(--text-muted); font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all var(--t-fast);
+  border-bottom: 2px solid transparent;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.panel-tab-btn .tab-icon { font-size: 1.1rem; }
+.panel-tab-btn:hover { color: var(--text-primary); }
+.panel-tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ── Todo Items ─────────────────────────────────────────── */
+.todo-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--t-fast);
+}
+.todo-item:hover { border-color: var(--border-bright); }
+.todo-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--border-bright);
+  cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--t-fast);
+}
+.todo-item.done .todo-check { background: var(--green); border-color: var(--green); }
+.todo-item.done .todo-check::after { content: '✓'; font-size: 0.65rem; color: var(--bg-base); font-weight: 700; }
+.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-muted); }
+.todo-text { flex: 1; font-size: 0.87rem; line-height: 1.4; }
+.todo-cat-badge {
+  font-size: 0.65rem; padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--bg-hover); color: var(--text-muted);
+  flex-shrink: 0;
+}
+.todo-del {
+  opacity: 0; padding: 2px 6px; border-radius: 4px;
+  background: transparent; border: none;
+  color: var(--text-muted); cursor: pointer;
+  transition: all var(--t-fast); font-size: 0.8rem;
+}
+.todo-item:hover .todo-del { opacity: 1; }
+.todo-del:hover { color: var(--red); }
+
+/* ── Note Items ─────────────────────────────────────────── */
+.note-item {
+  padding: 10px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: border-color var(--t-fast);
+}
+.note-item:hover { border-color: var(--border-bright); }
+.note-item-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 3px; }
+.note-item-preview { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+/* ── Reminder Items ─────────────────────────────────────── */
+.reminder-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); border-left: 3px solid var(--gold);
+}
+.reminder-time { font-size: 0.75rem; color: var(--gold); font-weight: 600; white-space: nowrap; }
+.reminder-text { flex: 1; font-size: 0.85rem; }
+
+/* ── Add-form ────────────────────────────────────────────── */
+.add-form {
+  display: flex; gap: 8px; flex-shrink: 0;
+}
+.add-input {
+  flex: 1;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary);
+  font-family: 'Nunito', sans-serif; font-size: 0.88rem;
+  padding: 8px 12px;
+  outline: none; transition: border-color var(--t-fast);
+}
+.add-input:focus { border-color: var(--cyan); }
+.add-input::placeholder { color: var(--text-muted); }
+
+/* ── Voice Engine Modal ─────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s both; }
+.modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 90%; max-width: 440px;
+  animation: fadeIn 0.3s var(--ease) both;
+}
+.modal-title {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700; font-size: 1.1rem;
+  color: var(--cyan); margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.slider-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.slider-label { font-size: 0.82rem; color: var(--text-secondary); width: 60px; flex-shrink: 0; }
+.slider-input {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; background: var(--bg-hover); border-radius: 2px;
+  outline: none; cursor: pointer;
+}
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--cyan); cursor: pointer;
+}
+.slider-value { font-size: 0.8rem; color: var(--cyan); width: 32px; text-align: right; }
+
+/* ── Private Mode Toggle ─────────────────────────────────── */
+.toggle-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: border-color var(--t-fast);
+}
+.toggle-row:hover { border-color: var(--border-bright); }
+.toggle-label { flex: 1; font-size: 0.88rem; }
+.toggle-sub { font-size: 0.75rem; color: var(--text-muted); }
+.toggle-switch {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: var(--bg-hover); border: 1px solid var(--border);
+  position: relative; cursor: pointer; flex-shrink: 0;
+  transition: background var(--t-fast);
+}
+.toggle-switch::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text-muted); top: 2px; left: 2px;
+  transition: all var(--t-fast);
+}
+.toggle-switch.on { background: var(--cyan-dim); border-color: var(--cyan); }
+.toggle-switch.on::after { left: 20px; background: var(--cyan); }

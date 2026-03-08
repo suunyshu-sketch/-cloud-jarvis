@@ -1,0 +1,37 @@
+# ═══════════════════════════════════════════════════════════
+#  J.A.R.V.I.S — Render Deployment Config
+#  Push to GitHub → Render auto-deploys on every push to main.
+# ═══════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: jarvis
+    runtime: python
+    plan: free
+
+    # Render sets PORT automatically
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT --workers 1
+
+    healthCheckPath: /health
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      # Set these in the Render dashboard (never hardcode secrets here)
+      - key: GROQ_API_KEY
+        sync: false          # Render will ask you to set this manually
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      - key: RENDER_EXTERNAL_URL
+        sync: false
+
+    # Auto-deploy on push to main branch
+    autoDeploy: true
+    branch: main
