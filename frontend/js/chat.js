@@ -64,7 +64,7 @@ JARVIS.chat = (() => {
       el.innerHTML = `
         <div class="msg-avatar">🤖</div>
         <div class="msg-body">
-          <div class="msg-bubble stream-cursor" id="stream-bubble"></div>
+          <div class="msg-bubble stream-cursor" id="stream-bubble" style="color:#e8f4f8;background:#111827;border-left:3px solid #00d4ff;padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;"></div>
           <div class="msg-meta">${JARVIS.fmtTime()}</div>
         </div>`;
       msgList().appendChild(el);
