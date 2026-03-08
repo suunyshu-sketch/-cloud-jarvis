@@ -124,7 +124,12 @@
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--cyan);
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+}
+
+#stream-bubble {
+  color: var(--text-primary) !important;
+  background: var(--bg-surface) !important;
 }
 .msg.user .msg-bubble {
   background: var(--cyan-dim);
