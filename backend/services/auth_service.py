@@ -66,7 +66,7 @@ async def login(username: str, password: str, device_id: str) -> dict:
             row = await conn.fetchrow(
                 "SELECT username, password_hash, display_name, role, "
                 "family_member, approved, login_count "
-                "FROM users WHERE username=$1",
+                "FROM j_users WHERE username=$1",
                 uname
             )
 
@@ -88,11 +88,11 @@ async def login(username: str, password: str, device_id: str) -> dict:
 
         async with pool.acquire() as conn:
             await conn.execute(
-                "UPDATE users SET last_login=$1, login_count=$2 WHERE username=$3",
+                "UPDATE j_users SET last_login=$1, login_count=$2 WHERE username=$3",
                 now, (row["login_count"] or 0) + 1, uname
             )
             await conn.execute(
-                """INSERT INTO sessions (token, username, device_id, created_at, expires_at, last_seen)
+                """INSERT INTO j_sessions (token, username, device_id, created_at, expires_at, last_seen)
                    VALUES ($1, $2, $3, $4, $5, $4)
                    ON CONFLICT (token) DO NOTHING""",
                 token, uname, device_id, now,
@@ -131,13 +131,13 @@ async def register_guest(
 
         async with pool.acquire() as conn:
             existing = await conn.fetchval(
-                "SELECT username FROM users WHERE username=$1", uname
+                "SELECT username FROM j_users WHERE username=$1", uname
             )
             if existing:
                 return {"success": False, "error": "Username already taken. Choose another."}
 
             await conn.execute(
-                """INSERT INTO users
+                """INSERT INTO j_users
                    (username, password_hash, display_name, role, approved,
                     relation, knows_member, created_at)
                    VALUES ($1,$2,$3,'guest',FALSE,$4,$5,$6)""",
@@ -176,7 +176,7 @@ async def verify_token(token: str, device_id: str = "unknown") -> Optional[dict]
         async with pool.acquire() as conn:
             # Check session is still valid
             session = await conn.fetchrow(
-                "SELECT token FROM sessions WHERE token=$1 AND expires_at > NOW()",
+                "SELECT token FROM j_sessions WHERE token=$1 AND expires_at > NOW()",
                 token
             )
             if not session:
@@ -184,7 +184,7 @@ async def verify_token(token: str, device_id: str = "unknown") -> Optional[dict]
 
             user = await conn.fetchrow(
                 "SELECT username, display_name, role, family_member, approved "
-                "FROM users WHERE username=$1 AND approved=TRUE",
+                "FROM j_users WHERE username=$1 AND approved=TRUE",
                 username
             )
             if not user:
@@ -192,7 +192,7 @@ async def verify_token(token: str, device_id: str = "unknown") -> Optional[dict]
 
             # Touch session last_seen
             await conn.execute(
-                "UPDATE sessions SET last_seen=NOW() WHERE token=$1", token
+                "UPDATE j_sessions SET last_seen=NOW() WHERE token=$1", token
             )
 
         return {
@@ -215,7 +215,7 @@ async def list_pending() -> list:
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT username, display_name, role, relation, knows_member, created_at "
-                "FROM users WHERE approved=FALSE ORDER BY created_at"
+                "FROM j_users WHERE approved=FALSE ORDER BY created_at"
             )
         return [dict(r) for r in rows]
     except Exception as e:
@@ -228,7 +228,7 @@ async def approve_user(username: str) -> bool:
         pool = get_pool()
         async with pool.acquire() as conn:
             await conn.execute(
-                "UPDATE users SET approved=TRUE WHERE username=$1",
+                "UPDATE j_users SET approved=TRUE WHERE username=$1",
                 username.strip().lower()
             )
         return True
@@ -244,7 +244,7 @@ async def change_password(username: str, new_password: str) -> bool:
         pool = get_pool()
         async with pool.acquire() as conn:
             await conn.execute(
-                "UPDATE users SET password_hash=$1 WHERE username=$2",
+                "UPDATE j_users SET password_hash=$1 WHERE username=$2",
                 hash_password(new_password), username.strip().lower()
             )
         return True
@@ -259,7 +259,7 @@ async def list_all_users() -> list:
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT username, display_name, role, approved, last_login, login_count "
-                "FROM users ORDER BY username"
+                "FROM j_users ORDER BY username"
             )
         return [dict(r) for r in rows]
     except Exception as e:

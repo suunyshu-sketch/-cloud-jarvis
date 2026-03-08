@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS emotional_history (
 CREATE INDEX IF NOT EXISTS idx_emotion_person ON emotional_history(person, timestamp DESC);
 
 -- Auth: Users
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS j_users (
     username      TEXT PRIMARY KEY,
     password_hash TEXT NOT NULL,
     display_name  TEXT,
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Auth: Sessions (JWT metadata)
-CREATE TABLE IF NOT EXISTS sessions (
+CREATE TABLE IF NOT EXISTS j_sessions (
     token      TEXT PRIMARY KEY,
     username   TEXT NOT NULL,
     device_id  TEXT,

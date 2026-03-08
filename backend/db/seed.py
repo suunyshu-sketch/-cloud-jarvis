@@ -41,7 +41,7 @@ async def seed_users():
             key = m["key"]
             default_pass = FAMILY_PASSWORDS.get(key, f"{key}@jarvis2025")
             await conn.execute(
-                """INSERT INTO users
+                """INSERT INTO j_users
                    (username, password_hash, display_name, role,
                     family_member, approved, created_at, login_count)
                    VALUES ($1, $2, $3, $4, $5, TRUE, $6, 0)
