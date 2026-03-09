@@ -58,23 +58,38 @@ JARVIS.chat = (() => {
   function appendChunk(text) {
     removeThinking();
     if (!streamingEl) {
-      const el = document.createElement('div');
-      el.className = 'msg jarvis fade-in';
-      el.id = 'streaming-msg';
-      el.innerHTML = `
-        <div class="msg-avatar">🤖</div>
-        <div class="msg-body">
-          <div class="msg-bubble stream-cursor" id="stream-bubble" style="color:#e8f4f8;background:#111827;border-left:3px solid #00d4ff;padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;"></div>
-          <div class="msg-meta">${JARVIS.fmtTime()}</div>
-        </div>`;
-      msgList().appendChild(el);
-      streamingEl = document.getElementById('stream-bubble');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg jarvis fade-in';
+      wrapper.id = 'streaming-msg';
+      wrapper.style.cssText = 'display:flex;gap:10px;padding:4px 0;';
+
+      const avatar = document.createElement('div');
+      avatar.textContent = '🤖';
+      avatar.style.cssText = 'width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:#1a2236;border:1px solid rgba(0,212,255,0.3);margin-top:4px;';
+
+      const body = document.createElement('div');
+      body.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;';
+
+      const bubble = document.createElement('div');
+      bubble.id = 'stream-bubble';
+      bubble.style.cssText = 'max-width:580px;padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;word-wrap:break-word;white-space:pre-wrap;color:#e8f4f8 !important;background:#111827 !important;border:1px solid rgba(0,212,255,0.12);border-left:3px solid #00d4ff;';
+
+      const meta = document.createElement('div');
+      meta.style.cssText = 'font-size:0.7rem;color:#4a6680;';
+      meta.textContent = JARVIS.fmtTime();
+
+      body.appendChild(bubble);
+      body.appendChild(meta);
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(body);
+      msgList().appendChild(wrapper);
+
+      streamingEl = bubble;
       streamingText = '';
     }
     streamingText += text;
     streamingEl.innerHTML = JARVIS.formatMsg(streamingText);
     streamingEl.style.color = '#e8f4f8';
-    streamingEl.style.background = '#111827';
     scrollToBottom();
   }
 
