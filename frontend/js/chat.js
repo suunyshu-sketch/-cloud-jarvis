@@ -137,20 +137,37 @@ JARVIS.chat = (() => {
 
   // ── Feedback buttons ──────────────────────────────────
   function addFeedbackButtons(msgEl, jarvisText) {
-    const div = msgEl.querySelector('.msg-body');
-    if (!div) return;
+    const div = msgEl.querySelector('.msg-body') || msgEl;
     const fb = document.createElement('div');
-    fb.className = 'msg-feedback';
-    fb.innerHTML = `
-      <button class="feedback-btn positive" title="Good response" data-fb="positive">👍</button>
-      <button class="feedback-btn negative" title="Bad response" data-fb="negative">👎</button>`;
-    fb.querySelectorAll('[data-fb]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        JARVIS.ws.sendFeedback(lastUserMsg, jarvisText, btn.dataset.fb);
-        JARVIS.toast(btn.dataset.fb === 'positive' ? '👍 Thanks!' : '👎 Got it, I\'ll improve.', btn.dataset.fb === 'positive' ? 'success' : '');
-        fb.remove();
-      });
+    fb.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:4px;';
+
+    const thumbUp = document.createElement('button');
+    thumbUp.textContent = '👍';
+    thumbUp.title = 'Good response';
+    thumbUp.style.cssText = 'background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#00ff88;';
+    thumbUp.addEventListener('click', () => {
+      JARVIS.ws.sendFeedback(lastUserMsg, jarvisText, 'positive');
+      JARVIS.toast('👍 Thanks!', 'success');
+      fb.remove();
     });
+
+    const thumbDown = document.createElement('button');
+    thumbDown.textContent = '👎';
+    thumbDown.title = 'Bad response';
+    thumbDown.style.cssText = 'background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#ff4466;';
+    thumbDown.addEventListener('click', () => {
+      JARVIS.ws.sendFeedback(lastUserMsg, jarvisText, 'negative');
+      JARVIS.toast('👎 Got it, I'll improve.');
+      fb.remove();
+    });
+
+    const timeEl = document.createElement('span');
+    timeEl.textContent = JARVIS.fmtTime();
+    timeEl.style.cssText = 'font-size:0.7rem;color:#4a6680;margin-left:4px;';
+
+    fb.appendChild(thumbUp);
+    fb.appendChild(thumbDown);
+    fb.appendChild(timeEl);
     div.appendChild(fb);
   }
 
