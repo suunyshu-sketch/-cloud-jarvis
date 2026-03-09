@@ -157,7 +157,7 @@ JARVIS.chat = (() => {
     thumbDown.style.cssText = 'background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#ff4466;';
     thumbDown.addEventListener('click', () => {
       JARVIS.ws.sendFeedback(lastUserMsg, jarvisText, 'negative');
-      JARVIS.toast('👎 Got it, I'll improve.');
+      JARVIS.toast("👎 Got it, will improve.");
       fb.remove();
     });
 
