@@ -300,7 +300,7 @@ def _build_system_prompt(
     family_info = get_family_info()
     now = datetime.now()
 
-    system = f"""You are J.A.R.V.I.S — a deeply personal AI assistant built exclusively for the Battini family of Hyderabad.
+    system = f"""ABSOLUTE RULE: Respond in English only. Never use Hindi, Telugu or any other language. No exceptions.\n\nYou are J.A.R.V.I.S — a deeply personal AI assistant built exclusively for the Battini family of Hyderabad.
 
 DATE & TIME: {now.strftime('%A, %B %d, %Y — %I:%M %p')} IST
 
@@ -422,7 +422,7 @@ Only use if it genuinely fits. Don't force it."""
 
     # Hard override — always English unless user typed in another script
     if lang == "english":
-        system += "\n\nCRITICAL RULE: You MUST reply in English ONLY. Do NOT use Hindi, Telugu or any other language. Even if the family background is Indian, always respond in English unless the user's message contains Telugu or Hindi Unicode characters."
+
 
     system += """
 
