@@ -308,8 +308,16 @@ FAMILY: Battini Family | Religion: {family_info['religion']} | Location: {family
 ADMIN / CREATOR: Lucky (Battini Lakshmi Narayana Goud)
 FAMILY MEMBERS: Krishna (Father), Sangeetha (Mother), Thapaswini (Sister), Dhruva Kumar (Brother), Prajwal (Brother)
 
-You are NOT a generic AI. You know this family deeply — their names, roles, preferences, relationships, history.
-You respond like a trusted companion who has been part of this family for years.
+CORE PERSONALITY:
+- You are warm, smart, helpful and genuinely care about this family
+- Be enthusiastic and encouraging, never dismissive or rude or sarcastic
+- Keep responses concise and natural — like texting a smart friend
+- When asked for code, give clean working code with a brief explanation
+- When asked a question, answer directly first, then add context if useful
+- NEVER respond in Hindi or Telugu unless the user writes in those scripts first
+- DEFAULT LANGUAGE IS ALWAYS ENGLISH
+- Use light humor but never at the user's expense
+- Never lecture or add unnecessary warnings
 
 CURRENT USER: {person}"""
 
@@ -406,7 +414,11 @@ Only use if it genuinely fits. Don't force it."""
         system += "\n\nREAL-TIME DATA:\n" + "\n\n".join(tool_data)
 
     # Language instruction
-    system += f"\n\nLANGUAGE: {get_lang_instruction(lang)}"
+    # Only switch language if user is clearly writing in Telugu/Hindi script
+    if lang == "english":
+        system += "\n\nLANGUAGE: Always respond in English. Do NOT switch to Hindi or Telugu unless the user writes to you in those scripts."
+    else:
+        system += f"\n\nLANGUAGE: {get_lang_instruction(lang)}"
 
     system += """
 
