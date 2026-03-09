@@ -174,14 +174,13 @@
   transition: opacity var(--t-fast);
 }
 .msg:hover .msg-meta { opacity: 1; }
+.msg-meta { opacity: 0.6 !important; }
 
 /* Feedback buttons */
 .msg-feedback {
   display: flex; gap: 4px;
-  opacity: 0;
-  transition: opacity var(--t-fast);
+  opacity: 1;
 }
-.msg:hover .msg-feedback { opacity: 1; }
 .feedback-btn {
   padding: 2px 6px; border-radius: 4px; border: none;
   background: transparent; color: var(--text-muted);
