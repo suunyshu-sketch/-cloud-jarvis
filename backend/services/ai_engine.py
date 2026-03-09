@@ -420,6 +420,10 @@ Only use if it genuinely fits. Don't force it."""
     else:
         system += f"\n\nLANGUAGE: {get_lang_instruction(lang)}"
 
+    # Hard override — always English unless user typed in another script
+    if lang == "english":
+        system += "\n\nCRITICAL RULE: You MUST reply in English ONLY. Do NOT use Hindi, Telugu or any other language. Even if the family background is Indian, always respond in English unless the user's message contains Telugu or Hindi Unicode characters."
+
     system += """
 
 PERSONALITY RULES:

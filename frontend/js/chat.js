@@ -114,12 +114,25 @@ JARVIS.chat = (() => {
     lastJarvisMsg = text;
     const el = document.createElement('div');
     el.className = 'msg jarvis fade-in';
-    el.innerHTML = `
-      <div class="msg-avatar">🤖</div>
-      <div class="msg-body">
-        <div class="msg-bubble">${JARVIS.formatMsg(text)}</div>
-        <div class="msg-meta">${JARVIS.fmtTime()}</div>
-      </div>`;
+    const avatar2 = document.createElement('div');
+    avatar2.textContent = '🤖';
+    avatar2.style.cssText = 'width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:#1a2236;border:1px solid rgba(0,212,255,0.3);margin-top:4px;';
+
+    const body2 = document.createElement('div');
+    body2.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;';
+
+    const bubble2 = document.createElement('div');
+    bubble2.style.cssText = 'max-width:580px;padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;word-wrap:break-word;color:#e8f4f8;background:#111827;border:1px solid rgba(0,212,255,0.12);border-left:3px solid #00d4ff;';
+    bubble2.innerHTML = JARVIS.formatMsg(text);
+
+    const meta2 = document.createElement('div');
+    meta2.style.cssText = 'font-size:0.7rem;color:#4a6680;';
+    meta2.textContent = JARVIS.fmtTime();
+
+    body2.appendChild(bubble2);
+    body2.appendChild(meta2);
+    el.appendChild(avatar2);
+    el.appendChild(body2);
     addFeedbackButtons(el, text);
     msgList().appendChild(el);
     scrollToBottom();
@@ -139,7 +152,7 @@ JARVIS.chat = (() => {
   function addFeedbackButtons(msgEl, jarvisText) {
     const div = msgEl.querySelector('.msg-body') || msgEl;
     const fb = document.createElement('div');
-    fb.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:4px;';
+    fb.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:6px;padding-left:2px;width:100%;clear:both;';
 
     const thumbUp = document.createElement('button');
     thumbUp.textContent = '👍';

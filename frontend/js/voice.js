@@ -23,7 +23,12 @@ JARVIS.voice = (() => {
   function speak(text) {
     if (!synth || !text) return;
     synth.cancel();
-    const clean = text.replace(/[*_`#\[\]{}]/g, '').substring(0, 500);
+    // Remove code blocks entirely before speaking
+    const clean = text
+      .replace(/```[\s\S]*?```/g, ' [code block] ')
+      .replace(/`[^`]+`/g, '')
+      .replace(/[*_#\[\]{}]/g, '')
+      .substring(0, 300);
     const utterance = new SpeechSynthesisUtterance(clean);
     utterance.pitch  = voiceSettings.pitch;
     utterance.rate   = voiceSettings.rate;
@@ -80,10 +85,15 @@ JARVIS.voice = (() => {
         else                       interim += e.results[i][0].transcript;
       }
       const display = document.getElementById('interim-display');
-      if (display) display.textContent = interim || final || '';
+      if (display) display.textContent = interim ? '🎤 ' + interim : '';
       if (final) {
         const inputEl = document.getElementById('msg-input');
         if (inputEl) inputEl.value = (inputEl.value + ' ' + final).trim();
+        // Auto-send after final result
+        setTimeout(() => {
+          if (display) display.textContent = '';
+          JARVIS.chat.send();
+        }, 400);
       }
     };
 
