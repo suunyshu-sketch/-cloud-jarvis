@@ -62,15 +62,17 @@ JARVIS.formatMsg = (text) => {
   if (!text) return '';
   let s = JARVIS.esc(text);
   // Code blocks
-  s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.trim()}</code></pre>`);
+  s = s.replace(/```(?:\w+\n)?([\s\S]*?)```/g, (_, code) =>
+    '<pre style="background:#0a0e17;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:12px;overflow-x:auto;margin:8px 0;font-family:monospace;font-size:0.82rem;color:#e8f4f8;white-space:pre;">' + code.trim() + '</pre>'
+  );
   // Inline code
-  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  s = s.replace(/`([^`]+)`/g, '<code style="background:#1a2236;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.85em;color:#00d4ff;">$1</code>');
   // Bold
-  s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e8f4f8;font-weight:700;">$1</strong>');
   // Italic
   s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
   // URLs
-  s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#00d4ff;">$1</a>');
   // Line breaks
   s = s.replace(/\n/g, '<br>');
   return s;
