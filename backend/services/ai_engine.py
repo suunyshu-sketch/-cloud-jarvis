@@ -420,10 +420,6 @@ Only use if it genuinely fits. Don't force it."""
     else:
         system += f"\n\nLANGUAGE: {get_lang_instruction(lang)}"
 
-    # Hard override — always English unless user typed in another script
-    if lang == "english":
-
-
     system += """
 
 PERSONALITY RULES:
