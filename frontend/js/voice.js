@@ -88,14 +88,11 @@ JARVIS.voice = (() => {
       if (display) display.textContent = interim ? '🎤 ' + interim : '';
       if (final) {
         const inputEl = document.getElementById('msg-input');
-        if (inputEl) inputEl.value = (inputEl.value + ' ' + final).trim();
-        // Auto-send after final result
-        setTimeout(() => {
-          if (display) display.textContent = '';
-          JARVIS.chat.send();
-        }, 400);
+        if (inputEl) inputEl.value = final.trim();
+        if (display) display.textContent = '';
+        setTimeout(() => { JARVIS.chat.send(); }, 300);
       }
-    };
+    };;
 
     recognition.onend = () => {
       isListening = false;

@@ -96,15 +96,35 @@ JARVIS.chat = (() => {
   function finalizeStream() {
     if (streamingEl) {
       streamingEl.classList.remove('stream-cursor');
+      streamingEl.style.color = '#e8f4f8';
       lastJarvisMsg = streamingText;
-      streamingEl = null;
+
       const msgEl = document.getElementById('streaming-msg');
       if (msgEl) {
         msgEl.removeAttribute('id');
-        addFeedbackButtons(msgEl, streamingText);
+        const body = msgEl.querySelector('div:last-child') || msgEl;
+
+        const fb = document.createElement('div');
+        fb.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:4px;';
+
+        const thumbUp = document.createElement('button');
+        thumbUp.textContent = '👍';
+        thumbUp.style.cssText = 'background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#00ff88;';
+        thumbUp.onclick = () => { JARVIS.ws.sendFeedback(lastUserMsg, streamingText, 'positive'); JARVIS.toast('Thanks!', 'success'); fb.remove(); };
+
+        const thumbDown = document.createElement('button');
+        thumbDown.textContent = '👎';
+        thumbDown.style.cssText = 'background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#ff4466;';
+        thumbDown.onclick = () => { JARVIS.ws.sendFeedback(lastUserMsg, streamingText, 'negative'); JARVIS.toast('Got it!'); fb.remove(); };
+
+        fb.appendChild(thumbUp);
+        fb.appendChild(thumbDown);
+        body.appendChild(fb);
       }
+
+      streamingEl = null;
       streamingText = '';
-      if (JARVIS.voice?.autoSpeak) JARVIS.voice.speak(lastJarvisMsg);
+      if (JARVIS.voice && JARVIS.voice.autoSpeak) JARVIS.voice.speak(lastJarvisMsg);
     }
   }
 
@@ -112,31 +132,50 @@ JARVIS.chat = (() => {
   function addJarvisMessage(text) {
     removeThinking();
     lastJarvisMsg = text;
+
     const el = document.createElement('div');
-    el.className = 'msg jarvis fade-in';
-    const avatar2 = document.createElement('div');
-    avatar2.textContent = '🤖';
-    avatar2.style.cssText = 'width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:#1a2236;border:1px solid rgba(0,212,255,0.3);margin-top:4px;';
+    el.style.cssText = 'display:flex;gap:10px;padding:4px 0;animation:fadeIn 0.25s ease both;';
 
-    const body2 = document.createElement('div');
-    body2.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;';
+    const avatar = document.createElement('div');
+    avatar.textContent = '🤖';
+    avatar.style.cssText = 'width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:#1a2236;border:1px solid rgba(0,212,255,0.3);margin-top:4px;';
 
-    const bubble2 = document.createElement('div');
-    bubble2.style.cssText = 'max-width:580px;padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;word-wrap:break-word;color:#e8f4f8;background:#111827;border:1px solid rgba(0,212,255,0.12);border-left:3px solid #00d4ff;';
-    bubble2.innerHTML = JARVIS.formatMsg(text);
+    const body = document.createElement('div');
+    body.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 50px);';
 
-    const meta2 = document.createElement('div');
-    meta2.style.cssText = 'font-size:0.7rem;color:#4a6680;';
-    meta2.textContent = JARVIS.fmtTime();
+    const bubble = document.createElement('div');
+    bubble.style.cssText = 'padding:10px 14px;border-radius:12px;font-size:0.92rem;line-height:1.65;word-wrap:break-word;white-space:normal;color:#e8f4f8;background:#111827;border:1px solid rgba(0,212,255,0.12);border-left:3px solid #00d4ff;display:inline-block;max-width:100%;';
+    bubble.innerHTML = JARVIS.formatMsg(text);
 
-    body2.appendChild(bubble2);
-    body2.appendChild(meta2);
-    el.appendChild(avatar2);
-    el.appendChild(body2);
-    addFeedbackButtons(el, text);
+    const meta = document.createElement('div');
+    meta.style.cssText = 'font-size:0.7rem;color:#4a6680;';
+    meta.textContent = JARVIS.fmtTime();
+
+    const fb = document.createElement('div');
+    fb.style.cssText = 'display:flex;gap:6px;align-items:center;';
+
+    const thumbUp = document.createElement('button');
+    thumbUp.textContent = '👍';
+    thumbUp.style.cssText = 'background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#00ff88;';
+    thumbUp.onclick = () => { JARVIS.ws.sendFeedback(lastUserMsg, text, 'positive'); JARVIS.toast('Thanks!', 'success'); fb.remove(); };
+
+    const thumbDown = document.createElement('button');
+    thumbDown.textContent = '👎';
+    thumbDown.style.cssText = 'background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:0.85rem;color:#ff4466;';
+    thumbDown.onclick = () => { JARVIS.ws.sendFeedback(lastUserMsg, text, 'negative'); JARVIS.toast('Got it!'); fb.remove(); };
+
+    fb.appendChild(thumbUp);
+    fb.appendChild(thumbDown);
+
+    body.appendChild(bubble);
+    body.appendChild(meta);
+    body.appendChild(fb);
+    el.appendChild(avatar);
+    el.appendChild(body);
     msgList().appendChild(el);
     scrollToBottom();
-    if (JARVIS.voice?.autoSpeak) JARVIS.voice.speak(text);
+
+    if (JARVIS.voice && JARVIS.voice.autoSpeak) JARVIS.voice.speak(text);
   }
 
   // ── System message ────────────────────────────────────
