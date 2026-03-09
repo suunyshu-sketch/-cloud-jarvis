@@ -50,6 +50,14 @@ _frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(_frontend_dir):
     app.mount("/static", StaticFiles(directory=_frontend_dir), name="static")
 
+@app.middleware("http")
+async def no_cache_middleware(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response
+
 
 # ── Health Check ──────────────────────────────────────────
 @app.get("/health")
