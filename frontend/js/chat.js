@@ -322,6 +322,6 @@ JARVIS.chat = (() => {
     init: () => { initInput(); initWelcomeChips(); },
     addUserMessage, addJarvisMessage, addSystemMessage,
     showThinking, finalizeStream, appendChunk,
-    handleImageFile,
+    handleImageFile, send,
   };
 })();
