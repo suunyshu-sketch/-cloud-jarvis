@@ -264,12 +264,12 @@ async def _handle_commands(
         query = re.sub(r'play\s+|some\s+|music\s+|song\s+|please\s+', '', lower).strip() or genre
         search_url = f"https://music.apple.com/search?term={query.replace(' ', '+')}"
         youtube_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+music"
-        return f"🎵 Here's {query} for you!
+        return "🎵 Here is " + query + " for you!
 
-🍎 **Apple Music:** {search_url}
-▶️ **YouTube:** {youtube_url}
+🍎 Apple Music: " + search_url + "
+▶️ YouTube: " + youtube_url + "
 
-Open either link to start playing. Want me to find something more specific?"
+Open either link to start playing!"
 
     return None  # Fall through to LLM
 
