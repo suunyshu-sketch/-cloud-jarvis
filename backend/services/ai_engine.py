@@ -264,7 +264,8 @@ async def _handle_commands(
         query = re.sub(r'play\s+|some\s+|music\s+|song\s+|please\s+', '', lower).strip() or genre
         search_url = f"https://music.apple.com/search?term={query.replace(' ', '+')}"
         youtube_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+music"
-        return "🎵 Here is " + query + " for you!
+                msg = "🎵 " + query + " for you! " + search_url + " or " + youtube_url
+        return msg
 
 🍎 Apple Music: " + search_url + "
 ▶️ YouTube: " + youtube_url + "
