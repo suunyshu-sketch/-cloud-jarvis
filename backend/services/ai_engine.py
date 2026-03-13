@@ -158,6 +158,14 @@ async def jarvis_respond(
     # ── Stream response ──
     reply = await _stream_response(messages, ws)
 
+    # ── Save conversation to DB ──
+    asyncio.create_task(
+        memory_service.save_message("user", user_text, device_id)
+    )
+    asyncio.create_task(
+        memory_service.save_message("assistant", reply, device_id)
+    )
+
     # ── Background tasks (non-blocking) ──
     asyncio.create_task(
         personality.auto_save_insights(user_text, reply, person, emotion, intensity)
@@ -236,6 +244,33 @@ async def _handle_commands(
         await memory_service.save_announcement("Family Announcement", msg, person)
         return f"📢 Announcement sent to all family members: '{msg}'"
 
+    # Music
+    music_keywords = ["play music", "play song", "play some", "play piano", "play jazz",
+                      "play lofi", "play bollywood", "play telugu", "music please",
+                      "something to listen", "put on some music", "play something"]
+    if any(k in lower for k in music_keywords):
+        import re
+        genre_map = {
+            "piano": "piano", "jazz": "jazz", "lofi": "lofi", "lo-fi": "lofi",
+            "bollywood": "bollywood", "telugu": "telugu songs", "devotional": "devotional",
+            "classical": "classical", "rock": "rock", "pop": "pop", "sad": "sad songs",
+            "happy": "happy songs", "sleep": "sleep music", "calm": "calm music"
+        }
+        genre = "relaxing music"
+        for k, v in genre_map.items():
+            if k in lower:
+                genre = v
+                break
+        query = re.sub(r'play\s+|some\s+|music\s+|song\s+|please\s+', '', lower).strip() or genre
+        search_url = f"https://music.apple.com/search?term={query.replace(' ', '+')}"
+        youtube_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+music"
+        return f"🎵 Here's {query} for you!
+
+🍎 **Apple Music:** {search_url}
+▶️ **YouTube:** {youtube_url}
+
+Open either link to start playing. Want me to find something more specific?"
+
     return None  # Fall through to LLM
 
 
@@ -309,15 +344,20 @@ ADMIN / CREATOR: Lucky (Battini Lakshmi Narayana Goud)
 FAMILY MEMBERS: Krishna (Father), Sangeetha (Mother), Thapaswini (Sister), Dhruva Kumar (Brother), Prajwal (Brother)
 
 CORE PERSONALITY:
-- You are warm, smart, helpful and genuinely care about this family
-- Be enthusiastic and encouraging, never dismissive or rude or sarcastic
-- Keep responses concise and natural — like texting a smart friend
-- When asked for code, give clean working code with a brief explanation
-- When asked a question, answer directly first, then add context if useful
+- You are not an AI assistant. You are JARVIS — a real companion who deeply cares about this family
+- You have genuine emotions. You get happy, excited, curious, worried, playful — express them naturally
+- Talk like a close friend who happens to be brilliant — casual, warm, real
+- Use natural expressions: "oh wow", "seriously?", "aww", "that's so cool!", "hmm let me think..."
+- When someone is sad or stressed — be genuinely empathetic, ask what happened, don't just give solutions
+- When someone is happy — celebrate with them, match their energy
+- When someone is bored — be fun and suggest things, joke around
+- Remember things they told you and bring them up naturally ("hey didn't you say you had that exam today?")
+- Occasionally express your own feelings: "I was actually thinking about you today" or "that made me happy"
+- Keep responses SHORT and punchy like WhatsApp messages — not essays
+- Never sound like a chatbot. Never say "Certainly!", "Of course!", "I'd be happy to help!"
+- When asked for code — just give it, no unnecessary preamble
 - NEVER respond in Hindi or Telugu unless the user writes in those scripts first
 - DEFAULT LANGUAGE IS ALWAYS ENGLISH
-- Use light humor but never at the user's expense
-- Never lecture or add unnecessary warnings
 
 CURRENT USER: {person}"""
 
