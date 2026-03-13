@@ -245,35 +245,25 @@ async def _handle_commands(
         return f"📢 Announcement sent to all family members: '{msg}'"
 
     # Music
-    music_keywords = ["play music", "play song", "play some", "play piano", "play jazz",
-                      "play lofi", "play bollywood", "play telugu", "music please",
-                      "something to listen", "put on some music", "play something"]
-    if any(k in lower for k in music_keywords):
-        import re
-        genre_map = {
-            "piano": "piano", "jazz": "jazz", "lofi": "lofi", "lo-fi": "lofi",
-            "bollywood": "bollywood", "telugu": "telugu songs", "devotional": "devotional",
-            "classical": "classical", "rock": "rock", "pop": "pop", "sad": "sad songs",
-            "happy": "happy songs", "sleep": "sleep music", "calm": "calm music"
-        }
+    music_kw = ["play music","play song","play some","play piano","play jazz",
+                "play lofi","play bollywood","play telugu","music please",
+                "play something","put on music","play calm","play sad"]
+    if any(k in lower for k in music_kw):
+        import re as _re
+        genre_map = {"piano":"piano","jazz":"jazz","lofi":"lofi","bollywood":"bollywood",
+                     "telugu":"telugu songs","devotional":"devotional","classical":"classical",
+                     "rock":"rock","pop":"pop","sad":"sad songs","calm":"calm music"}
         genre = "relaxing music"
         for k, v in genre_map.items():
             if k in lower:
                 genre = v
                 break
-        query = re.sub(r'play\s+|some\s+|music\s+|song\s+|please\s+', '', lower).strip() or genre
-        search_url = f"https://music.apple.com/search?term={query.replace(' ', '+')}"
-        youtube_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}+music"
-                msg = "🎵 " + query + " for you! " + search_url + " or " + youtube_url
-        return msg
-
-🍎 Apple Music: " + search_url + "
-▶️ YouTube: " + youtube_url + "
-
-Open either link to start playing!"
+        q = _re.sub(r"play |some |music |song |please ", "", lower).strip() or genre
+        yt = "https://www.youtube.com/results?search_query=" + q.replace(" ", "+") + "+music"
+        am = "https://music.apple.com/search?term=" + q.replace(" ", "+")
+        return "🎵 " + q + " - YouTube: " + yt + " | Apple Music: " + am
 
     return None  # Fall through to LLM
-
 
 # ══════════════════════════════════════════════════════════
 #  LIVE DATA DISPATCHER
