@@ -356,3 +356,7 @@ input, textarea { font-family: inherit; color: var(--text-primary); }
 }
 #panel-close { color: var(--text-dim); font-size: 0.9rem; }
 #panel-close:hover { color: var(--red); }
+
+/* Force modals hidden on load */
+#voice-modal { display: none !important; }
+#admin-overlay { display: none !important; }
