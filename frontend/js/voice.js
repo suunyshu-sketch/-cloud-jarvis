@@ -12,13 +12,17 @@ JARVIS.voice = (() => {
     if (!_synth) return;
     _synth.cancel();
 
-    // Strip code blocks and markdown before speaking
+    // Aggressively strip code, links, markdown before speaking
     let clean = text
-      .replace(/```[\s\S]*?```/g, " code block ")
+      .replace(/```[\s\S]*?```/g, "")
       .replace(/`[^`]+`/g, "")
-      .replace(/[*_#\[\]{}]/g, "")
-      .replace(/https?:\/\/[^\s]+/g, " link ")
-      .substring(0, 300)
+      .replace(/https?:\/\/[^\s]+/g, "")
+      .replace(/www\.[^\s]+/g, "")
+      .replace(/[*_#\[\]{}\(\)]/g, "")
+      .replace(/\n{2,}/g, ". ")
+      .replace(/\n/g, " ")
+      .replace(/\s{2,}/g, " ")
+      .substring(0, 250)
       .trim();
 
     if (!clean) return;

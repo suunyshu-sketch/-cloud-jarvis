@@ -162,11 +162,21 @@ JARVIS.auth = (() => {
 
   async function init() {
     const token = JARVIS.storage.get("j_token");
+    // Hide everything while checking
+    const auth = document.getElementById("auth-screen");
+    const app  = document.getElementById("app");
+    if (auth) auth.style.display = "none";
+    if (app)  app.style.display  = "none";
+
     if (token) {
-      await verifyExistingToken(token);
+      const ok = await verifyExistingToken(token);
+      if (!ok) {
+        if (auth) auth.style.display = "flex";
+      }
     } else {
-      showAuthScreen();
+      if (auth) auth.style.display = "flex";
     }
+    if (app) app.style.display = "";
     bindEvents();
   }
 

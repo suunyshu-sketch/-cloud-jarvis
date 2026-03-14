@@ -28,4 +28,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (JARVIS.panels) JARVIS.panels.init();
   if (JARVIS.admin)  JARVIS.admin.init();
   if (JARVIS.auth)   JARVIS.auth.init();
+
+  // Settings button → admin dashboard
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "btn-settings" || e.target.closest("#btn-settings")) {
+      const overlay = document.getElementById("admin-overlay");
+      if (overlay) {
+        overlay.style.display = "flex";
+        overlay.style.removeProperty("display");
+        overlay.style.cssText = "display:flex !important;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:200;";
+      }
+      if (JARVIS.admin) JARVIS.admin.load();
+    }
+  });
 });
