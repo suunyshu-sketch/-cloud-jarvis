@@ -14,6 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.head.appendChild(style);
 
+  // Hide all modals on startup
+  const _hide = ["voice-modal","admin-overlay"];
+  _hide.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+
   // Initialise all modules in order
   if (JARVIS.voice)  JARVIS.voice.init();
   if (JARVIS.chat)   JARVIS.chat.init();
