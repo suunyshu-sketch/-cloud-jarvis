@@ -6,7 +6,7 @@ JARVIS.admin = (() => {
     const closeBtn = document.getElementById("admin-close");
     if (closeBtn) closeBtn.addEventListener("click", () => {
       const overlay = document.getElementById("admin-overlay");
-      if (overlay) { overlay.setAttribute("hidden",""); overlay.style.display = "none"; }
+      if (overlay) overlay.classList.remove("open")
     });
 
     document.querySelectorAll(".a-tab").forEach(tab => {

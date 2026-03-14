@@ -290,10 +290,13 @@ input, textarea { font-family: inherit; color: var(--text-primary); }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
-  display: flex !important;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 200;
+}
+#voice-modal.open, #admin-overlay.open {
+  display: flex !important;
 }
 #voice-modal label {
   display: flex;

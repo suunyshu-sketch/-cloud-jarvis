@@ -126,10 +126,10 @@ JARVIS.voice = (() => {
     const voiceClose    = document.getElementById("voice-modal-close");
 
     if (voiceModalBtn && voiceModal) {
-      voiceModalBtn.addEventListener("click", () => { voiceModal.removeAttribute("hidden"); voiceModal.style.display = "flex"; });
+      voiceModalBtn.addEventListener("click", () => voiceModal.classList.add("open"));
     }
     if (voiceClose && voiceModal) {
-      voiceClose.addEventListener("click", () => { voiceModal.setAttribute("hidden",""); voiceModal.style.display = "none"; });
+      voiceClose.addEventListener("click", () => voiceModal.classList.remove("open"));
     }
 
     const pitchEl  = document.getElementById("v-pitch");
