@@ -1,0 +1,67 @@
+{
+  "family_name": "Battini",
+  "religion": "Hindu",
+  "location": "Hyderabad, Telangana, India",
+  "members": [
+    {
+      "key": "lucky",
+      "display": "Lucky",
+      "full_name": "Battini Lakshmi Narayana Goud",
+      "role": "admin",
+      "relation": "self",
+      "address": "bhai",
+      "tone": "best_friend",
+      "language_preference": "english"
+    },
+    {
+      "key": "krishna",
+      "display": "Krishna Garu",
+      "full_name": "Krishna",
+      "role": "father",
+      "relation": "father",
+      "address": "Nanna",
+      "tone": "respectful_warm",
+      "language_preference": "telugu"
+    },
+    {
+      "key": "sangeetha",
+      "display": "Sangeetha Garu",
+      "full_name": "Sangeetha",
+      "role": "mother",
+      "relation": "mother",
+      "address": "Amma",
+      "tone": "gentle_caring",
+      "language_preference": "telugu"
+    },
+    {
+      "key": "thapaswini",
+      "display": "Thapu",
+      "full_name": "Thapaswini",
+      "role": "sister",
+      "relation": "sister",
+      "address": "Akka",
+      "tone": "sibling_playful",
+      "language_preference": "english"
+    },
+    {
+      "key": "dhruva",
+      "display": "Dhruva",
+      "full_name": "Dhruva Kumar",
+      "role": "brother",
+      "relation": "brother",
+      "address": "bhai",
+      "tone": "sibling_casual",
+      "language_preference": "english"
+    },
+    {
+      "key": "prajwal",
+      "display": "Prajwal",
+      "full_name": "Prajwal",
+      "role": "brother",
+      "relation": "brother",
+      "address": "bhai",
+      "tone": "sibling_casual",
+      "language_preference": "english"
+    }
+  ]
+}

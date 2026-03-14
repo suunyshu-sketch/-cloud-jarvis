@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e17">
+<title>J.A.R.V.I.S</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/main.css?v=3001">
+<link rel="stylesheet" href="/static/css/auth.css?v=3001">
+<link rel="stylesheet" href="/static/css/chat.css?v=3001">
+<link rel="stylesheet" href="/static/css/modals.css?v=3001">
+<link rel="stylesheet" href="/static/css/music.css?v=3001">
+<link rel="stylesheet" href="/static/css/admin.css?v=3001">
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">J.A.R.V.I.S</div>
+    <div class="auth-sub">Battini Family AI Assistant</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Sign In</button>
+      <button class="auth-tab" data-tab="register">Register</button>
+    </div>
+    <div id="tab-login" class="auth-panel active">
+      <input type="text" id="login-username" placeholder="Username" autocomplete="username">
+      <input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
+      <button id="login-btn" class="btn-primary">Sign In</button>
+      <div id="login-error" class="auth-error"></div>
+    </div>
+    <div id="tab-register" class="auth-panel">
+      <input type="text" id="reg-username" placeholder="Username">
+      <input type="text" id="reg-display" placeholder="Display name">
+      <input type="password" id="reg-password" placeholder="Password">
+      <div class="pw-strength"><div id="pw-bar"></div></div>
+      <button id="reg-btn" class="btn-primary">Register</button>
+      <div id="reg-msg" class="auth-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+
+  <!-- HEADER -->
+  <header id="app-header">
+    <div class="header-left">
+      <span class="logo-text">J.A.R.V.I.S</span>
+      <span id="status-dot" class="status-dot offline"></span>
+      <span id="status-label" class="status-label">Connecting...</span>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="btn-todos" title="Todos">&#9776;</button>
+      <button class="icon-btn" id="btn-notes" title="Notes">&#128203;</button>
+      <button class="icon-btn" id="btn-music" title="Music">&#127925;</button>
+      <button class="icon-btn" id="btn-voice-settings" title="Voice">&#127908;</button>
+      <button class="icon-btn" id="btn-tts-toggle" title="Toggle TTS">&#128266;</button>
+      <button class="icon-btn" id="btn-settings" title="Settings">&#9881;</button>
+      <div class="user-chip" id="user-chip">
+        <span id="user-crown" style="display:none">&#128081;</span>
+        <span id="username-label">—</span>
+        <button id="btn-logout" class="logout-btn">&#x2715;</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div id="main-layout">
+
+    <!-- CHAT AREA -->
+    <main id="chat-area">
+      <div id="msg-list"></div>
+      <div id="interim-display" class="interim-display"></div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside id="right-panel" class="panel-hidden">
+      <div class="panel-header">
+        <span id="panel-title">Panel</span>
+        <button id="panel-close">&#x2715;</button>
+      </div>
+      <div id="panel-content"></div>
+    </aside>
+
+  </div>
+
+  <!-- INPUT BAR -->
+  <div id="input-bar">
+    <button id="btn-attach" class="icon-btn" title="Image">&#128247;</button>
+    <input type="file" id="file-input" accept="image/*" style="display:none">
+    <div id="image-preview-wrap" style="display:none">
+      <img id="image-preview" src="" alt="">
+      <button id="image-clear">&#x2715;</button>
+    </div>
+    <textarea id="msg-input" placeholder="Message JARVIS..." rows="1"></textarea>
+    <button id="btn-mic" class="icon-btn" title="Voice input">&#127908;</button>
+    <button id="btn-send" class="btn-send">Send</button>
+    <button id="btn-private" class="icon-btn private-off" title="Private mode">&#128274;</button>
+  </div>
+
+  <!-- MINI MUSIC PLAYER -->
+  <div id="mini-player" style="display:none">
+    <span id="mini-track">No track</span>
+    <button id="mini-play">&#9654;</button>
+    <input type="range" id="mini-progress" min="0" max="100" value="0">
+    <button id="mini-close">&#x2715;</button>
+  </div>
+
+  <!-- ADMIN OVERLAY (lucky only) -->
+  <div id="admin-overlay" style="display:none">
+    <div id="admin-panel">
+      <div class="admin-header">
+        <span>Admin Dashboard</span>
+        <button id="admin-close">&#x2715;</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="a-tab active" data-t="users">Users</button>
+        <button class="a-tab" data-t="stats">Stats</button>
+        <button class="a-tab" data-t="facts">Facts</button>
+        <button class="a-tab" data-t="broadcast">Broadcast</button>
+        <button class="a-tab" data-t="danger">Danger</button>
+      </div>
+      <div id="admin-body"></div>
+    </div>
+  </div>
+
+  <!-- VOICE SETTINGS MODAL -->
+  <div id="voice-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header"><span>Voice Settings</span><button id="voice-modal-close">&#x2715;</button></div>
+      <label>Pitch <input type="range" id="v-pitch" min="0.5" max="2" step="0.1" value="1"></label>
+      <label>Speed <input type="range" id="v-rate" min="0.5" max="2" step="0.1" value="1"></label>
+      <label>Volume <input type="range" id="v-vol" min="0" max="1" step="0.1" value="0.9"></label>
+      <label class="toggle-label">Auto-speak <input type="checkbox" id="v-auto" checked></label>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast-container"></div>
+
+</div>
+
+<script type="module" src="/static/js/utils.js?v=3001"></script>
+<script type="module" src="/static/js/auth.js?v=3001"></script>
+<script type="module" src="/static/js/websocket.js?v=3001"></script>
+<script type="module" src="/static/js/chat.js?v=3001"></script>
+<script type="module" src="/static/js/voice.js?v=3001"></script>
+<script type="module" src="/static/js/music.js?v=3001"></script>
+<script type="module" src="/static/js/panels.js?v=3001"></script>
+<script type="module" src="/static/js/admin.js?v=3001"></script>
+<script type="module" src="/static/js/app.js?v=3001"></script>
+</body>
+</html>
