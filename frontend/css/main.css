@@ -302,7 +302,7 @@ input, textarea { font-family: inherit; color: var(--text-primary); }
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
-#voice-modal input[type=range] { width: 100%; accent-color: var(--cyan); }
+
 .toggle-label { flex-direction: row !important; justify-content: space-between; align-items: center; }
 
 /* Mini player */
@@ -357,7 +357,7 @@ input, textarea { font-family: inherit; color: var(--text-primary); }
 #panel-close { color: var(--text-dim); font-size: 0.9rem; }
 #panel-close:hover { color: var(--red); }
 
-/* Modals hidden by default */
-#voice-modal { display: none; }
-#admin-overlay { display: none; }
-#admin-overlay.active { display: flex !important; }
+
+
+
+
